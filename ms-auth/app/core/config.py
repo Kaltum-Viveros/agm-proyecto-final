@@ -16,6 +16,10 @@ class Settings(BaseSettings):
 
     cors_origins: str = "http://localhost:4200,http://localhost:3000"
 
+    database_url: str = (
+        "postgresql://agm_auth_user:agm_auth_password@localhost:5432/agm_auth_db"
+    )
+
     class Config:
         env_file = ".env"
         case_sensitive = False
