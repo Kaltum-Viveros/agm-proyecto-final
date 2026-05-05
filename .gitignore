@@ -1,0 +1,71 @@
+# =========================
+# ENV FILES
+# =========================
+.env
+.env.*
+*.env
+
+# =========================
+# PYTHON BYTECODE / CACHE
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =========================
+# VIRTUAL ENVIRONMENTS
+# =========================
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# =========================
+# PYTHON TOOLING CACHE
+# =========================
+.pytest_cache/
+.mypy_cache/
+.cache/
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+
+# =========================
+# IDE / EDITORS
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =========================
+# OS FILES
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# LOGS
+# =========================
+*.log
+
+# =========================
+# DOCKER
+# =========================
+docker-compose.override.yml
+
+# =========================
+# TEST / TEMP FILES
+# =========================
+*.tmp
+*.temp
+
+# =========================
+# BUILD FILES
+# =========================
+dist/
+build/
+*.egg-info/
