@@ -6,12 +6,15 @@ class Settings(BaseSettings):
     env: str = "development"
 
     rest_host: str = "0.0.0.0"
-    rest_port: int = 3004
+    rest_port: int = 8004
 
     grpc_host: str = "0.0.0.0"
     grpc_port: int = 50054
 
     database_url: str = "not_configured_yet"
+
+    # memory | database
+    storage_mode: str = "memory"
 
     model_config = SettingsConfigDict(
         env_file=".env",

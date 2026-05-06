@@ -1,26 +1,21 @@
 from uuid import UUID
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, Depends, status
 
 from app.core.responses import success_response
-from app.repositories.actividad_memory_repository import ActividadMemoryRepository
-from app.repositories.ponderacion_memory_repository import PonderacionMemoryRepository
+from app.dependencies import get_ponderacion_service
 from app.schemas.ponderacion import PonderacionesCreate
 from app.services.ponderacion_service import PonderacionService
 
 router = APIRouter(prefix="/ponderaciones", tags=["Ponderaciones"])
 
-ponderacion_repository = PonderacionMemoryRepository()
-actividad_repository = ActividadMemoryRepository()
-
-service = PonderacionService(
-    repository=ponderacion_repository,
-    actividad_repository=actividad_repository,
-)
-
 
 @router.post("/{materia_id}", status_code=status.HTTP_201_CREATED)
-def crear_ponderaciones(materia_id: UUID, payload: PonderacionesCreate):
+def crear_ponderaciones(
+    materia_id: UUID,
+    payload: PonderacionesCreate,
+    service: PonderacionService = Depends(get_ponderacion_service),
+):
     data = service.crear_o_reemplazar(materia_id, payload)
 
     return success_response(
@@ -30,7 +25,10 @@ def crear_ponderaciones(materia_id: UUID, payload: PonderacionesCreate):
 
 
 @router.get("/{materia_id}")
-def obtener_ponderaciones(materia_id: UUID):
+def obtener_ponderaciones(
+    materia_id: UUID,
+    service: PonderacionService = Depends(get_ponderacion_service),
+):
     data = service.obtener_por_materia(materia_id)
 
     return success_response(
@@ -40,7 +38,11 @@ def obtener_ponderaciones(materia_id: UUID):
 
 
 @router.put("/{materia_id}")
-def actualizar_ponderaciones(materia_id: UUID, payload: PonderacionesCreate):
+def actualizar_ponderaciones(
+    materia_id: UUID,
+    payload: PonderacionesCreate,
+    service: PonderacionService = Depends(get_ponderacion_service),
+):
     data = service.crear_o_reemplazar(materia_id, payload)
 
     return success_response(
@@ -50,7 +52,10 @@ def actualizar_ponderaciones(materia_id: UUID, payload: PonderacionesCreate):
 
 
 @router.delete("/{materia_id}", status_code=status.HTTP_200_OK)
-def eliminar_ponderaciones(materia_id: UUID):
+def eliminar_ponderaciones(
+    materia_id: UUID,
+    service: PonderacionService = Depends(get_ponderacion_service),
+):
     service.eliminar_por_materia(materia_id)
 
     return success_response(

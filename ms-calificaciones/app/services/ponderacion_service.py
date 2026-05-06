@@ -21,6 +21,17 @@ class PonderacionService:
         self._validar_suma_100(payload)
         self._validar_nombres_unicos(payload)
 
+        criterios_existentes = self.repository.get_by_materia(materia_id)
+
+        if criterios_existentes and self.actividad_repository:
+            ponderacion_ids = [criterio["id"] for criterio in criterios_existentes]
+
+            if self.actividad_repository.exists_by_ponderacion_ids(ponderacion_ids):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="No se pueden modificar ponderaciones porque existen actividades asociadas",
+                )
+
         criterios = [
             {
                 "id": uuid4(),

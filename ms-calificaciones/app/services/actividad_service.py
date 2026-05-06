@@ -12,9 +12,12 @@ class ActividadService:
         self,
         actividad_repository: ActividadMemoryRepository,
         ponderacion_repository: PonderacionMemoryRepository,
+        calificacion_repository=None,
     ):
         self.actividad_repository = actividad_repository
         self.ponderacion_repository = ponderacion_repository
+        self.calificacion_repository = calificacion_repository
+
 
     def crear(self, payload: ActividadCreate) -> dict:
         ponderacion = self._obtener_ponderacion_de_materia(
@@ -124,6 +127,12 @@ class ActividadService:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="No se puede eliminar una actividad cerrada",
+            )
+
+        if self.calificacion_repository and self.calificacion_repository.exists_by_actividad_id(actividad_id):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="No se puede eliminar una actividad con calificaciones asociadas",
             )
 
         deleted = self.actividad_repository.delete(actividad_id)
