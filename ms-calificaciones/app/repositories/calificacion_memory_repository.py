@@ -81,3 +81,14 @@ class CalificacionMemoryRepository:
             for calificacion in calificaciones_store.values()
             if calificacion["materia_id"] == materia_id
         ]
+    
+    def get_by_actividad_and_alumno(self, actividad_id: UUID, alumno_id: UUID) -> dict | None:
+        for calificacion in calificaciones_store.values():
+            if (
+                calificacion["actividad_id"] == actividad_id
+                and calificacion["alumno_id"] == alumno_id
+            ):
+                return calificacion
+
+        return None
+    
