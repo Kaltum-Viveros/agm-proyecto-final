@@ -21,7 +21,13 @@ class ConcentradoService:
         self.actividad_repository = actividad_repository
         self.calificacion_repository = calificacion_repository
 
-    def obtener_concentrado(self, materia_id: UUID) -> dict:
+    def obtener_concentrado(self, materia_id: UUID, modo: str = "actual") -> dict:
+        if modo not in ["actual", "final"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El modo debe ser 'actual' o 'final'",
+            )
+
         ponderaciones = self.ponderacion_repository.get_by_materia(materia_id)
 
         if not ponderaciones:
@@ -52,31 +58,60 @@ class ConcentradoService:
 
         for alumno_id in alumnos_ids:
             detalle_ponderaciones = []
-            promedio_real = Decimal("0")
+            suma_aportes = Decimal("0")
+            peso_considerado = Decimal("0")
 
             for ponderacion in sorted(ponderaciones, key=lambda item: item["orden"]):
                 ponderacion_id = ponderacion["id"]
                 porcentaje = Decimal(str(ponderacion["porcentaje"]))
                 actividades_de_ponderacion = actividades_por_ponderacion.get(ponderacion_id, [])
 
-                promedio_criterio = self._calcular_promedio_criterio(
+                resultado_criterio = self._calcular_promedio_criterio(
                     alumno_id=alumno_id,
                     actividades=actividades_de_ponderacion,
                     calificaciones_por_alumno_actividad=calificaciones_por_alumno_actividad,
+                    modo=modo,
                 )
 
-                aporte = promedio_criterio * (porcentaje / Decimal("100"))
-                promedio_real += aporte
+                promedio_criterio = resultado_criterio["promedio_criterio"]
+                actividades_calificadas = resultado_criterio["actividades_calificadas"]
+                total_actividades = resultado_criterio["total_actividades"]
+
+                incluida_en_calculo = False
+                aporte = Decimal("0")
+
+                if modo == "final":
+                    # En modo final, todas las ponderaciones cuentan.
+                    incluida_en_calculo = True
+                    peso_considerado += porcentaje
+                    aporte = promedio_criterio * (porcentaje / Decimal("100"))
+                    suma_aportes += aporte
+
+                elif modo == "actual":
+                    # En modo actual, solo cuentan ponderaciones con al menos una actividad calificada.
+                    if actividades_calificadas > 0:
+                        incluida_en_calculo = True
+                        peso_considerado += porcentaje
+                        aporte = promedio_criterio * (porcentaje / Decimal("100"))
+                        suma_aportes += aporte
 
                 detalle_ponderaciones.append(
                     {
                         "ponderacion_id": ponderacion_id,
                         "nombre": ponderacion["nombre"],
                         "porcentaje": porcentaje,
+                        "total_actividades": total_actividades,
+                        "actividades_calificadas": actividades_calificadas,
                         "promedio_criterio": round(promedio_criterio, 2),
                         "aporte": round(aporte, 2),
+                        "incluida_en_calculo": incluida_en_calculo,
                     }
                 )
+
+            if modo == "actual" and peso_considerado > 0:
+                promedio_real = (suma_aportes / (peso_considerado / Decimal("100")))
+            else:
+                promedio_real = suma_aportes
 
             promedio_real = round(promedio_real, 2)
             promedio_redondeado = redondear_promedio(promedio_real)
@@ -84,6 +119,8 @@ class ConcentradoService:
             alumnos_resultado.append(
                 {
                     "alumno_id": alumno_id,
+                    "modo": modo,
+                    "peso_considerado": round(peso_considerado, 2),
                     "promedio_real": promedio_real,
                     "promedio_redondeado": promedio_redondeado,
                     "detalle_ponderaciones": detalle_ponderaciones,
@@ -92,6 +129,7 @@ class ConcentradoService:
 
         return {
             "materia_id": materia_id,
+            "modo": modo,
             "total_alumnos": len(alumnos_resultado),
             "ponderaciones": ponderaciones,
             "alumnos": alumnos_resultado,
@@ -102,11 +140,17 @@ class ConcentradoService:
         alumno_id: UUID,
         actividades: list[dict],
         calificaciones_por_alumno_actividad: dict,
-    ) -> Decimal:
+        modo: str,
+    ) -> dict:
         if not actividades:
-            return Decimal("0")
+            return {
+                "promedio_criterio": Decimal("0"),
+                "total_actividades": 0,
+                "actividades_calificadas": 0,
+            }
 
         suma = Decimal("0")
+        actividades_calificadas = 0
 
         for actividad in actividades:
             calificacion = calificaciones_por_alumno_actividad.get(
@@ -114,9 +158,24 @@ class ConcentradoService:
             )
 
             if calificacion is None:
-                # En este mock, actividad sin calificación cuenta como 0.
-                suma += Decimal("0")
-            else:
-                suma += Decimal(str(calificacion["calificacion"]))
+                if modo == "final":
+                    suma += Decimal("0")
+                continue
 
-        return suma / Decimal(len(actividades))
+            suma += Decimal(str(calificacion["calificacion"]))
+            actividades_calificadas += 1
+
+        if modo == "actual":
+            if actividades_calificadas == 0:
+                promedio = Decimal("0")
+            else:
+                promedio = suma / Decimal(actividades_calificadas)
+
+        else:
+            promedio = suma / Decimal(len(actividades))
+
+        return {
+            "promedio_criterio": promedio,
+            "total_actividades": len(actividades),
+            "actividades_calificadas": actividades_calificadas,
+        }

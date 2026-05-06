@@ -1,6 +1,7 @@
+from typing import Literal
 from uuid import UUID
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 
 from app.core.responses import success_response
 from app.repositories.actividad_memory_repository import ActividadMemoryRepository
@@ -22,8 +23,14 @@ service = ConcentradoService(
 
 
 @router.get("/{materia_id}")
-def obtener_concentrado(materia_id: UUID):
-    data = service.obtener_concentrado(materia_id)
+def obtener_concentrado(
+    materia_id: UUID,
+    modo: Literal["actual", "final"] = Query(
+        default="actual",
+        description="actual = solo ponderaciones con calificaciones; final = faltantes cuentan como 0",
+    ),
+):
+    data = service.obtener_concentrado(materia_id=materia_id, modo=modo)
 
     return success_response(
         data=data,
