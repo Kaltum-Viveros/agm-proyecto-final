@@ -12,6 +12,10 @@ RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 # se copia el código de la aplicación al contenedor
 COPY app ./app
+# se copia el archivo de configuración de Alembic y el directorio de migraciones al contenedor
+COPY alembic.ini .
+# se copia el directorio de migraciones de Alembic al contenedor
+COPY alembic ./alembic
 # se expone el puerto 8002 para que el servicio sea accesible desde fuera del contenedor
 EXPOSE 8002
 # levantamos el servicio usando uvicorn, especificando el host y el puerto 
