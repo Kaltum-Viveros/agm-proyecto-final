@@ -14,6 +14,14 @@ class Settings(BaseSettings):
 
     api_v1_prefix: str = Field(default="/api/v1", alias="API_V1_PREFIX")
 
+    # Ajustes de la base de datos para SQLAlchemy
+    database_url: str = Field(
+        default="postgresql+asyncpg://postgres:postgres@localhost:5432/agm_periodos_db",
+        alias="DATABASE_URL",
+    )
+    db_echo: bool = Field(default=True, alias="DB_ECHO")
+
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",
@@ -24,3 +32,8 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
+
+
+
+
+
