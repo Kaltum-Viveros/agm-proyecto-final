@@ -25,3 +25,16 @@ class PonderacionMemoryRepository:
 
     def exists_for_materia(self, materia_id: UUID) -> bool:
         return materia_id in ponderaciones_store
+
+    def delete_by_materia(self, materia_id: UUID) -> bool:
+        if materia_id not in ponderaciones_store:
+            return False
+
+        del ponderaciones_store[materia_id]
+        return True
+
+    def get_ids_by_materia(self, materia_id: UUID) -> list[UUID]:
+        return [
+            ponderacion["id"]
+            for ponderacion in ponderaciones_store.get(materia_id, [])
+        ]
