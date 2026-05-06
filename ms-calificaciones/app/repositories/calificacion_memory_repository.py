@@ -73,3 +73,11 @@ class CalificacionMemoryRepository:
             calificacion["actividad_id"] == actividad_id
             for calificacion in calificaciones_store.values()
         )
+    
+    
+    def get_by_materia(self, materia_id: UUID) -> list[dict]:
+        return [
+            calificacion
+            for calificacion in calificaciones_store.values()
+            if calificacion["materia_id"] == materia_id
+        ]
