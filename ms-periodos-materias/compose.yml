@@ -1,0 +1,43 @@
+services:
+  ms-periodos-materias-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ms-periodos-materias-api
+    env_file:
+      - .env.docker
+    ports:
+      - "8002:8002"
+    depends_on:
+      ms-periodos-materias-db:
+        condition: service_healthy
+    networks:
+      - ms-periodos-materias-network
+
+  ms-periodos-materias-db:
+    image: postgres:16
+    container_name: ms-periodos-materias-db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: agm_periodos_db
+    ports:
+        # Dentro el Docker: PostgreSQL corre en 5432
+        # Desde la computadora: PostgreSQL se expone en 5433
+      - "5433:5432"
+    volumes:
+      - ms-periodos-materias-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d agm_periodos_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ms-periodos-materias-network
+
+volumes:
+  ms-periodos-materias-db-data:
+
+networks:
+  ms-periodos-materias-network:
+    driver: bridge

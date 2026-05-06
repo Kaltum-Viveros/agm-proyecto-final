@@ -1,0 +1,15 @@
+.venv
+.env
+.env.*
+!.env.example
+!.env.docker.example
+
+__pycache__
+*.pyc
+.pytest_cache
+
+.git
+.gitignore
+
+alembic
+README.md
