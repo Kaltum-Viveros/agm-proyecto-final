@@ -11,6 +11,10 @@ services:
     depends_on:
       ms-periodos-materias-db:
         condition: service_healthy
+    volumes:
+      - ./app:/app/app
+      - ./alembic:/app/alembic
+      - ./alembic.ini:/app/alembic.ini
     networks:
       - ms-periodos-materias-network
 
