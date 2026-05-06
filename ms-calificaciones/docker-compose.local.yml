@@ -1,0 +1,15 @@
+services:
+  calificaciones-db:
+    image: postgres:16
+    container_name: agm-calificaciones-db
+    environment:
+      POSTGRES_DB: agm_calificaciones_db
+      POSTGRES_USER: calificaciones_user
+      POSTGRES_PASSWORD: calificaciones_pass
+    ports:
+      - "5434:5432"
+    volumes:
+      - calificaciones_data:/var/lib/postgresql/data
+
+volumes:
+  calificaciones_data:
