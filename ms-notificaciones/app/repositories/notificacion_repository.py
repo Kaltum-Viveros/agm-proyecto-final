@@ -1,11 +1,15 @@
 # Acceso a datos
 from sqlalchemy.orm import Session
 from app.models.notificacion import Notificacion
+from app.schemas.notificacion_schema import NotificacionCreate
 
-def crear_notificacion(db: Session, usuario_id: int, mensaje: str):
+def crear_notificacion(db: Session, data: NotificacionCreate):
     nueva = Notificacion(
-        usuario_id=usuario_id,
-        mensaje=mensaje
+        usuario_id=data.usuario_id,
+        email=data.email,
+        tipo=data.tipo,
+        asunto=data.asunto,
+        mensaje=data.mensaje
     )
     db.add(nueva)
     db.commit()

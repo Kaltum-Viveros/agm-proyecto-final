@@ -16,11 +16,7 @@ def get_db():
 
 @router.post("/", response_model=NotificacionResponse)
 def crear_notificacion(data: NotificacionCreate, db: Session = Depends(get_db)):
-    return notificacion_service.crear_notificacion(
-        db,
-        data.usuario_id,
-        data.mensaje
-    )
+    return notificacion_service.crear_notificacion(db, data)
 
 @router.get("/", response_model=List[NotificacionResponse])
 def listar_notificaciones(db: Session = Depends(get_db)):
