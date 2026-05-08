@@ -10,3 +10,7 @@ SQLAlchemy==2.0.25
 greenlet==3.0.3 --only-binary=:all:
 psycopg2-binary==2.9.9
 alembic==1.13.1
+
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1
+PyJWT==2.8.0

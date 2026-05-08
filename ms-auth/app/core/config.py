@@ -1,4 +1,3 @@
-from functools import lru_cache
 from typing import List
 
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -21,11 +20,15 @@ class Settings(BaseSettings):
         "postgresql://agm_auth_user:agm_auth_password@localhost:5432/agm_auth_db"
     )
 
+    jwt_secret_key: str = "change-this-secret-key-in-production"
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = 15
+    refresh_token_expire_days: int = 7
+    password_reset_token_expire_minutes: int = 15
+
     model_config = SettingsConfigDict(
         env_file=".env",
-        env_file_encoding="utf-8",
         case_sensitive=False,
-        extra="ignore",
     )
 
     def get_cors_origins(self) -> List[str]:
@@ -36,9 +39,4 @@ class Settings(BaseSettings):
         ]
 
 
-@lru_cache
-def get_settings() -> Settings:
-    return Settings()
-
-
-settings = get_settings()
+settings = Settings()
