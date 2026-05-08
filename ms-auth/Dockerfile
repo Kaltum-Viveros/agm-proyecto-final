@@ -13,6 +13,7 @@ RUN pip install --upgrade pip \
 
 COPY app ./app
 COPY alembic ./alembic
+COPY scripts ./scripts
 COPY alembic.ini ./alembic.ini
 
 EXPOSE 8001

@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     refresh_token_expire_days: int = 7
     password_reset_token_expire_minutes: int = 15
 
+    seed_admin_name: str = "Administrador AGM"
+    seed_admin_email: str = "admin@agm.com"
+    seed_admin_password: str = ""
+
     model_config = SettingsConfigDict(
         env_file=".env",
         case_sensitive=False,
