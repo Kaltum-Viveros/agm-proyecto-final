@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -19,6 +20,13 @@ class LoginRequest(BaseModel):
 class RefreshTokenRequest(BaseModel):
     refresh_token: str = Field(
         ...,
+        min_length=1,
+    )
+
+
+class LogoutRequest(BaseModel):
+    refresh_token: Optional[str] = Field(
+        default=None,
         min_length=1,
     )
 
@@ -47,3 +55,9 @@ class RefreshTokenResponseData(BaseModel):
     expires_in: int
     refresh_expires_at: datetime
     user: AuthUserResponse
+
+
+class LogoutResponseData(BaseModel):
+    logged_out: bool
+    access_token_revoked: bool
+    refresh_token_revoked: bool

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
@@ -9,6 +11,8 @@ from app.schemas.auth import (
     AuthUserResponse,
     LoginRequest,
     LoginResponseData,
+    LogoutRequest,
+    LogoutResponseData,
     RefreshTokenRequest,
     RefreshTokenResponseData,
 )
@@ -144,6 +148,69 @@ def me(
             content=error_response(
                 message="Access token invalido",
                 error_code="AUTH_INVALID_ACCESS_TOKEN",
+            ),
+        )
+
+    except InactiveUserError:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content=error_response(
+                message="Usuario inactivo",
+                error_code="AUTH_INACTIVE_USER",
+            ),
+        )
+
+
+@router.post("/logout")
+def logout(
+    payload: Optional[LogoutRequest] = None,
+    access_token: str = Depends(get_bearer_token),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict:
+    try:
+        refresh_token_value = None
+
+        if payload is not None:
+            refresh_token_value = payload.refresh_token
+
+        logout_result = auth_service.logout(
+            access_token=access_token,
+            refresh_token=refresh_token_value,
+        )
+
+        response_data = LogoutResponseData(**logout_result).model_dump(
+            mode="json",
+        )
+
+        return success_response(
+            data=response_data,
+            message="Logout exitoso",
+        )
+
+    except AccessTokenExpiredError:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=error_response(
+                message="Access token expirado",
+                error_code="AUTH_ACCESS_TOKEN_EXPIRED",
+            ),
+        )
+
+    except InvalidAccessTokenError:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=error_response(
+                message="Access token invalido",
+                error_code="AUTH_INVALID_ACCESS_TOKEN",
+            ),
+        )
+
+    except InvalidRefreshTokenError:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=error_response(
+                message="Refresh token invalido",
+                error_code="AUTH_INVALID_REFRESH_TOKEN",
             ),
         )
 

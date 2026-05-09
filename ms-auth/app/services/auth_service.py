@@ -136,6 +136,69 @@ class AuthService:
         self,
         access_token: str,
     ) -> Dict[str, Any]:
+        payload = self._validate_active_access_token(access_token)
+        user_id = self._get_user_id_from_payload(payload)
+
+        user = self.user_repository.get_by_id(user_id)
+
+        if user is None:
+            raise InvalidAccessTokenError("Usuario no encontrado")
+
+        if not user.activo:
+            raise InactiveUserError("Usuario inactivo")
+
+        return self._build_user_response(user)
+
+    def logout(
+        self,
+        access_token: str,
+        refresh_token: Optional[str] = None,
+    ) -> Dict[str, bool]:
+        payload = self._validate_active_access_token(access_token)
+        user_id = self._get_user_id_from_payload(payload)
+
+        user = self.user_repository.get_by_id(user_id)
+
+        if user is None:
+            raise InvalidAccessTokenError("Usuario no encontrado")
+
+        if not user.activo:
+            raise InactiveUserError("Usuario inactivo")
+
+        refresh_token_to_revoke = None
+
+        if refresh_token:
+            refresh_token_to_revoke = self._get_valid_refresh_token_for_user(
+                refresh_token=refresh_token,
+                user_id=user.user_id,
+            )
+
+        access_token_expiration = self._get_expiration_from_payload(payload)
+
+        self.auth_token_repository.create(
+            user_id=user.user_id,
+            token_type=TokenType.REVOKED_ACCESS,
+            token_hash=None,
+            jti=str(payload["jti"]),
+            expiracion=access_token_expiration,
+        )
+
+        refresh_token_revoked = False
+
+        if refresh_token_to_revoke is not None:
+            self.auth_token_repository.revoke(refresh_token_to_revoke)
+            refresh_token_revoked = True
+
+        return {
+            "logged_out": True,
+            "access_token_revoked": True,
+            "refresh_token_revoked": refresh_token_revoked,
+        }
+
+    def _validate_active_access_token(
+        self,
+        access_token: str,
+    ) -> Dict[str, Any]:
         if not access_token:
             raise InvalidAccessTokenError("Access token requerido")
 
@@ -152,23 +215,48 @@ class AuthService:
             raise InvalidAccessTokenError("Access token invalido")
 
         revoked_token = self.auth_token_repository.get_active_revoked_access_by_jti(
-            jti=jti,
+            jti=str(jti),
         )
 
         if revoked_token is not None:
             raise InvalidAccessTokenError("Access token revocado")
 
-        user_id = self._get_user_id_from_payload(payload)
+        return payload
 
-        user = self.user_repository.get_by_id(user_id)
+    def _get_valid_refresh_token_for_user(
+        self,
+        refresh_token: str,
+        user_id: UUID,
+    ) -> AuthToken:
+        try:
+            refresh_token_hash = self.token_service.hash_token(refresh_token)
+        except ValueError as exc:
+            raise InvalidRefreshTokenError("Refresh token invalido") from exc
 
-        if user is None:
-            raise InvalidAccessTokenError("Usuario no encontrado")
+        stored_token = self.auth_token_repository.get_active_by_hash(
+            token_hash=refresh_token_hash,
+            token_type=TokenType.REFRESH,
+        )
 
-        if not user.activo:
-            raise InactiveUserError("Usuario inactivo")
+        if stored_token is None:
+            raise InvalidRefreshTokenError("Refresh token invalido")
 
-        return self._build_user_response(user)
+        token_hash_is_valid = self.token_service.verify_token_hash(
+            refresh_token,
+            stored_token.token_hash,
+        )
+
+        if not token_hash_is_valid:
+            raise InvalidRefreshTokenError("Refresh token invalido")
+
+        if stored_token.user_id != user_id:
+            raise InvalidRefreshTokenError("Refresh token invalido")
+
+        if self._token_is_expired(stored_token):
+            self.auth_token_repository.expire(stored_token)
+            raise InvalidRefreshTokenError("Refresh token expirado")
+
+        return stored_token
 
     def _create_session_response(
         self,
@@ -228,6 +316,28 @@ class AuthService:
     ) -> UUID:
         try:
             return UUID(str(payload.get("sub")))
+        except ValueError as exc:
+            raise InvalidAccessTokenError("Access token invalido") from exc
+        except TypeError as exc:
+            raise InvalidAccessTokenError("Access token invalido") from exc
+
+    def _get_expiration_from_payload(
+        self,
+        payload: Dict[str, Any],
+    ) -> datetime:
+        expiration = payload.get("exp")
+
+        if isinstance(expiration, datetime):
+            if expiration.tzinfo is None:
+                return expiration.replace(tzinfo=timezone.utc)
+
+            return expiration
+
+        if isinstance(expiration, int) or isinstance(expiration, float):
+            return datetime.fromtimestamp(expiration, timezone.utc)
+
+        try:
+            return datetime.fromtimestamp(float(str(expiration)), timezone.utc)
         except ValueError as exc:
             raise InvalidAccessTokenError("Access token invalido") from exc
         except TypeError as exc:
