@@ -7,7 +7,6 @@ class AlumnoBase(BaseModel):
     nombre_completo: str
     correo: EmailStr
     matricula: str
-    promedio: Optional[float] = 0.0
     estatus_academico: bool = True
 
 class AlumnoCreate(AlumnoBase):
