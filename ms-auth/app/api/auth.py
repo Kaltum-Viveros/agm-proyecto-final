@@ -4,11 +4,17 @@ from sqlalchemy.orm import Session
 
 from app.core.responses import error_response, success_response
 from app.db.session import get_db
-from app.schemas.auth import LoginRequest, LoginResponseData
+from app.schemas.auth import (
+    LoginRequest,
+    LoginResponseData,
+    RefreshTokenRequest,
+    RefreshTokenResponseData,
+)
 from app.services.auth_service import (
     AuthService,
     InactiveUserError,
     InvalidCredentialsError,
+    InvalidRefreshTokenError,
 )
 
 router = APIRouter(
@@ -49,6 +55,44 @@ def login(
             content=error_response(
                 message="Credenciales invalidas",
                 error_code="AUTH_INVALID_CREDENTIALS",
+            ),
+        )
+
+    except InactiveUserError:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content=error_response(
+                message="Usuario inactivo",
+                error_code="AUTH_INACTIVE_USER",
+            ),
+        )
+
+
+@router.post("/refresh-token")
+def refresh_token(
+    payload: RefreshTokenRequest,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict:
+    try:
+        refresh_result = auth_service.refresh_session(
+            refresh_token=payload.refresh_token,
+        )
+
+        response_data = RefreshTokenResponseData(**refresh_result).model_dump(
+            mode="json",
+        )
+
+        return success_response(
+            data=response_data,
+            message="Sesion renovada correctamente",
+        )
+
+    except InvalidRefreshTokenError:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=error_response(
+                message="Refresh token invalido",
+                error_code="AUTH_INVALID_REFRESH_TOKEN",
             ),
         )
 

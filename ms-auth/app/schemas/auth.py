@@ -16,6 +16,13 @@ class LoginRequest(BaseModel):
     )
 
 
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str = Field(
+        ...,
+        min_length=1,
+    )
+
+
 class AuthUserResponse(BaseModel):
     user_id: str
     nombre_completo: str
@@ -25,6 +32,15 @@ class AuthUserResponse(BaseModel):
 
 
 class LoginResponseData(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str
+    expires_in: int
+    refresh_expires_at: datetime
+    user: AuthUserResponse
+
+
+class RefreshTokenResponseData(BaseModel):
     access_token: str
     refresh_token: str
     token_type: str

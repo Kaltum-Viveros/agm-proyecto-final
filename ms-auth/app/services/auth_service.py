@@ -4,6 +4,7 @@ from typing import Any, Dict, Optional
 from sqlalchemy.orm import Session
 
 from app.core.config import settings
+from app.models.auth_token import AuthToken
 from app.models.enums import TokenType, UserRole
 from app.models.user import User
 from app.repositories.auth_token_repository import AuthTokenRepository
@@ -18,6 +19,10 @@ class InvalidCredentialsError(Exception):
 
 
 class InactiveUserError(Exception):
+    pass
+
+
+class InvalidRefreshTokenError(Exception):
     pass
 
 
@@ -71,6 +76,57 @@ class AuthService:
         if not password_is_valid:
             raise InvalidCredentialsError("Credenciales invalidas")
 
+        return self._create_session_response(user)
+
+    def refresh_session(
+        self,
+        refresh_token: str,
+    ) -> Dict[str, Any]:
+        if not refresh_token:
+            raise InvalidRefreshTokenError("Refresh token invalido")
+
+        try:
+            refresh_token_hash = self.token_service.hash_token(refresh_token)
+        except ValueError as exc:
+            raise InvalidRefreshTokenError("Refresh token invalido") from exc
+
+        stored_token = self.auth_token_repository.get_active_by_hash(
+            token_hash=refresh_token_hash,
+            token_type=TokenType.REFRESH,
+        )
+
+        if stored_token is None:
+            raise InvalidRefreshTokenError("Refresh token invalido")
+
+        token_hash_is_valid = self.token_service.verify_token_hash(
+            refresh_token,
+            stored_token.token_hash,
+        )
+
+        if not token_hash_is_valid:
+            raise InvalidRefreshTokenError("Refresh token invalido")
+
+        if self._token_is_expired(stored_token):
+            self.auth_token_repository.expire(stored_token)
+            raise InvalidRefreshTokenError("Refresh token expirado")
+
+        user = self.user_repository.get_by_id(stored_token.user_id)
+
+        if user is None:
+            self.auth_token_repository.revoke(stored_token)
+            raise InvalidRefreshTokenError("Usuario no encontrado")
+
+        if not user.activo:
+            raise InactiveUserError("Usuario inactivo")
+
+        self.auth_token_repository.mark_as_used(stored_token)
+
+        return self._create_session_response(user)
+
+    def _create_session_response(
+        self,
+        user: User,
+    ) -> Dict[str, Any]:
         access_token = self.jwt_service.create_access_token(
             user_id=user.user_id,
             email=user.email,
@@ -107,6 +163,17 @@ class AuthService:
         return datetime.now(timezone.utc) + timedelta(
             days=settings.refresh_token_expire_days,
         )
+
+    def _token_is_expired(
+        self,
+        auth_token: AuthToken,
+    ) -> bool:
+        expiration = auth_token.expiracion
+
+        if expiration.tzinfo is None:
+            expiration = expiration.replace(tzinfo=timezone.utc)
+
+        return expiration <= datetime.now(timezone.utc)
 
     def _build_user_response(self, user: User) -> Dict[str, Any]:
         rol = user.rol.value if isinstance(user.rol, UserRole) else str(user.rol)
