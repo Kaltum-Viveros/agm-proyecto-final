@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Any, Dict, Optional
+from uuid import UUID
 
 from sqlalchemy.orm import Session
 
@@ -9,7 +10,7 @@ from app.models.enums import TokenType, UserRole
 from app.models.user import User
 from app.repositories.auth_token_repository import AuthTokenRepository
 from app.repositories.user_repository import UserRepository
-from app.services.jwt_service import JWTService
+from app.services.jwt_service import JWTService, TokenExpiredError, TokenInvalidError
 from app.services.password_service import PasswordService
 from app.services.token_service import TokenService
 
@@ -23,6 +24,14 @@ class InactiveUserError(Exception):
 
 
 class InvalidRefreshTokenError(Exception):
+    pass
+
+
+class InvalidAccessTokenError(Exception):
+    pass
+
+
+class AccessTokenExpiredError(Exception):
     pass
 
 
@@ -123,6 +132,44 @@ class AuthService:
 
         return self._create_session_response(user)
 
+    def get_current_user(
+        self,
+        access_token: str,
+    ) -> Dict[str, Any]:
+        if not access_token:
+            raise InvalidAccessTokenError("Access token requerido")
+
+        try:
+            payload = self.jwt_service.validate_access_token(access_token)
+        except TokenExpiredError as exc:
+            raise AccessTokenExpiredError("Access token expirado") from exc
+        except TokenInvalidError as exc:
+            raise InvalidAccessTokenError("Access token invalido") from exc
+
+        jti = payload.get("jti")
+
+        if not jti:
+            raise InvalidAccessTokenError("Access token invalido")
+
+        revoked_token = self.auth_token_repository.get_active_revoked_access_by_jti(
+            jti=jti,
+        )
+
+        if revoked_token is not None:
+            raise InvalidAccessTokenError("Access token revocado")
+
+        user_id = self._get_user_id_from_payload(payload)
+
+        user = self.user_repository.get_by_id(user_id)
+
+        if user is None:
+            raise InvalidAccessTokenError("Usuario no encontrado")
+
+        if not user.activo:
+            raise InactiveUserError("Usuario inactivo")
+
+        return self._build_user_response(user)
+
     def _create_session_response(
         self,
         user: User,
@@ -174,6 +221,17 @@ class AuthService:
             expiration = expiration.replace(tzinfo=timezone.utc)
 
         return expiration <= datetime.now(timezone.utc)
+
+    def _get_user_id_from_payload(
+        self,
+        payload: Dict[str, Any],
+    ) -> UUID:
+        try:
+            return UUID(str(payload.get("sub")))
+        except ValueError as exc:
+            raise InvalidAccessTokenError("Access token invalido") from exc
+        except TypeError as exc:
+            raise InvalidAccessTokenError("Access token invalido") from exc
 
     def _build_user_response(self, user: User) -> Dict[str, Any]:
         rol = user.rol.value if isinstance(user.rol, UserRole) else str(user.rol)

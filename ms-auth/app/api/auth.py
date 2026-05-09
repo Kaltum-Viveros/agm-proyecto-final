@@ -2,17 +2,21 @@ from fastapi import APIRouter, Depends, status
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
+from app.api.dependencies import get_bearer_token
 from app.core.responses import error_response, success_response
 from app.db.session import get_db
 from app.schemas.auth import (
+    AuthUserResponse,
     LoginRequest,
     LoginResponseData,
     RefreshTokenRequest,
     RefreshTokenResponseData,
 )
 from app.services.auth_service import (
+    AccessTokenExpiredError,
     AuthService,
     InactiveUserError,
+    InvalidAccessTokenError,
     InvalidCredentialsError,
     InvalidRefreshTokenError,
 )
@@ -93,6 +97,53 @@ def refresh_token(
             content=error_response(
                 message="Refresh token invalido",
                 error_code="AUTH_INVALID_REFRESH_TOKEN",
+            ),
+        )
+
+    except InactiveUserError:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content=error_response(
+                message="Usuario inactivo",
+                error_code="AUTH_INACTIVE_USER",
+            ),
+        )
+
+
+@router.get("/me")
+def me(
+    access_token: str = Depends(get_bearer_token),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict:
+    try:
+        current_user = auth_service.get_current_user(
+            access_token=access_token,
+        )
+
+        response_data = AuthUserResponse(**current_user).model_dump(
+            mode="json",
+        )
+
+        return success_response(
+            data=response_data,
+            message="Usuario autenticado",
+        )
+
+    except AccessTokenExpiredError:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=error_response(
+                message="Access token expirado",
+                error_code="AUTH_ACCESS_TOKEN_EXPIRED",
+            ),
+        )
+
+    except InvalidAccessTokenError:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=error_response(
+                message="Access token invalido",
+                error_code="AUTH_INVALID_ACCESS_TOKEN",
             ),
         )
 
