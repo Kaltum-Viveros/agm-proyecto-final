@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package asistencias;
+
+// Servicio gRPC expuesto por el MS-5 (Asistencias QR) 
+// para que otros microservicios (como Reportes o Calificaciones) puedan consultarlo.
+service AsistenciasService {
+  // Obtiene el historial de asistencias de un alumno en una materia específica.
+  rpc GetAsistenciaAlumno (AsistenciaAlumnoRequest) returns (AsistenciaAlumnoResponse);
+
+  // Obtiene el resumen estadístico de asistencia para una materia entera.
+  rpc GetEstadisticasAsistencia (EstadisticasRequest) returns (EstadisticasResponse);
+}
+
+// ----------------------------------------
+// Mensajes para GetAsistenciaAlumno
+// ----------------------------------------
+message AsistenciaAlumnoRequest {
+  int32 id_alumno = 1;
+  int32 id_materia = 2;
+}
+
+message DetalleAsistenciaProto {
+  int32 id_sesion = 1;
+  string estado = 2; // Puede ser "PRESENTE", "RETARDO" o "FALTA"
+  string fecha_registro = 3; // Formato ISO 8601
+}
+
+message AsistenciaAlumnoResponse {
+  repeated DetalleAsistenciaProto asistencias = 1;
+  int32 total_presentes = 2;
+  int32 total_retardos = 3;
+}
+
+// ----------------------------------------
+// Mensajes para GetEstadisticasAsistencia
+// ----------------------------------------
+message EstadisticasRequest {
+  int32 id_materia = 1;
+}
+
+message EstadisticasResponse {
+  int32 total_alumnos = 1;
+  float porcentaje_asistencia_general = 2; // Ej. 85.5%
+  int32 total_sesiones_impartidas = 3;
+}
