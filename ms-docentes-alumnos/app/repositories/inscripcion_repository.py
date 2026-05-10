@@ -1,3 +1,4 @@
+from uuid import UUID
 from sqlalchemy.orm import Session
 from app.models.inscripcion import Inscripcion
 from app.repositories.base import BaseRepository
