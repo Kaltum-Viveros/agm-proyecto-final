@@ -6,6 +6,7 @@ from app.services.auth_service import (
     InvalidCredentialsError,
     InvalidPasswordResetTokenError,
     InvalidRefreshTokenError,
+    InvalidUserIdentityDataError,
 )
 from app.services.jwt_service import JWTService, TokenExpiredError, TokenInvalidError
 from app.services.password_service import PasswordService
@@ -21,6 +22,7 @@ __all__ = [
     "InvalidCredentialsError",
     "InvalidPasswordResetTokenError",
     "InvalidRefreshTokenError",
+    "InvalidUserIdentityDataError",
     "JWTService",
     "PasswordService",
     "RBACService",

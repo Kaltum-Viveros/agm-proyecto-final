@@ -40,6 +40,10 @@ class InvalidPasswordResetTokenError(Exception):
     pass
 
 
+class InvalidUserIdentityDataError(Exception):
+    pass
+
+
 class AuthService:
     def __init__(
         self,
@@ -156,6 +160,40 @@ class AuthService:
 
         return self._build_user_response(user)
 
+    def validate_access_token_claims(
+        self,
+        access_token: str,
+    ) -> Dict[str, Any]:
+        payload = self._validate_active_access_token(access_token)
+        user_id = self._get_user_id_from_payload(payload)
+
+        user = self.user_repository.get_by_id(user_id)
+
+        if user is None:
+            raise InvalidAccessTokenError("Usuario no encontrado")
+
+        if not user.activo:
+            raise InactiveUserError("Usuario inactivo")
+
+        return {
+            "user_id": str(user.user_id),
+            "email": user.email,
+            "role": self._role_to_string(user.rol),
+            "jti": str(payload["jti"]),
+            "activo": user.activo,
+        }
+
+    def get_user_profile_by_id(
+        self,
+        user_id: UUID,
+    ) -> Optional[Dict[str, Any]]:
+        user = self.user_repository.get_by_id(user_id)
+
+        if user is None:
+            return None
+
+        return self._build_user_response(user)
+
     def validate_current_user_roles(
         self,
         access_token: str,
@@ -185,6 +223,48 @@ class AuthService:
             user_role=user.rol,
             allowed_roles=[role],
         )
+
+    def create_or_get_user_identity(
+        self,
+        nombre_completo: str,
+        email: str,
+        role: str,
+    ) -> Dict[str, Any]:
+        normalized_name = self._normalize_name(nombre_completo)
+        normalized_email = self._normalize_email(email)
+        user_role = self._parse_user_role(role)
+
+        if not normalized_name:
+            raise InvalidUserIdentityDataError("Nombre requerido")
+
+        if not normalized_email:
+            raise InvalidUserIdentityDataError("Email requerido")
+
+        existing_user = self.user_repository.get_by_email(normalized_email)
+
+        if existing_user is not None:
+            return {
+                "created": False,
+                "user": self._build_user_response(existing_user),
+                "temporary_password": "",
+            }
+
+        temporary_password = self._generate_temporary_password()
+        password_hash = self.password_service.hash_password(temporary_password)
+
+        user = self.user_repository.create(
+            nombre_completo=normalized_name,
+            email=normalized_email,
+            contrasena_hash=password_hash,
+            rol=user_role,
+            activo=True,
+        )
+
+        return {
+            "created": True,
+            "user": self._build_user_response(user),
+            "temporary_password": temporary_password,
+        }
 
     def logout(
         self,
@@ -436,6 +516,23 @@ class AuthService:
 
         return email.strip().lower()
 
+    def _normalize_name(self, name: str) -> str:
+        if name is None:
+            return ""
+
+        return name.strip()
+
+    def _parse_user_role(self, role: str) -> UserRole:
+        normalized_role = self.rbac_service.normalize_role(role)
+
+        try:
+            return UserRole(normalized_role)
+        except ValueError as exc:
+            raise InvalidUserIdentityDataError("Rol invalido") from exc
+
+    def _generate_temporary_password(self) -> str:
+        return self.token_service.generate_secure_token()[:24]
+
     def _get_refresh_expiration(self) -> datetime:
         return datetime.now(timezone.utc) + timedelta(
             days=settings.refresh_token_expire_days,
@@ -491,12 +588,16 @@ class AuthService:
             raise InvalidAccessTokenError("Access token invalido") from exc
 
     def _build_user_response(self, user: User) -> Dict[str, Any]:
-        rol = user.rol.value if isinstance(user.rol, UserRole) else str(user.rol)
-
         return {
             "user_id": str(user.user_id),
             "nombre_completo": user.nombre_completo,
             "email": user.email,
-            "rol": rol,
+            "rol": self._role_to_string(user.rol),
             "activo": user.activo,
         }
+
+    def _role_to_string(self, role: Any) -> str:
+        if isinstance(role, UserRole):
+            return role.value
+
+        return str(role)
