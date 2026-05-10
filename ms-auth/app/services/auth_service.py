@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Iterable, Optional
 from uuid import UUID
 
 from sqlalchemy.orm import Session
@@ -12,6 +12,7 @@ from app.repositories.auth_token_repository import AuthTokenRepository
 from app.repositories.user_repository import UserRepository
 from app.services.jwt_service import JWTService, TokenExpiredError, TokenInvalidError
 from app.services.password_service import PasswordService
+from app.services.rbac_service import RBACService
 from app.services.token_service import TokenService
 
 
@@ -48,6 +49,7 @@ class AuthService:
         password_service: Optional[PasswordService] = None,
         jwt_service: Optional[JWTService] = None,
         token_service: Optional[TokenService] = None,
+        rbac_service: Optional[RBACService] = None,
     ) -> None:
         if user_repository is None or auth_token_repository is None:
             if db is None:
@@ -62,6 +64,7 @@ class AuthService:
         self.password_service = password_service or PasswordService()
         self.jwt_service = jwt_service or JWTService()
         self.token_service = token_service or TokenService()
+        self.rbac_service = rbac_service or RBACService()
 
     def login(
         self,
@@ -152,6 +155,36 @@ class AuthService:
             raise InactiveUserError("Usuario inactivo")
 
         return self._build_user_response(user)
+
+    def validate_current_user_roles(
+        self,
+        access_token: str,
+        allowed_roles: Iterable[UserRole],
+    ) -> Dict[str, Any]:
+        current_user = self.get_current_user(access_token)
+
+        return self.rbac_service.validate_user_role(
+            current_user=current_user,
+            allowed_roles=allowed_roles,
+        )
+
+    def check_user_role(
+        self,
+        user_id: UUID,
+        role: str,
+    ) -> bool:
+        user = self.user_repository.get_by_id(user_id)
+
+        if user is None:
+            return False
+
+        if not user.activo:
+            return False
+
+        return self.rbac_service.user_has_role(
+            user_role=user.rol,
+            allowed_roles=[role],
+        )
 
     def logout(
         self,
