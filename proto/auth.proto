@@ -1,0 +1,73 @@
+syntax = "proto3";
+
+package agm.auth.v1;
+
+service AuthService {
+  rpc ValidateToken(ValidateTokenRequest) returns (ValidateTokenResponse);
+  rpc GetUserById(GetUserByIdRequest) returns (GetUserByIdResponse);
+  rpc CheckRole(CheckRoleRequest) returns (CheckRoleResponse);
+  rpc CreateOrGetUserIdentity(CreateOrGetUserIdentityRequest) returns (CreateOrGetUserIdentityResponse);
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateTokenResponse {
+  bool valid = 1;
+  UserClaims claims = 2;
+  string error_code = 3;
+  string message = 4;
+}
+
+message UserClaims {
+  string user_id = 1;
+  string email = 2;
+  string role = 3;
+  string jti = 4;
+  bool activo = 5;
+}
+
+message GetUserByIdRequest {
+  string user_id = 1;
+}
+
+message GetUserByIdResponse {
+  bool found = 1;
+  UserProfile user = 2;
+  string error_code = 3;
+  string message = 4;
+}
+
+message CheckRoleRequest {
+  string user_id = 1;
+  string role = 2;
+}
+
+message CheckRoleResponse {
+  bool allowed = 1;
+  string error_code = 2;
+  string message = 3;
+}
+
+message CreateOrGetUserIdentityRequest {
+  string nombre_completo = 1;
+  string email = 2;
+  string role = 3;
+}
+
+message CreateOrGetUserIdentityResponse {
+  bool created = 1;
+  UserProfile user = 2;
+  string temporary_password = 3;
+  string error_code = 4;
+  string message = 5;
+}
+
+message UserProfile {
+  string user_id = 1;
+  string nombre_completo = 2;
+  string email = 3;
+  string role = 4;
+  bool activo = 5;
+}
