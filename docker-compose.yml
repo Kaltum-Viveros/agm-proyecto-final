@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  asistencias_db:
+    image: postgres:15-alpine
+    container_name: asistencias_db
+    restart: always
+    environment:
+      POSTGRES_USER: agm_user
+      POSTGRES_PASSWORD: agm_password
+      POSTGRES_DB: agm_asistencias_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - asistencias_db_data:/var/lib/postgresql/data
+
+  ms-asistencias:
+    build:
+      context: ./ms-asistencias
+      dockerfile: Dockerfile
+    container_name: ms-asistencias
+    restart: always
+    ports:
+      - "8005:8005"
+      - "50055:50055"
+    environment:
+      - ENVIRONMENT=production
+      # Nota: Usamos 'asistencias_db' como host para que apunte al contenedor de BD
+      - DATABASE_URL=postgresql+asyncpg://agm_user:agm_password@asistencias_db:5432/agm_asistencias_db
+      - QR_SECRET_KEY=bWlfY2xhdmVfc2VjcmV0YV9wYXJhX2NpZnJhcl9xcg==
+      - QR_TTL_SECONDS=20
+      - SESSION_DURATION_MINUTES=10
+      - PRESENT_LIMIT_MINUTES=5
+    depends_on:
+      - asistencias_db
+
+volumes:
+  asistencias_db_data:
