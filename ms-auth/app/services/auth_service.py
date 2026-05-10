@@ -35,6 +35,10 @@ class AccessTokenExpiredError(Exception):
     pass
 
 
+class InvalidPasswordResetTokenError(Exception):
+    pass
+
+
 class AuthService:
     def __init__(
         self,
@@ -195,6 +199,111 @@ class AuthService:
             "refresh_token_revoked": refresh_token_revoked,
         }
 
+    def request_password_reset(
+        self,
+        email: str,
+    ) -> Dict[str, Any]:
+        normalized_email = self._normalize_email(email)
+
+        if not normalized_email:
+            return {
+                "reset_requested": True,
+                "reset_token": None,
+            }
+
+        user = self.user_repository.get_by_email(normalized_email)
+
+        if user is None:
+            return {
+                "reset_requested": True,
+                "reset_token": None,
+            }
+
+        if not user.activo:
+            return {
+                "reset_requested": True,
+                "reset_token": None,
+            }
+
+        reset_token = self.token_service.generate_secure_token()
+        reset_token_hash = self.token_service.hash_token(reset_token)
+        reset_expires_at = self._get_password_reset_expiration()
+
+        self.auth_token_repository.create(
+            user_id=user.user_id,
+            token_type=TokenType.PASSWORD_RESET,
+            token_hash=reset_token_hash,
+            jti=None,
+            expiracion=reset_expires_at,
+        )
+
+        token_to_return = None
+
+        if settings.app_env.lower() == "development":
+            token_to_return = reset_token
+
+        return {
+            "reset_requested": True,
+            "reset_token": token_to_return,
+        }
+
+    def reset_password(
+        self,
+        reset_token: str,
+        nueva_contrasena: str,
+    ) -> Dict[str, bool]:
+        if not reset_token:
+            raise InvalidPasswordResetTokenError("Token de recuperacion invalido")
+
+        try:
+            reset_token_hash = self.token_service.hash_token(reset_token)
+        except ValueError as exc:
+            raise InvalidPasswordResetTokenError(
+                "Token de recuperacion invalido"
+            ) from exc
+
+        stored_token = self.auth_token_repository.get_active_by_hash(
+            token_hash=reset_token_hash,
+            token_type=TokenType.PASSWORD_RESET,
+        )
+
+        if stored_token is None:
+            raise InvalidPasswordResetTokenError("Token de recuperacion invalido")
+
+        token_hash_is_valid = self.token_service.verify_token_hash(
+            reset_token,
+            stored_token.token_hash,
+        )
+
+        if not token_hash_is_valid:
+            raise InvalidPasswordResetTokenError("Token de recuperacion invalido")
+
+        if self._token_is_expired(stored_token):
+            self.auth_token_repository.expire(stored_token)
+            raise InvalidPasswordResetTokenError("Token de recuperacion expirado")
+
+        user = self.user_repository.get_by_id(stored_token.user_id)
+
+        if user is None:
+            self.auth_token_repository.revoke(stored_token)
+            raise InvalidPasswordResetTokenError("Usuario no encontrado")
+
+        if not user.activo:
+            raise InactiveUserError("Usuario inactivo")
+
+        new_password_hash = self.password_service.hash_password(nueva_contrasena)
+
+        self.user_repository.update_password(
+            user,
+            new_password_hash,
+        )
+
+        self.auth_token_repository.mark_as_used(stored_token)
+
+        return {
+            "password_updated": True,
+        }
+
     def _validate_active_access_token(
         self,
         access_token: str,
@@ -297,6 +406,11 @@ class AuthService:
     def _get_refresh_expiration(self) -> datetime:
         return datetime.now(timezone.utc) + timedelta(
             days=settings.refresh_token_expire_days,
+        )
+
+    def _get_password_reset_expiration(self) -> datetime:
+        return datetime.now(timezone.utc) + timedelta(
+            minutes=settings.password_reset_token_expire_minutes,
         )
 
     def _token_is_expired(

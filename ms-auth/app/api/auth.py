@@ -9,12 +9,16 @@ from app.core.responses import error_response, success_response
 from app.db.session import get_db
 from app.schemas.auth import (
     AuthUserResponse,
+    ForgotPasswordRequest,
+    ForgotPasswordResponseData,
     LoginRequest,
     LoginResponseData,
     LogoutRequest,
     LogoutResponseData,
     RefreshTokenRequest,
     RefreshTokenResponseData,
+    ResetPasswordRequest,
+    ResetPasswordResponseData,
 )
 from app.services.auth_service import (
     AccessTokenExpiredError,
@@ -22,6 +26,7 @@ from app.services.auth_service import (
     InactiveUserError,
     InvalidAccessTokenError,
     InvalidCredentialsError,
+    InvalidPasswordResetTokenError,
     InvalidRefreshTokenError,
 )
 
@@ -211,6 +216,64 @@ def logout(
             content=error_response(
                 message="Refresh token invalido",
                 error_code="AUTH_INVALID_REFRESH_TOKEN",
+            ),
+        )
+
+    except InactiveUserError:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content=error_response(
+                message="Usuario inactivo",
+                error_code="AUTH_INACTIVE_USER",
+            ),
+        )
+
+
+@router.post("/forgot-password")
+def forgot_password(
+    payload: ForgotPasswordRequest,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict:
+    result = auth_service.request_password_reset(
+        email=payload.email,
+    )
+
+    response_data = ForgotPasswordResponseData(**result).model_dump(
+        mode="json",
+    )
+
+    return success_response(
+        data=response_data,
+        message="Solicitud de recuperacion procesada",
+    )
+
+
+@router.post("/reset-password")
+def reset_password(
+    payload: ResetPasswordRequest,
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict:
+    try:
+        result = auth_service.reset_password(
+            reset_token=payload.reset_token,
+            nueva_contrasena=payload.nueva_contrasena,
+        )
+
+        response_data = ResetPasswordResponseData(**result).model_dump(
+            mode="json",
+        )
+
+        return success_response(
+            data=response_data,
+            message="Contraseña actualizada correctamente",
+        )
+
+    except InvalidPasswordResetTokenError:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=error_response(
+                message="Token de recuperacion invalido",
+                error_code="AUTH_INVALID_PASSWORD_RESET_TOKEN",
             ),
         )
 

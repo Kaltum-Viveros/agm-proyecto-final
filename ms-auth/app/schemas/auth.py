@@ -31,6 +31,26 @@ class LogoutRequest(BaseModel):
     )
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: str = Field(
+        ...,
+        min_length=3,
+        max_length=150,
+    )
+
+
+class ResetPasswordRequest(BaseModel):
+    reset_token: str = Field(
+        ...,
+        min_length=1,
+    )
+    nueva_contrasena: str = Field(
+        ...,
+        min_length=8,
+        max_length=128,
+    )
+
+
 class AuthUserResponse(BaseModel):
     user_id: str
     nombre_completo: str
@@ -61,3 +81,12 @@ class LogoutResponseData(BaseModel):
     logged_out: bool
     access_token_revoked: bool
     refresh_token_revoked: bool
+
+
+class ForgotPasswordResponseData(BaseModel):
+    reset_requested: bool
+    reset_token: Optional[str] = None
+
+
+class ResetPasswordResponseData(BaseModel):
+    password_updated: bool
