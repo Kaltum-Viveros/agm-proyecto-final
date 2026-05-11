@@ -7,7 +7,6 @@ from datetime import datetime
 class DocenteBase(BaseModel):
     nombre_completo: str
     correo: EmailStr
-    clave_docente: str
     cubiculo: Optional[str] = None
     horario_atencion: Optional[str] = None
     estatus_laboral: bool = True

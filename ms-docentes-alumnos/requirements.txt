@@ -6,3 +6,11 @@ pydantic
 pydantic-settings
 email-validator
 python-dotenv
+# Para el Excel de los alumnos
+pandas
+openpyxl
+
+# Para el PDF de los docentes
+pdfplumber==0.11.9
+pymupdf
+python-multipart

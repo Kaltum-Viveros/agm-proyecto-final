@@ -1,22 +1,26 @@
 from fastapi import FastAPI
-from app.api.v1.endpoints import docentes
-from app.api.v1.endpoints import alumnos 
-from app.api.v1.endpoints import inscripciones 
-from app.core.config import settings
+# --- IMPORTACIONES PARA BASE DE DATOS ---
+from app.db.base import Base        # 1. Traemos la Base limpia
+from app.db.session import engine   # 2. El motor de conexión
+from app.models.docente import Docente # 3. Importamos modelos para que Base los registre
+from app.models.alumno import Alumno
+# ----------------------------------------
+
+from app.api.v1.endpoints import alumnos, docentes, inscripciones, importar
+
+# Crear las tablas físicamente en PostgreSQL al iniciar
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title=settings.app_name,
+    title="MS Docentes y Alumnos",
     version="1.0.0"
 )
 
-# Registramos las rutas de alumnos
+# Registramos los routers
 app.include_router(alumnos.router, prefix="/api/v1/alumnos", tags=["Alumnos"])
-
-# Registramos las rutas de docentes
 app.include_router(docentes.router, prefix="/api/v1/docentes", tags=["Docentes"])
-
-# Registramos las rutas de inscripciones
 app.include_router(inscripciones.router, prefix="/api/v1/inscripciones", tags=["Inscripciones"])
+app.include_router(importar.router, prefix="/api/v1/importar", tags=["Importación"])
 
 @app.get("/")
 def health_check():
