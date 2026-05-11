@@ -5,8 +5,9 @@ from app.api.v1.endpoints import notificaciones
 from app.core.database import init_db
 from app.core.exceptions import NotFoundException, BadRequestException
 from app.core.responses import error_response
+from app.core.config import settings
 
-app = FastAPI(title="MS Notificaciones")
+app = FastAPI(title=settings.APP_NAME)
 
 @app.on_event("startup")
 def startup():
