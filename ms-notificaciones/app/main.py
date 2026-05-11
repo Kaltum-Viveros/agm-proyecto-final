@@ -7,7 +7,23 @@ from app.core.exceptions import NotFoundException, BadRequestException
 from app.core.responses import error_response
 from app.core.config import settings
 
-app = FastAPI(title=settings.APP_NAME)
+tags_metadata = [
+    {
+        "name": "Notificaciones",
+        "description": "Operaciones con notificaciones. Creación, lectura, actualización y eliminación.",
+    }
+]
+
+app = FastAPI(
+    title=settings.APP_NAME,
+    description="Microservicio encargado de gestionar las notificaciones para los usuarios del sistema. Permite el envío de correos, alertas y mensajes.",
+    version="1.0.0",
+    contact={
+        "name": "Equipo de Desarrollo",
+        "email": "soporte@tudominio.com",
+    },
+    openapi_tags=tags_metadata
+)
 
 @app.on_event("startup")
 def startup():
