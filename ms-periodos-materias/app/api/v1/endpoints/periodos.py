@@ -8,6 +8,8 @@ from app.db.session import get_db
 from app.schemas.periodo import PeriodoCreate, PeriodoRead, PeriodoUpdate
 from app.services.periodo_service import PeriodoService
 
+from app.services import materia_consulta_service
+
 router = APIRouter()
 
 
@@ -22,6 +24,17 @@ async def list_periodos(
     return success_response(
         data=[PeriodoRead.model_validate(periodo).model_dump(mode="json") for periodo in periodos],
         message="Periodos obtenidos correctamente",
+    )
+
+@router.get("/activo")
+async def get_periodo_activo(
+    db: AsyncSession = Depends(get_db),
+):
+    data = await materia_consulta_service.get_periodo_activo(db)
+
+    return success_response(
+        data=data.model_dump(mode="json"),
+        message="Periodo activo obtenido correctamente",
     )
 
 

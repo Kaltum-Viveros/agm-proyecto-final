@@ -8,7 +8,8 @@ from app.api.v1.endpoints import (
     materias_ofertadas, 
     materia_plan_estudio, 
     materia_horarios,
-    importaciones
+    importaciones,
+    materias
 )
 
 api_router = APIRouter()
@@ -58,4 +59,11 @@ api_router.include_router(
     importaciones.router,
     prefix="/importaciones",
     tags=["Importaciones PDF"],
+)
+
+# rutas de los endpoints de consulta de materias académicas
+api_router.include_router(
+    materias.router,
+    prefix="/materias",
+    tags=["Materias académicas"],
 )
