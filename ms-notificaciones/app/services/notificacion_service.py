@@ -1,6 +1,6 @@
 # Lógica de negocio 
 from sqlalchemy.orm import Session
-from fastapi import HTTPException
+from app.core.exceptions import NotFoundException
 from app.repositories import notificacion_repository
 from app.schemas.notificacion_schema import NotificacionCreate, NotificacionUpdate
 
@@ -16,7 +16,7 @@ def listar_por_usuario(db: Session, usuario_id: int):
 def obtener_por_id(db: Session, notificacion_id: int):
     notificacion = notificacion_repository.obtener_por_id(db, notificacion_id)
     if not notificacion:
-        raise HTTPException(status_code=404, detail="Notificación no encontrada")
+        raise NotFoundException(detail="Notificación no encontrada")
     return notificacion
 
 def actualizar_notificacion(db: Session, notificacion_id: int, data: NotificacionUpdate):
