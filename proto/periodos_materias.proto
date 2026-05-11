@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+package agm.periodos_materias.v1;
+
+service PeriodosMateriasService {
+  rpc GetMateriaById(GetMateriaByIdRequest) returns (MateriaInfo);
+  rpc GetMateriasByDocente(GetMateriasByDocenteRequest) returns (MateriasDocenteResponse);
+  rpc GetPeriodoActivo(GetPeriodoActivoRequest) returns (PeriodoInfo);
+}
+
+message GetMateriaByIdRequest {
+  string materia_id = 1;
+}
+
+message GetMateriasByDocenteRequest {
+  string docente_id = 1;
+}
+
+message GetPeriodoActivoRequest {}
+
+message PeriodoInfo {
+  string periodo_id = 1;
+  string nombre = 2;
+  string fecha_inicio = 3;
+  string fecha_fin = 4;
+  bool activo = 5;
+}
+
+message MateriaCatalogoInfo {
+  string materia_catalogo_id = 1;
+  string clave = 2;
+  string nombre = 3;
+}
+
+message HorarioInfo {
+  string materia_horario_id = 1;
+  string dia = 2;
+  string hora_inicio = 3;
+  string hora_fin = 4;
+  string salon = 5;
+}
+
+message MateriaInfo {
+  string materia_ofertada_id = 1;
+  string nrc = 2;
+  string seccion = 3;
+  string estado = 4;
+
+  PeriodoInfo periodo = 5;
+  MateriaCatalogoInfo materia = 6;
+
+  string docente_id = 7;
+  string docente_nombre = 8;
+
+  repeated HorarioInfo horarios = 9;
+}
+
+message MateriasDocenteResponse {
+  repeated MateriaInfo materias = 1;
+}

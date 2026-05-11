@@ -8,6 +8,7 @@ services:
       - .env.docker
     ports:
       - "8002:8002"
+      - "50052:50052"
     depends_on:
       ms-periodos-materias-db:
         condition: service_healthy

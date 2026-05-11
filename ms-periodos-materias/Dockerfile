@@ -16,7 +16,9 @@ COPY app ./app
 COPY alembic.ini .
 # se copia el directorio de migraciones de Alembic al contenedor
 COPY alembic ./alembic
-# se expone el puerto 8002 para que el servicio sea accesible desde fuera del contenedor
-EXPOSE 8002
+# se copia el script de ejecución del servicio al contenedor
+COPY run.py .
+# se expone el puerto 8002 para que el servicio sea accesible desde fuera del contenedor y el puerto 50052 para gRPC
+EXPOSE 8002 50052
 # levantamos el servicio usando uvicorn, especificando el host y el puerto 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8002"]
+CMD ["python", "run.py"]

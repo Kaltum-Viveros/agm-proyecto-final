@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     )
     db_echo: bool = Field(default=True, alias="DB_ECHO")
 
+    GRPC_HOST: str = "0.0.0.0"
+    GRPC_PORT: int = 50052
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -28,6 +30,7 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+settings = Settings()
 
 @lru_cache
 def get_settings() -> Settings:
