@@ -12,3 +12,6 @@ python-dotenv
 pytest
 pytest-asyncio
 httpx
+
+pdfplumber
+python-multipart
