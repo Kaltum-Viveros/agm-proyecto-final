@@ -16,14 +16,9 @@ async def serve():
     )
 
     listen_addr = f"{settings.grpc_host}:{settings.grpc_port}"
-
     server.add_insecure_port(listen_addr)
 
     print(f"Servidor gRPC MS-2 escuchando en {listen_addr}")
 
     await server.start()
     await server.wait_for_termination()
-
-
-if __name__ == "__main__":
-    asyncio.run(serve())
