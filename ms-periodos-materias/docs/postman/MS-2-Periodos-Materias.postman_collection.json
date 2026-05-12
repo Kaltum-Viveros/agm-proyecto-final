@@ -1,0 +1,405 @@
+{
+    "info": {
+        "name": "MS-2 Periodos y Materias",
+        "description": "Colección Postman para probar el microservicio MS-2 Periodos y Materias.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+        "key": "base_url",
+        "value": "http://localhost:8002/api/v1"
+        },
+        {
+        "key": "periodo_id",
+        "value": ""
+        },
+        {
+        "key": "plan_estudio_id",
+        "value": ""
+        },
+        {
+        "key": "materia_catalogo_id",
+        "value": ""
+        },
+        {
+        "key": "materia_plan_estudio_id",
+        "value": ""
+        },
+        {
+        "key": "materia_ofertada_id",
+        "value": ""
+        },
+        {
+        "key": "materia_horario_id",
+        "value": ""
+        },
+        {
+        "key": "docente_id",
+        "value": "6c368575-002a-449b-9047-92bc3b3d87b4"
+        }
+    ],
+    "item": [
+        {
+        "name": "Health",
+        "item": [
+            {
+            "name": "Health Check",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/health"
+            }
+            },
+            {
+            "name": "Database Health Check",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/health/db"
+            }
+            }
+        ]
+        },
+        {
+        "name": "Periodos",
+        "item": [
+            {
+            "name": "Listar periodos",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/periodos?page=1&limit=10"
+            }
+            },
+            {
+            "name": "Crear periodo",
+            "request": {
+                "method": "POST",
+                "header": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                }
+                ],
+                "body": {
+                "mode": "raw",
+                "raw": "{\n  \"nombre\": \"Otoño 2027\",\n  \"fecha_inicio\": \"2027-08-05\",\n  \"fecha_fin\": \"2027-11-30\",\n  \"activo\": false\n}"
+                },
+                "url": "{{base_url}}/periodos"
+            }
+            },
+            {
+            "name": "Obtener periodo activo",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/periodos/activo"
+            }
+            },
+            {
+            "name": "Activar periodo",
+            "request": {
+                "method": "PATCH",
+                "url": "{{base_url}}/periodos/{{periodo_id}}/activar"
+            }
+            },
+            {
+            "name": "Obtener periodo por id",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/periodos/{{periodo_id}}"
+            }
+            },
+            {
+            "name": "Actualizar periodo",
+            "request": {
+                "method": "PATCH",
+                "header": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                }
+                ],
+                "body": {
+                "mode": "raw",
+                "raw": "{\n  \"nombre\": \"Otoño 2027 Actualizado\"\n}"
+                },
+                "url": "{{base_url}}/periodos/{{periodo_id}}"
+            }
+            },
+            {
+            "name": "Desactivar periodo",
+            "request": {
+                "method": "DELETE",
+                "url": "{{base_url}}/periodos/{{periodo_id}}"
+            }
+            }
+        ]
+        },
+        {
+        "name": "Planes de estudio",
+        "item": [
+            {
+            "name": "Listar planes",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/planes-estudio?page=1&limit=10"
+            }
+            },
+            {
+            "name": "Crear plan",
+            "request": {
+                "method": "POST",
+                "header": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                }
+                ],
+                "body": {
+                "mode": "raw",
+                "raw": "{\n  \"clave\": \"ITI-2027\",\n  \"nombre\": \"Ingeniería en Tecnologías de la Información 2027\",\n  \"activo\": true\n}"
+                },
+                "url": "{{base_url}}/planes-estudio"
+            }
+            },
+            {
+            "name": "Obtener plan por id",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/planes-estudio/{{plan_estudio_id}}"
+            }
+            }
+        ]
+        },
+        {
+        "name": "Materias catálogo",
+        "item": [
+            {
+            "name": "Listar materias catálogo",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/materias-catalogo?page=1&limit=10"
+            }
+            },
+            {
+            "name": "Crear materia catálogo",
+            "request": {
+                "method": "POST",
+                "header": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                }
+                ],
+                "body": {
+                "mode": "raw",
+                "raw": "{\n  \"clave\": \"ITIS-260\",\n  \"nombre\": \"Servicios Web\",\n  \"activo\": true\n}"
+                },
+                "url": "{{base_url}}/materias-catalogo"
+            }
+            },
+            {
+            "name": "Obtener materia catálogo por id",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/materias-catalogo/{{materia_catalogo_id}}"
+            }
+            }
+        ]
+        },
+        {
+        "name": "Materias - Planes de estudio",
+        "item": [
+            {
+            "name": "Listar relaciones materia-plan",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/materias-planes-estudio?page=1&limit=10"
+            }
+            },
+            {
+            "name": "Crear relación materia-plan",
+            "request": {
+                "method": "POST",
+                "header": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                }
+                ],
+                "body": {
+                "mode": "raw",
+                "raw": "{\n  \"materia_catalogo_id\": \"{{materia_catalogo_id}}\",\n  \"plan_estudio_id\": \"{{plan_estudio_id}}\",\n  \"semestre\": 6,\n  \"activo\": true\n}"
+                },
+                "url": "{{base_url}}/materias-planes-estudio"
+            }
+            }
+        ]
+        },
+        {
+        "name": "Materias ofertadas",
+        "item": [
+            {
+            "name": "Listar materias ofertadas",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/materias-ofertadas?page=1&limit=10"
+            }
+            },
+            {
+            "name": "Crear materia ofertada",
+            "request": {
+                "method": "POST",
+                "header": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                }
+                ],
+                "body": {
+                "mode": "raw",
+                "raw": "{\n  \"periodo_id\": \"{{periodo_id}}\",\n  \"materia_catalogo_id\": \"{{materia_catalogo_id}}\",\n  \"nrc\": \"12345\",\n  \"seccion\": \"001\",\n  \"docente_id\": \"{{docente_id}}\",\n  \"docente_nombre\": \"Docente externo MS-3\",\n  \"estado\": \"ACTIVA\"\n}"
+                },
+                "url": "{{base_url}}/materias-ofertadas"
+            }
+            },
+            {
+            "name": "Activar materia ofertada",
+            "request": {
+                "method": "PATCH",
+                "url": "{{base_url}}/materias-ofertadas/{{materia_ofertada_id}}/activar"
+            }
+            },
+            {
+            "name": "Cerrar materia ofertada",
+            "request": {
+                "method": "PATCH",
+                "url": "{{base_url}}/materias-ofertadas/{{materia_ofertada_id}}/cerrar"
+            }
+            },
+            {
+            "name": "Cancelar materia ofertada",
+            "request": {
+                "method": "PATCH",
+                "url": "{{base_url}}/materias-ofertadas/{{materia_ofertada_id}}/cancelar"
+            }
+            },
+            {
+            "name": "Asignar docente",
+            "request": {
+                "method": "PATCH",
+                "header": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                }
+                ],
+                "body": {
+                "mode": "raw",
+                "raw": "{\n  \"docente_id\": \"{{docente_id}}\",\n  \"docente_nombre\": \"Docente actualizado\"\n}"
+                },
+                "url": "{{base_url}}/materias-ofertadas/{{materia_ofertada_id}}/asignar-docente"
+            }
+            }
+        ]
+        },
+        {
+        "name": "Horarios",
+        "item": [
+            {
+            "name": "Listar horarios",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/materia-horarios?page=1&limit=10"
+            }
+            },
+            {
+            "name": "Crear horario",
+            "request": {
+                "method": "POST",
+                "header": [
+                {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                }
+                ],
+                "body": {
+                "mode": "raw",
+                "raw": "{\n  \"materia_ofertada_id\": \"{{materia_ofertada_id}}\",\n  \"dia\": \"L\",\n  \"hora_inicio\": \"17:00:00\",\n  \"hora_fin\": \"18:59:00\",\n  \"salon\": \"1CCO4/307\"\n}"
+                },
+                "url": "{{base_url}}/materia-horarios"
+            }
+            }
+        ]
+        },
+        {
+        "name": "Materias académicas",
+        "item": [
+            {
+            "name": "Listar materias académicas",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/materias?page=1&limit=10"
+            }
+            },
+            {
+            "name": "Materias por periodo",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/materias/periodo/{{periodo_id}}?page=1&limit=10"
+            }
+            },
+            {
+            "name": "Materias por docente",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/materias/docente/{{docente_id}}?page=1&limit=10"
+            }
+            },
+            {
+            "name": "Materias del periodo activo",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/materias/periodo-activo?page=1&limit=10"
+            }
+            },
+            {
+            "name": "Materia académica por id",
+            "request": {
+                "method": "GET",
+                "url": "{{base_url}}/materias/{{materia_ofertada_id}}"
+            }
+            }
+        ]
+        },
+        {
+        "name": "Importación PDF",
+        "item": [
+            {
+            "name": "Importar programación académica",
+            "request": {
+                "method": "POST",
+                "body": {
+                "mode": "formdata",
+                "formdata": [
+                    {
+                    "key": "periodo_id",
+                    "value": "{{periodo_id}}",
+                    "type": "text"
+                    },
+                    {
+                    "key": "plan_estudio_id",
+                    "value": "{{plan_estudio_id}}",
+                    "type": "text"
+                    },
+                    {
+                    "key": "archivo",
+                    "type": "file",
+                    "src": []
+                    }
+                ]
+                },
+                "url": "{{base_url}}/importaciones/programacion-academica"
+            }
+            }
+        ]
+        }
+    ]
+}
