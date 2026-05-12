@@ -16,21 +16,34 @@ from app.grpc.generated import calificaciones_pb2_grpc
 from app.grpc.services.calificaciones_grpc_service import CalificacionesGrpcService
 
 
-async def serve():
-    server = grpc.aio.server()
+_server = None
+
+async def start_grpc_server():
+    global _server
+    _server = grpc.aio.server()
 
     calificaciones_pb2_grpc.add_CalificacionesServiceServicer_to_server(
         CalificacionesGrpcService(),
-        server,
+        _server,
     )
 
     listen_addr = f"[::]:{settings.grpc_port}"
-    server.add_insecure_port(listen_addr)
+    _server.add_insecure_port(listen_addr)
 
     print(f"gRPC server running on {listen_addr}")
 
-    await server.start()
-    await server.wait_for_termination()
+    await _server.start()
+    return _server
+
+async def stop_grpc_server():
+    global _server
+    if _server:
+        await _server.stop(grace=5)
+        print("gRPC server stopped")
+
+async def serve():
+    await start_grpc_server()
+    await _server.wait_for_termination()
 
 
 if __name__ == "__main__":

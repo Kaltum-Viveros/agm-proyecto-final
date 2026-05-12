@@ -1,8 +1,29 @@
 from collections.abc import Generator
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 from app.core.config import settings
+
+security = HTTPBearer()
+
+def verificar_token_simulado(credentials: HTTPAuthorizationCredentials = Depends(security)):
+    """
+    Simula la validación del token llamando al MS-1 (Auth).
+    En el futuro, esto hará una llamada gRPC a MS-1 `ValidateToken(token)`.
+    Por ahora, se asegura que el frontend envíe un token Bearer.
+    """
+    token = credentials.credentials
+    
+    # Simulación: permitir cualquier token temporalmente para pruebas independientes
+    if not token:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Token no proporcionado",
+        )
+    
+    # Retorna claims simulados
+    return {"user_id": "uuid-simulado", "rol": "docente"}
 
 from app.repositories.actividad_memory_repository import ActividadMemoryRepository
 from app.repositories.calificacion_memory_repository import CalificacionMemoryRepository

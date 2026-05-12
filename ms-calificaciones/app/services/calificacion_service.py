@@ -2,6 +2,7 @@ from uuid import UUID, uuid4
 
 from fastapi import HTTPException, status
 
+from app.grpc.clients.alumnos_client import AlumnosGrpcClient
 from app.repositories.actividad_memory_repository import ActividadMemoryRepository
 from app.repositories.calificacion_memory_repository import CalificacionMemoryRepository
 from app.schemas.calificacion import CalificacionCreate, CalificacionUpdate
@@ -44,6 +45,16 @@ class CalificacionService:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="El alumno ya tiene una calificación registrada para esta actividad",
+            )
+
+        # TODO: Conectar con cliente gRPC del MS-3 (Docentes & Alumnos) para validar que el alumno exista
+        # y que esté inscrito en la materia (actividad["materia_id"]).
+        # Ejemplo simulado de validación exitosa:
+        alumno_valido = True # Simulación
+        if not alumno_valido:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="El alumno no existe o no está inscrito en la materia",
             )
 
         calificacion = {

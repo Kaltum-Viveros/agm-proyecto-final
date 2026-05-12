@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     grpc_host: str = "0.0.0.0"
     grpc_port: int = 50054
 
+    # URL del MS-3 para cliente gRPC
+    ms_alumnos_grpc_url: str = "localhost:50053"
+
     database_url: str = "not_configured_yet"
 
     # memory | database
