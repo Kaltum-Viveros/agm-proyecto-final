@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.materia_plan_estudio import MateriaPlanEstudio
+from app.db.pagination import paginate_query
 
 
 class MateriaPlanEstudioRepository:
@@ -12,25 +13,29 @@ class MateriaPlanEstudioRepository:
 
     async def list(
         self,
-        materia_catalogo_id: UUID | None = None,
         plan_estudio_id: UUID | None = None,
-        activa: bool | None = None,
-    ) -> list[MateriaPlanEstudio]:
-        query = select(MateriaPlanEstudio)
+        materia_catalogo_id: UUID | None = None,
+        page: int = 1,
+        limit: int = 10,
+    ):
+        stmt = select(MateriaPlanEstudio).order_by(
+            MateriaPlanEstudio.semestre.asc()
+        )
+
+        if plan_estudio_id is not None:
+            stmt = stmt.where(MateriaPlanEstudio.plan_estudio_id == plan_estudio_id)
 
         if materia_catalogo_id is not None:
-            query = query.where(
+            stmt = stmt.where(
                 MateriaPlanEstudio.materia_catalogo_id == materia_catalogo_id
             )
 
-        if plan_estudio_id is not None:
-            query = query.where(MateriaPlanEstudio.plan_estudio_id == plan_estudio_id)
-
-        if activa is not None:
-            query = query.where(MateriaPlanEstudio.activa.is_(activa))
-
-        result = await self.db.execute(query)
-        return list(result.scalars().all())
+        return await paginate_query(
+            db=self.db,
+            stmt=stmt,
+            page=page,
+            limit=limit,
+        )
 
     async def get_by_id(
         self,

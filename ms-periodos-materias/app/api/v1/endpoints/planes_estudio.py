@@ -7,6 +7,7 @@ from app.core.responses import success_response
 from app.db.session import get_db
 from app.schemas.plan_estudio import PlanEstudioCreate, PlanEstudioRead, PlanEstudioUpdate
 from app.services.plan_estudio_service import PlanEstudioService
+from app.core.pagination import build_paginated_response
 
 router = APIRouter()
 
@@ -14,13 +15,29 @@ router = APIRouter()
 @router.get("")
 async def list_planes_estudio(
     activo: bool | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
     service = PlanEstudioService(db)
-    planes = await service.list_planes_estudio(activo=activo)
+    planes, total = await service.list_planes_estudio(
+        activo=activo,
+        page=page,
+        limit=limit,
+    )
+
+    items = [
+        PlanEstudioRead.model_validate(plan).model_dump(mode="json")
+        for plan in planes
+    ]
 
     return success_response(
-        data=[PlanEstudioRead.model_validate(plan).model_dump(mode="json") for plan in planes],
+        data=build_paginated_response(
+            items=items,
+            total=total,
+            page=page,
+            limit=limit,
+        ),
         message="Planes de estudio obtenidos correctamente",
     )
 

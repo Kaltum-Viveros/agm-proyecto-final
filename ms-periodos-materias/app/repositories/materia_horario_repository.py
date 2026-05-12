@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.materia_horario import MateriaHorario
+from app.db.pagination import paginate_query
 
 
 class MateriaHorarioRepository:
@@ -13,19 +14,29 @@ class MateriaHorarioRepository:
     async def list(
         self,
         materia_ofertada_id: UUID | None = None,
-    ) -> list[MateriaHorario]:
-        query = select(MateriaHorario).order_by(
+        dia: str | None = None,
+        page: int = 1,
+        limit: int = 10,
+    ):
+        stmt = select(MateriaHorario).order_by(
             MateriaHorario.dia.asc(),
             MateriaHorario.hora_inicio.asc(),
         )
 
         if materia_ofertada_id is not None:
-            query = query.where(
+            stmt = stmt.where(
                 MateriaHorario.materia_ofertada_id == materia_ofertada_id
             )
 
-        result = await self.db.execute(query)
-        return list(result.scalars().all())
+        if dia:
+            stmt = stmt.where(MateriaHorario.dia == dia)
+
+        return await paginate_query(
+            db=self.db,
+            stmt=stmt,
+            page=page,
+            limit=limit,
+        )
 
     async def get_by_id(self, materia_horario_id: UUID) -> MateriaHorario | None:
         result = await self.db.execute(

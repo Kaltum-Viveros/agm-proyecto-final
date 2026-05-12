@@ -71,17 +71,27 @@ async def list_materias_academicas(
     periodo_id: UUID | None = None,
     docente_id: UUID | None = None,
     estado: str | None = None,
-) -> list[MateriaAcademicaRead]:
+    clave: str | None = None,
+    nrc: str | None = None,
+    page: int = 1,
+    limit: int = 10,
+) -> tuple[list[MateriaAcademicaRead], int]:
     estado_normalizado = estado.upper() if estado else None
 
-    records = await materia_consulta_repository.list_materias_academicas(
+    records, total = await materia_consulta_repository.list_materias_academicas(
         db=db,
         periodo_id=periodo_id,
         docente_id=docente_id,
         estado=estado_normalizado,
+        clave=clave,
+        nrc=nrc,
+        page=page,
+        limit=limit,
     )
 
-    return [_build_materia_academica_response(record) for record in records]
+    items = [_build_materia_academica_response(record) for record in records]
+
+    return items, total
 
 
 async def get_materia_academica_by_id(
@@ -105,36 +115,58 @@ async def get_materia_academica_by_id(
 async def list_materias_by_periodo(
     db: AsyncSession,
     periodo_id: UUID,
-) -> list[MateriaAcademicaRead]:
-    records = await materia_consulta_repository.list_materias_by_periodo(
+    page: int = 1,
+    limit: int = 10,
+) -> tuple[list[MateriaAcademicaRead], int]:
+    records, total = await materia_consulta_repository.list_materias_by_periodo(
         db=db,
         periodo_id=periodo_id,
+        page=page,
+        limit=limit,
     )
 
-    return [_build_materia_academica_response(record) for record in records]
+    items = [_build_materia_academica_response(record) for record in records]
+
+    return items, total
 
 
 async def list_materias_by_docente(
     db: AsyncSession,
     docente_id: UUID,
-) -> list[MateriaAcademicaRead]:
-    records = await materia_consulta_repository.list_materias_by_docente(
+    page: int = 1,
+    limit: int = 10,
+) -> tuple[list[MateriaAcademicaRead], int]:
+    records, total = await materia_consulta_repository.list_materias_by_docente(
         db=db,
         docente_id=docente_id,
+        page=page,
+        limit=limit,
     )
 
-    return [_build_materia_academica_response(record) for record in records]
+    items = [_build_materia_academica_response(record) for record in records]
+
+    return items, total
 
 
 async def list_materias_periodo_activo(
     db: AsyncSession,
-) -> list[MateriaAcademicaRead]:
-    records = await materia_consulta_repository.list_materias_periodo_activo(db)
+    page: int = 1,
+    limit: int = 10,
+) -> tuple[list[MateriaAcademicaRead], int]:
+    result = await materia_consulta_repository.list_materias_periodo_activo(
+        db=db,
+        page=page,
+        limit=limit,
+    )
 
-    if records is None:
+    if result is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="No existe un periodo activo",
         )
 
-    return [_build_materia_academica_response(record) for record in records]
+    records, total = result
+
+    items = [_build_materia_academica_response(record) for record in records]
+
+    return items, total

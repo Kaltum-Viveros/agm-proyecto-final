@@ -11,6 +11,7 @@ from app.schemas.materia_horario import (
     MateriaHorarioUpdate,
 )
 from app.services.materia_horario_service import MateriaHorarioService
+from app.core.pagination import build_paginated_response
 
 router = APIRouter()
 
@@ -18,17 +19,32 @@ router = APIRouter()
 @router.get("")
 async def list_materia_horarios(
     materia_ofertada_id: UUID | None = Query(default=None),
+    dia: str | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
     service = MateriaHorarioService(db)
-    horarios = await service.list_horarios(materia_ofertada_id=materia_ofertada_id)
+    horarios, total = await service.list_materia_horarios(
+        materia_ofertada_id=materia_ofertada_id,
+        dia=dia,
+        page=page,
+        limit=limit,
+    )
+
+    items = [
+        MateriaHorarioRead.model_validate(horario).model_dump(mode="json")
+        for horario in horarios
+    ]
 
     return success_response(
-        data=[
-            MateriaHorarioRead.model_validate(horario).model_dump(mode="json")
-            for horario in horarios
-        ],
-        message="Horarios de materia obtenidos correctamente",
+        data=build_paginated_response(
+            items=items,
+            total=total,
+            page=page,
+            limit=limit,
+        ),
+        message="Horarios obtenidos correctamente",
     )
 
 

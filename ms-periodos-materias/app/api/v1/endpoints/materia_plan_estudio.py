@@ -11,30 +11,40 @@ from app.schemas.materia_plan_estudio import (
     MateriaPlanEstudioUpdate,
 )
 from app.services.materia_plan_estudio_service import MateriaPlanEstudioService
+from app.core.pagination import build_paginated_response
 
 router = APIRouter()
 
 
 @router.get("")
 async def list_materias_planes_estudio(
-    materia_catalogo_id: UUID | None = Query(default=None),
     plan_estudio_id: UUID | None = Query(default=None),
-    activa: bool | None = Query(default=None),
+    materia_catalogo_id: UUID | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
     service = MateriaPlanEstudioService(db)
-    relaciones = await service.list_relaciones(
-        materia_catalogo_id=materia_catalogo_id,
+    relaciones, total = await service.list_materias_planes_estudio(
         plan_estudio_id=plan_estudio_id,
-        activa=activa,
+        materia_catalogo_id=materia_catalogo_id,
+        page=page,
+        limit=limit,
     )
 
+    items = [
+        MateriaPlanEstudioRead.model_validate(relacion).model_dump(mode="json")
+        for relacion in relaciones
+    ]
+
     return success_response(
-        data=[
-            MateriaPlanEstudioRead.model_validate(relacion).model_dump(mode="json")
-            for relacion in relaciones
-        ],
-        message="Relaciones materia-plan de estudio obtenidas correctamente",
+        data=build_paginated_response(
+            items=items,
+            total=total,
+            page=page,
+            limit=limit,
+        ),
+        message="Relaciones materia-plan obtenidas correctamente",
     )
 
 

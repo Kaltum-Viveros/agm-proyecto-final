@@ -35,8 +35,17 @@ class PeriodoService:
             )
 
     #funcion para listar los periodos, con un filtro opcional para mostrar solo los activos o inactivos
-    async def list_periodos(self, activo: bool | None = None):
-        return await self.repository.list(activo=activo)
+    async def list_periodos(
+        self,
+        activo: bool | None = None,
+        page: int = 1,
+        limit: int = 10,
+    ):
+        return await self.repository.list(
+            activo=activo,
+            page=page,
+            limit=limit,
+        )
     
     # funcion para obtener un periodo por su id, si no se encuentra se lanza una excepcion 404
     async def get_periodo(self, periodo_id: UUID):

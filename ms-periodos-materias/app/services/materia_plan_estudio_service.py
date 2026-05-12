@@ -24,16 +24,18 @@ class MateriaPlanEstudioService:
         self.materia_repository = MateriaCatalogoRepository(db)
         self.plan_repository = PlanEstudioRepository(db)
 
-    async def list_relaciones(
+    async def list_materias_plan_estudio(
         self,
-        materia_catalogo_id: UUID | None = None,
         plan_estudio_id: UUID | None = None,
-        activa: bool | None = None,
+        materia_catalogo_id: UUID | None = None,
+        page: int = 1,
+        limit: int = 10,
     ):
         return await self.repository.list(
-            materia_catalogo_id=materia_catalogo_id,
             plan_estudio_id=plan_estudio_id,
-            activa=activa,
+            materia_catalogo_id=materia_catalogo_id,
+            page=page,
+            limit=limit,
         )
 
     async def get_relacion(self, materia_plan_estudio_id: UUID):

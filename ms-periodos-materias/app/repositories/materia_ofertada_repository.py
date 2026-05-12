@@ -4,6 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.materia_ofertada import MateriaOfertada
+from app.db.pagination import paginate_query
 
 
 class MateriaOfertadaRepository:
@@ -16,25 +17,35 @@ class MateriaOfertadaRepository:
         materia_catalogo_id: UUID | None = None,
         docente_id: UUID | None = None,
         estado: str | None = None,
-    ) -> list[MateriaOfertada]:
-        query = select(MateriaOfertada).order_by(MateriaOfertada.nrc.asc())
+        nrc: str | None = None,
+        page: int = 1,
+        limit: int = 10,
+    ):
+        stmt = select(MateriaOfertada).order_by(MateriaOfertada.nrc.asc())
 
         if periodo_id is not None:
-            query = query.where(MateriaOfertada.periodo_id == periodo_id)
+            stmt = stmt.where(MateriaOfertada.periodo_id == periodo_id)
 
         if materia_catalogo_id is not None:
-            query = query.where(
+            stmt = stmt.where(
                 MateriaOfertada.materia_catalogo_id == materia_catalogo_id
             )
 
         if docente_id is not None:
-            query = query.where(MateriaOfertada.docente_id == docente_id)
+            stmt = stmt.where(MateriaOfertada.docente_id == docente_id)
 
-        if estado is not None:
-            query = query.where(MateriaOfertada.estado == estado)
+        if estado:
+            stmt = stmt.where(MateriaOfertada.estado == estado)
 
-        result = await self.db.execute(query)
-        return list(result.scalars().all())
+        if nrc:
+            stmt = stmt.where(MateriaOfertada.nrc.ilike(f"%{nrc}%"))
+
+        return await paginate_query(
+            db=self.db,
+            stmt=stmt,
+            page=page,
+            limit=limit,
+        )
 
     async def get_by_id(self, materia_ofertada_id: UUID) -> MateriaOfertada | None:
         result = await self.db.execute(

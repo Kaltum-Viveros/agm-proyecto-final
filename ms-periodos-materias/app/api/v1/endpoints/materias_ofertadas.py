@@ -12,6 +12,8 @@ from app.schemas.materia_ofertada import (
     MateriaOfertadaAsignarDocente,
 )
 from app.services.materia_ofertada_service import MateriaOfertadaService
+from app.core.pagination import build_paginated_response
+
 
 router = APIRouter()
 
@@ -22,21 +24,34 @@ async def list_materias_ofertadas(
     materia_catalogo_id: UUID | None = Query(default=None),
     docente_id: UUID | None = Query(default=None),
     estado: str | None = Query(default=None),
+    nrc: str | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
     service = MateriaOfertadaService(db)
-    materias = await service.list_materias_ofertadas(
+    materias, total = await service.list_materias_ofertadas(
         periodo_id=periodo_id,
         materia_catalogo_id=materia_catalogo_id,
         docente_id=docente_id,
         estado=estado,
+        nrc=nrc,
+        page=page,
+        limit=limit,
     )
 
+    items = [
+        MateriaOfertadaRead.model_validate(materia).model_dump(mode="json")
+        for materia in materias
+    ]
+
     return success_response(
-        data=[
-            MateriaOfertadaRead.model_validate(materia).model_dump(mode="json")
-            for materia in materias
-        ],
+        data=build_paginated_response(
+            items=items,
+            total=total,
+            page=page,
+            limit=limit,
+        ),
         message="Materias ofertadas obtenidas correctamente",
     )
 

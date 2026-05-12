@@ -1,7 +1,7 @@
 from collections import defaultdict
 from uuid import UUID
 
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.materia_catalogo import MateriaCatalogo
@@ -49,7 +49,14 @@ async def list_materias_academicas(
     periodo_id: UUID | None = None,
     docente_id: UUID | None = None,
     estado: str | None = None,
-) -> list[tuple[MateriaOfertada, Periodo, MateriaCatalogo, list[MateriaHorario]]]:
+    clave: str | None = None,
+    nrc: str | None = None,
+    page: int = 1,
+    limit: int = 10,
+) -> tuple[
+    list[tuple[MateriaOfertada, Periodo, MateriaCatalogo, list[MateriaHorario]]],
+    int,
+]:
     stmt = (
         select(MateriaOfertada, Periodo, MateriaCatalogo)
         .join(Periodo, MateriaOfertada.periodo_id == Periodo.periodo_id)
@@ -68,19 +75,34 @@ async def list_materias_academicas(
     if estado is not None:
         stmt = stmt.where(MateriaOfertada.estado == estado)
 
+    if clave:
+        stmt = stmt.where(MateriaCatalogo.clave.ilike(f"%{clave}%"))
+
+    if nrc:
+        stmt = stmt.where(MateriaOfertada.nrc.ilike(f"%{nrc}%"))
+
     stmt = stmt.order_by(
         Periodo.nombre,
         MateriaCatalogo.nombre,
         MateriaOfertada.seccion,
     )
 
-    result = await db.execute(stmt)
+    count_stmt = select(func.count()).select_from(
+        stmt.order_by(None).subquery()
+    )
+
+    total_result = await db.execute(count_stmt)
+    total = total_result.scalar_one()
+
+    result = await db.execute(
+        stmt.offset((page - 1) * limit).limit(limit)
+    )
     rows = result.all()
 
     materia_ofertada_ids = [row[0].materia_ofertada_id for row in rows]
     horarios_by_oferta = await _get_horarios_by_ofertas(db, materia_ofertada_ids)
 
-    return [
+    items = [
         (
             materia_ofertada,
             periodo,
@@ -89,6 +111,8 @@ async def list_materias_academicas(
         )
         for materia_ofertada, periodo, materia_catalogo in rows
     ]
+
+    return items, total
 
 
 async def get_materia_academica_by_id(
@@ -129,20 +153,35 @@ async def get_materia_academica_by_id(
 async def list_materias_by_periodo(
     db: AsyncSession,
     periodo_id: UUID,
-) -> list[tuple[MateriaOfertada, Periodo, MateriaCatalogo, list[MateriaHorario]]]:
-    return await list_materias_academicas(db=db, periodo_id=periodo_id)
-
+    page: int = 1,
+    limit: int = 10,
+):
+    return await list_materias_academicas(
+        db=db,
+        periodo_id=periodo_id,
+        page=page,
+        limit=limit,
+    )
 
 async def list_materias_by_docente(
     db: AsyncSession,
     docente_id: UUID,
-) -> list[tuple[MateriaOfertada, Periodo, MateriaCatalogo, list[MateriaHorario]]]:
-    return await list_materias_academicas(db=db, docente_id=docente_id)
+    page: int = 1,
+    limit: int = 10,
+):
+    return await list_materias_academicas(
+        db=db,
+        docente_id=docente_id,
+        page=page,
+        limit=limit,
+    )
 
 
 async def list_materias_periodo_activo(
     db: AsyncSession,
-) -> list[tuple[MateriaOfertada, Periodo, MateriaCatalogo, list[MateriaHorario]]] | None:
+    page: int = 1,
+    limit: int = 10,
+):
     periodo_activo = await get_periodo_activo(db)
 
     if periodo_activo is None:
@@ -151,4 +190,6 @@ async def list_materias_periodo_activo(
     return await list_materias_by_periodo(
         db=db,
         periodo_id=periodo_activo.periodo_id,
+        page=page,
+        limit=limit,
     )

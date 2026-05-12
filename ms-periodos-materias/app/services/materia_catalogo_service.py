@@ -11,8 +11,19 @@ class MateriaCatalogoService:
     def __init__(self, db: AsyncSession):
         self.repository = MateriaCatalogoRepository(db)
 
-    async def list_materias_catalogo(self, activo: bool | None = None):
-        return await self.repository.list(activo=activo)
+    async def list_materias_catalogo(
+        self,
+        activo: bool | None = None,
+        clave: str | None = None,
+        page: int = 1,
+        limit: int = 10,
+    ):
+        return await self.repository.list(
+            activo=activo,
+            clave=clave,
+            page=page,
+            limit=limit,
+        )
 
     async def get_materia_catalogo(self, materia_catalogo_id: UUID):
         materia = await self.repository.get_by_id(materia_catalogo_id)

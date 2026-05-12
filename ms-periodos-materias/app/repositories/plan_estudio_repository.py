@@ -4,20 +4,30 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.plan_estudio import PlanEstudio
+from app.db.pagination import paginate_query
 
 
 class PlanEstudioRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def list(self, activo: bool | None = None) -> list[PlanEstudio]:
-        query = select(PlanEstudio).order_by(PlanEstudio.nombre.asc())
+    async def list(
+        self,
+        activo: bool | None = None,
+        page: int = 1,
+        limit: int = 10,
+    ):
+        stmt = select(PlanEstudio).order_by(PlanEstudio.nombre.asc())
 
         if activo is not None:
-            query = query.where(PlanEstudio.activo.is_(activo))
+            stmt = stmt.where(PlanEstudio.activo == activo)
 
-        result = await self.db.execute(query)
-        return list(result.scalars().all())
+        return await paginate_query(
+            db=self.db,
+            stmt=stmt,
+            page=page,
+            limit=limit,
+        )
 
     async def get_by_id(self, plan_estudio_id: UUID) -> PlanEstudio | None:
         result = await self.db.execute(

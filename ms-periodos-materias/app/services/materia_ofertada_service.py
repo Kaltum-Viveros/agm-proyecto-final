@@ -29,12 +29,18 @@ class MateriaOfertadaService:
         materia_catalogo_id: UUID | None = None,
         docente_id: UUID | None = None,
         estado: str | None = None,
+        nrc: str | None = None,
+        page: int = 1,
+        limit: int = 10,
     ):
         return await self.repository.list(
             periodo_id=periodo_id,
             materia_catalogo_id=materia_catalogo_id,
             docente_id=docente_id,
             estado=estado,
+            nrc=nrc,
+            page=page,
+            limit=limit,
         )
 
     async def get_materia_ofertada(self, materia_ofertada_id: UUID):

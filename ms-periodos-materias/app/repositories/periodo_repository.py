@@ -4,19 +4,29 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.periodo import Periodo
+from app.db.pagination import paginate_query
 
 class PeriodoRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def list(self, activo: bool | None = None) -> list[Periodo]:
-        query = select(Periodo).order_by(Periodo.fecha_inicio.desc())
+    async def list(
+        self,
+        activo: bool | None = None,
+        page: int = 1,
+        limit: int = 10,
+    ):
+        stmt = select(Periodo).order_by(Periodo.fecha_inicio.desc())
 
         if activo is not None:
-            query = query.where(Periodo.activo.is_(activo))
+            stmt = stmt.where(Periodo.activo == activo)
 
-        result = await self.db.execute(query)
-        return list(result.scalars().all())
+        return await paginate_query(
+            db=self.db,
+            stmt=stmt,
+            page=page,
+            limit=limit,
+        )
 
     async def get_by_id(self, periodo_id: UUID) -> Periodo | None:
         result = await self.db.execute(

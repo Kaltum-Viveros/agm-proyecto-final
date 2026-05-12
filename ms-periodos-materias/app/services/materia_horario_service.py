@@ -13,8 +13,19 @@ class MateriaHorarioService:
         self.repository = MateriaHorarioRepository(db)
         self.materia_ofertada_repository = MateriaOfertadaRepository(db)
 
-    async def list_horarios(self, materia_ofertada_id: UUID | None = None):
-        return await self.repository.list(materia_ofertada_id=materia_ofertada_id)
+    async def list_materia_horarios(
+        self,
+        materia_ofertada_id: UUID | None = None,
+        dia: str | None = None,
+        page: int = 1,
+        limit: int = 10,
+    ):
+        return await self.repository.list(
+            materia_ofertada_id=materia_ofertada_id,
+            dia=dia,
+            page=page,
+            limit=limit,
+        )
 
     async def get_horario(self, materia_horario_id: UUID):
         horario = await self.repository.get_by_id(materia_horario_id)

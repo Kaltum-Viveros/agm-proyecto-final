@@ -11,6 +11,7 @@ from app.schemas.materia_catalogo import (
     MateriaCatalogoUpdate,
 )
 from app.services.materia_catalogo_service import MateriaCatalogoService
+from app.core.pagination import build_paginated_response
 
 router = APIRouter()
 
@@ -18,17 +19,32 @@ router = APIRouter()
 @router.get("")
 async def list_materias_catalogo(
     activo: bool | None = Query(default=None),
+    clave: str | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
     service = MateriaCatalogoService(db)
-    materias = await service.list_materias_catalogo(activo=activo)
+    materias, total = await service.list_materias_catalogo(
+        activo=activo,
+        clave=clave,
+        page=page,
+        limit=limit,
+    )
+
+    items = [
+        MateriaCatalogoRead.model_validate(materia).model_dump(mode="json")
+        for materia in materias
+    ]
 
     return success_response(
-        data=[
-            MateriaCatalogoRead.model_validate(materia).model_dump(mode="json")
-            for materia in materias
-        ],
-        message="Materias del catálogo obtenidas correctamente",
+        data=build_paginated_response(
+            items=items,
+            total=total,
+            page=page,
+            limit=limit,
+        ),
+        message="Materias de catálogo obtenidas correctamente",
     )
 
 

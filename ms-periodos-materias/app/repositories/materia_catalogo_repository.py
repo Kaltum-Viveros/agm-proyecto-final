@@ -4,20 +4,34 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.materia_catalogo import MateriaCatalogo
+from app.db.pagination import paginate_query
 
 
 class MateriaCatalogoRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def list(self, activo: bool | None = None) -> list[MateriaCatalogo]:
-        query = select(MateriaCatalogo).order_by(MateriaCatalogo.nombre.asc())
+    async def list(
+        self,
+        activo: bool | None = None,
+        clave: str | None = None,
+        page: int = 1,
+        limit: int = 10,
+    ):
+        stmt = select(MateriaCatalogo).order_by(MateriaCatalogo.nombre.asc())
 
         if activo is not None:
-            query = query.where(MateriaCatalogo.activo.is_(activo))
+            stmt = stmt.where(MateriaCatalogo.activo == activo)
 
-        result = await self.db.execute(query)
-        return list(result.scalars().all())
+        if clave:
+            stmt = stmt.where(MateriaCatalogo.clave.ilike(f"%{clave}%"))
+
+        return await paginate_query(
+            db=self.db,
+            stmt=stmt,
+            page=page,
+            limit=limit,
+        )
 
     async def get_by_id(self, materia_catalogo_id: UUID) -> MateriaCatalogo | None:
         result = await self.db.execute(

@@ -11,9 +11,18 @@ class PlanEstudioService:
     def __init__(self, db: AsyncSession):
         self.repository = PlanEstudioRepository(db)
 
-    async def list_planes_estudio(self, activo: bool | None = None):
-        return await self.repository.list(activo=activo)
-
+    async def list_planes_estudio(
+        self,
+        activo: bool | None = None,
+        page: int = 1,
+        limit: int = 10,
+    ):
+        return await self.repository.list(
+            activo=activo,
+            page=page,
+            limit=limit,
+        )
+    
     async def get_plan_estudio(self, plan_estudio_id: UUID):
         plan_estudio = await self.repository.get_by_id(plan_estudio_id)
 

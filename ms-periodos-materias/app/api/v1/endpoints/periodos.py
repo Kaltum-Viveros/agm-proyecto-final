@@ -7,22 +7,37 @@ from app.core.responses import success_response
 from app.db.session import get_db
 from app.schemas.periodo import PeriodoCreate, PeriodoRead, PeriodoUpdate
 from app.services.periodo_service import PeriodoService
-
 from app.services import materia_consulta_service
+from app.core.pagination import build_paginated_response
 
 router = APIRouter()
-
 
 @router.get("")
 async def list_periodos(
     activo: bool | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
 ):
     service = PeriodoService(db)
-    periodos = await service.list_periodos(activo=activo)
+    periodos, total = await service.list_periodos(
+        activo=activo,
+        page=page,
+        limit=limit,
+    )
+
+    items = [
+        PeriodoRead.model_validate(periodo).model_dump(mode="json")
+        for periodo in periodos
+    ]
 
     return success_response(
-        data=[PeriodoRead.model_validate(periodo).model_dump(mode="json") for periodo in periodos],
+        data=build_paginated_response(
+            items=items,
+            total=total,
+            page=page,
+            limit=limit,
+        ),
         message="Periodos obtenidos correctamente",
     )
 
