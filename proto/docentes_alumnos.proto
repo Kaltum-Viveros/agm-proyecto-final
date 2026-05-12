@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package agm.docentes_alumnos.v1;
+
+service DocentesAlumnosService {
+  // Para que MS-4 y MS-5 obtengan la lista de alumnos de un grupo
+  rpc GetAlumnosByMateria(GetAlumnosRequest) returns (AlumnosResponse);
+  
+  // Para validar si un alumno pertenece a una materia específica
+  rpc IsAlumnoEnMateria(RelationRequest) returns (BoolResponse);
+  
+  // Obtener perfil detallado
+  rpc GetAlumnoById(AlumnoIdRequest) returns (AlumnoProfile);
+}
+
+message GetAlumnosRequest { string materia_id = 1; }
+message AlumnoIdRequest { string alumno_id = 1; }
+message RelationRequest { 
+  string alumno_id = 1; 
+  string materia_id = 2; 
+}
+
+message BoolResponse { bool exists = 1; }
+
+message AlumnoProfile {
+  string alumno_id = 1;
+  string nombre_completo = 2;
+  string matricula = 3;
+  string correo = 4;
+}
+
+message AlumnosResponse {
+  repeated AlumnoProfile alumnos = 1;
+}

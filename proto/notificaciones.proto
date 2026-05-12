@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package agm.notificaciones.v1;
+
+service NotificacionService {
+  // El MS-3 llamará a esto tras importar un alumno del PDF
+  rpc SendBienvenida(BienvenidaRequest) returns (NotifResponse);
+}
+
+message BienvenidaRequest {
+  string alumno_id = 1;
+  string materia_id = 2;
+}
+
+message NotifResponse { bool success = 1; }
