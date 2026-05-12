@@ -31,3 +31,7 @@ class MateriaOfertadaRead(MateriaOfertadaBase):
     materia_ofertada_id: UUID
 
     model_config = ConfigDict(from_attributes=True)
+
+class MateriaOfertadaAsignarDocente(BaseModel):
+    docente_id: UUID
+    docente_nombre: str | None = Field(default=None, max_length=100)

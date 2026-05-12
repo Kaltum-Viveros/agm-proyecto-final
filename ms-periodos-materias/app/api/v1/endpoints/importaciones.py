@@ -13,29 +13,40 @@ from app.utils.pdf_programacion_parser import parse_programacion_academica_pdf
 
 router = APIRouter()
 
+async def _validar_archivo_pdf(archivo: UploadFile) -> None:
+    if not archivo.filename:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El archivo es obligatorio",
+        )
+
+    if not archivo.filename.lower().endswith(".pdf"):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Solo se permiten archivos PDF",
+        )
+
+    encabezado = await archivo.read(5)
+    await archivo.seek(0)
+
+    if encabezado != b"%PDF-":
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El archivo enviado no parece ser un PDF válido",
+        )
 
 @router.post(
     "/programacion-academica",
     response_model=ImportacionProgramacionResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def importar_programacion_academica(
+async def importar_programacion_academica( 
     periodo_id: UUID = Form(...),
     plan_estudio_id: UUID = Form(...),
     archivo: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
 ):
-    if not archivo.filename:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Debes subir un archivo PDF.",
-        )
-
-    if not archivo.filename.lower().endswith(".pdf"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="El archivo debe ser un PDF.",
-        )
+    await _validar_archivo_pdf(archivo)
 
     temp_path = ""
 

@@ -93,3 +93,16 @@ async def deactivate_periodo(
         data=PeriodoRead.model_validate(periodo).model_dump(mode="json"),
         message="Periodo desactivado correctamente",
     )
+
+@router.patch("/{periodo_id}/activar")
+async def activar_periodo(
+    periodo_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    service = PeriodoService(db)
+    periodo = await service.activar_periodo(periodo_id)
+
+    return success_response(
+        data=PeriodoRead.model_validate(periodo).model_dump(mode="json"),
+        message="Periodo activado correctamente",
+    )

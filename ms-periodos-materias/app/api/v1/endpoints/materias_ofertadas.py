@@ -9,6 +9,7 @@ from app.schemas.materia_ofertada import (
     MateriaOfertadaCreate,
     MateriaOfertadaRead,
     MateriaOfertadaUpdate,
+    MateriaOfertadaAsignarDocente,
 )
 from app.services.materia_ofertada_service import MateriaOfertadaService
 
@@ -94,4 +95,64 @@ async def deactivate_materia_ofertada(
     return success_response(
         data=MateriaOfertadaRead.model_validate(materia).model_dump(mode="json"),
         message="Materia ofertada desactivada correctamente",
+    )
+
+@router.patch("/{materia_ofertada_id}/activar")
+async def activar_materia_ofertada(
+    materia_ofertada_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    service = MateriaOfertadaService(db)
+    materia = await service.activar_materia_ofertada(materia_ofertada_id)
+
+    return success_response(
+        data=MateriaOfertadaRead.model_validate(materia).model_dump(mode="json"),
+        message="Materia ofertada activada correctamente",
+    )
+
+
+@router.patch("/{materia_ofertada_id}/cerrar")
+async def cerrar_materia_ofertada(
+    materia_ofertada_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    service = MateriaOfertadaService(db)
+    materia = await service.cerrar_materia_ofertada(materia_ofertada_id)
+
+    return success_response(
+        data=MateriaOfertadaRead.model_validate(materia).model_dump(mode="json"),
+        message="Materia ofertada cerrada correctamente",
+    )
+
+
+@router.patch("/{materia_ofertada_id}/cancelar")
+async def cancelar_materia_ofertada(
+    materia_ofertada_id: UUID,
+    db: AsyncSession = Depends(get_db),
+):
+    service = MateriaOfertadaService(db)
+    materia = await service.cancelar_materia_ofertada(materia_ofertada_id)
+
+    return success_response(
+        data=MateriaOfertadaRead.model_validate(materia).model_dump(mode="json"),
+        message="Materia ofertada cancelada correctamente",
+    )
+
+
+@router.patch("/{materia_ofertada_id}/asignar-docente")
+async def asignar_docente_materia_ofertada(
+    materia_ofertada_id: UUID,
+    payload: MateriaOfertadaAsignarDocente,
+    db: AsyncSession = Depends(get_db),
+):
+    service = MateriaOfertadaService(db)
+    materia = await service.asignar_docente_materia_ofertada(
+        materia_ofertada_id=materia_ofertada_id,
+        docente_id=payload.docente_id,
+        docente_nombre=payload.docente_nombre,
+    )
+
+    return success_response(
+        data=MateriaOfertadaRead.model_validate(materia).model_dump(mode="json"),
+        message="Docente asignado correctamente a la materia ofertada",
     )

@@ -2,15 +2,37 @@ from uuid import UUID
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from app.repositories.periodo_repository import PeriodoRepository
 from app.schemas.periodo import PeriodoCreate, PeriodoUpdate
 
+from app.core.academic_rules import validar_rango_fechas
+from app.models.periodo import Periodo
 
 class PeriodoService:
 
     def __init__(self, db: AsyncSession):
+        self.db = db
         self.repository = PeriodoRepository(db)
+
+    async def _validar_unico_periodo_activo(
+        self,
+        periodo_id_excluir: UUID | None = None,
+    ) -> None:
+        stmt = select(Periodo).where(Periodo.activo.is_(True))
+
+        if periodo_id_excluir is not None:
+            stmt = stmt.where(Periodo.periodo_id != periodo_id_excluir)
+
+        result = await self.db.execute(stmt)
+        periodo_activo = result.scalars().first()
+
+        if periodo_activo:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Ya existe un periodo activo. Desactiva el periodo actual antes de activar otro.",
+            )
 
     #funcion para listar los periodos, con un filtro opcional para mostrar solo los activos o inactivos
     async def list_periodos(self, activo: bool | None = None):
@@ -28,19 +50,14 @@ class PeriodoService:
 
         return periodo
 
-    # funcion para crear un periodo, se valida que la fecha de inicio no sea mayor a la fecha de fin, 
-    # si el periodo se crea como activo se desactivan todos los periodos activos
+    # si el periodo se crea como activo, se valida que no exista otro periodo activo
     async def create_periodo(self, payload: PeriodoCreate):
-        if payload.fecha_inicio > payload.fecha_fin:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="La fecha de inicio no puede ser mayor a la fecha de fin",
-            )
+        validar_rango_fechas(payload.fecha_inicio, payload.fecha_fin)
 
         data = payload.model_dump()
 
         if data.get("activo") is True:
-            await self.repository.deactivate_all_active()
+            await self._validar_unico_periodo_activo()
 
         return await self.repository.create(data)
 
@@ -53,14 +70,12 @@ class PeriodoService:
         fecha_inicio = data.get("fecha_inicio", periodo.fecha_inicio)
         fecha_fin = data.get("fecha_fin", periodo.fecha_fin)
 
-        if fecha_inicio > fecha_fin:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="La fecha de inicio no puede ser mayor a la fecha de fin",
-            )
+        validar_rango_fechas(fecha_inicio, fecha_fin)
 
         if data.get("activo") is True:
-            await self.repository.deactivate_all_active()
+            await self._validar_unico_periodo_activo(
+                periodo_id_excluir=periodo.periodo_id
+            )
 
         return await self.repository.update(periodo, data)
 
@@ -69,3 +84,18 @@ class PeriodoService:
         periodo = await self.get_periodo(periodo_id)
 
         return await self.repository.deactivate(periodo)
+    
+    # funcion para activar un periodo, se valida que el periodo exista, si no se encuentra se lanza una excepcion 404, 
+    # si el periodo ya esta activo se retorna el mismo periodo, si no se valida que no exista otro periodo activo 
+    # antes de activar el nuevo periodo
+    async def activar_periodo(self, periodo_id: UUID):
+        periodo = await self.get_periodo(periodo_id)
+
+        if periodo.activo is True:
+            return periodo
+
+        await self._validar_unico_periodo_activo(
+            periodo_id_excluir=periodo.periodo_id
+        )
+
+        return await self.repository.update(periodo, {"activo": True})

@@ -12,6 +12,8 @@ from app.models.periodo import Periodo
 from app.models.plan_estudio import PlanEstudio
 from app.utils.pdf_programacion_parser import ProgramacionAcademicaRow
 
+from app.core.academic_rules import validar_rango_horas
+
 
 class ImportacionProgramacionService:
     def __init__(self, db: AsyncSession):
@@ -236,6 +238,8 @@ class ImportacionProgramacionService:
         unique_horarios = self._unique_horarios(horarios)
 
         for row in unique_horarios:
+            validar_rango_horas(row.hora_inicio, row.hora_fin)
+
             horario = MateriaHorario(
                 materia_ofertada_id=materia_ofertada_id,
                 dia=row.dia,
