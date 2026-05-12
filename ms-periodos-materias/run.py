@@ -9,8 +9,8 @@ from app.grpc.server import serve as serve_grpc
 async def serve_rest():
     config = uvicorn.Config(
         "app.main:app",
-        host=getattr(settings, "API_HOST", "0.0.0.0"),
-        port=int(getattr(settings, "API_PORT", 8002)),
+        host=settings.rest_host,    
+        port=settings.rest_port,
         reload=False,
     )
 
@@ -20,7 +20,8 @@ async def serve_rest():
 
 
 async def main():
-    print("Iniciando REST y gRPC de MS-2...", flush=True)
+    print("Iniciando REST y gRPC de MS-2...")
+
     await asyncio.gather(
         serve_rest(),
         serve_grpc(),

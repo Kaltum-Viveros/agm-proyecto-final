@@ -14,15 +14,31 @@ class Settings(BaseSettings):
 
     api_v1_prefix: str = Field(default="/api/v1", alias="API_V1_PREFIX")
 
-    # Ajustes de la base de datos para SQLAlchemy
     database_url: str = Field(
         default="postgresql+asyncpg://postgres:postgres@localhost:5432/agm_periodos_db",
         alias="DATABASE_URL",
     )
     db_echo: bool = Field(default=True, alias="DB_ECHO")
 
-    GRPC_HOST: str = "0.0.0.0"
-    GRPC_PORT: int = 50052
+    grpc_host: str = Field(default="0.0.0.0", alias="GRPC_HOST")
+    grpc_port: int = Field(default=50052, alias="GRPC_PORT")
+
+    cors_allowed_origins: str = Field(
+        default="http://localhost:3000,http://localhost:5173,http://localhost:8000",
+        alias="CORS_ALLOWED_ORIGINS",
+    )
+
+    ms_auth_grpc_host: str = Field(default="ms-auth-api", alias="MS_AUTH_GRPC_HOST")
+    ms_auth_grpc_port: int = Field(default=50051, alias="MS_AUTH_GRPC_PORT")
+
+    ms_docentes_alumnos_grpc_host: str = Field(
+        default="ms-docentes-alumnos-api",
+        alias="MS_DOCENTES_ALUMNOS_GRPC_HOST",
+    )
+    ms_docentes_alumnos_grpc_port: int = Field(
+        default=50053,
+        alias="MS_DOCENTES_ALUMNOS_GRPC_PORT",
+    )
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -30,13 +46,18 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
-settings = Settings()
+    @property
+    def cors_origins(self) -> list[str]:
+        return [
+            origin.strip()
+            for origin in self.cors_allowed_origins.split(",")
+            if origin.strip()
+        ]
+
 
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
 
 
-
-
-
+settings = get_settings()

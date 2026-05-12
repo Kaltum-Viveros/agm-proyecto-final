@@ -12,16 +12,16 @@ async def serve():
 
     periodos_materias_pb2_grpc.add_PeriodosMateriasServiceServicer_to_server(
         PeriodosMateriasGrpcService(),
-        server
+        server,
     )
 
-    listen_addr = f"{settings.GRPC_HOST}:{settings.GRPC_PORT}"
+    listen_addr = f"{settings.grpc_host}:{settings.grpc_port}"
+
     server.add_insecure_port(listen_addr)
 
+    print(f"Servidor gRPC MS-2 escuchando en {listen_addr}")
+
     await server.start()
-
-    print(f"Servidor gRPC MS-2 escuchando en {listen_addr}", flush=True)
-
     await server.wait_for_termination()
 
 
