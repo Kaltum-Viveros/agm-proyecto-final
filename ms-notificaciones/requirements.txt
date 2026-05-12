@@ -6,3 +6,5 @@ psycopg[binary]
 python-dotenv
 pydantic
 pydantic-settings
+pytest
+httpx

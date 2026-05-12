@@ -32,6 +32,7 @@ coverage/
 htmlcov/
 .coverage
 .coverage.*
+*.pyc
 
 # =========================
 # IDE / EDITORS
@@ -62,6 +63,7 @@ docker-compose.override.yml
 # =========================
 *.tmp
 *.temp
+test.db
 
 # =========================
 # BUILD FILES
