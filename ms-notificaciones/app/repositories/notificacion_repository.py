@@ -1,15 +1,23 @@
 # Acceso a datos
 from sqlalchemy.orm import Session
 from app.models.notificacion import Notificacion
-from app.schemas.notificacion_schema import NotificacionCreate, NotificacionUpdate
 
-def crear_notificacion(db: Session, data: NotificacionCreate):
+def crear_notificacion(
+    db: Session, 
+    usuario_id: int, 
+    email: str, 
+    tipo: str, 
+    asunto: str, 
+    mensaje: str,
+    estado: str = "pendiente"
+):
     nueva = Notificacion(
-        usuario_id=data.usuario_id,
-        email=data.email,
-        tipo=data.tipo,
-        asunto=data.asunto,
-        mensaje=data.mensaje
+        usuario_id=usuario_id,
+        email=email,
+        tipo=tipo,
+        asunto=asunto,
+        mensaje=mensaje,
+        estado=estado
     )
     db.add(nueva)
     db.commit()
@@ -25,15 +33,10 @@ def obtener_por_usuario(db: Session, usuario_id: int):
 def obtener_por_id(db: Session, notificacion_id: int):
     return db.query(Notificacion).filter(Notificacion.id == notificacion_id).first()
 
-def actualizar_notificacion(db: Session, db_notificacion: Notificacion, data: NotificacionUpdate):
-    update_data = data.model_dump(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(db_notificacion, key, value)
+def actualizar_estado(db: Session, db_notificacion: Notificacion, estado: str, fecha_envio=None):
+    db_notificacion.estado = estado
+    if fecha_envio:
+        db_notificacion.fecha_envio = fecha_envio
     db.commit()
     db.refresh(db_notificacion)
-    return db_notificacion
-
-def eliminar_notificacion(db: Session, db_notificacion: Notificacion):
-    db.delete(db_notificacion)
-    db.commit()
     return db_notificacion
