@@ -27,6 +27,7 @@ services:
     volumes:
       # Para que los cambios en el código se reflejen en tiempo real sin tener que reconstruir
       - .:/app
+      - ../proto:/app/proto
       - /app/venv # Ignorar el venv local dentro del contenedor
 
 volumes:

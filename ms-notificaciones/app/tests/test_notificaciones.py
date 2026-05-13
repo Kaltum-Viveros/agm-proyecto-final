@@ -1,36 +1,34 @@
-def test_crear_notificacion(client):
+def test_crear_notificacion_bienvenida(client):
     response = client.post(
-        "/api/v1/notificaciones/",
+        "/api/v1/notificaciones/bienvenida",
         json={
-            "usuario_id": 1,
-            "email": "test@ejemplo.com",
-            "tipo": "alerta",
-            "asunto": "Asunto de prueba",
-            "mensaje": "Mensaje de prueba"
+            "alumno_id": 1
         }
     )
     assert response.status_code == 201
     data = response.json()
-    assert data["email"] == "test@ejemplo.com"
+    assert data["tipo"] == "bienvenida"
     assert data["estado"] == "pendiente"
     assert "id" in data
 
-def test_listar_notificaciones(client):
-    response = client.get("/api/v1/notificaciones/")
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, list)
-    assert len(data) >= 1
-
-def test_error_validacion(client):
+def test_enviar_baja_materia(client):
     response = client.post(
-        "/api/v1/notificaciones/",
+        "/api/v1/notificaciones/baja",
         json={
-            "usuario_id": 0,  # Inválido, gt=0
-            "email": "correo-invalido",
-            "tipo": "a", # Inválido, min_length=2
-            "asunto": "As", # Inválido, min_length=3
-            "mensaje": "Msg" # Inválido, min_length=5
+            "alumno_id": 1,
+            "docente_id": 2,
+            "materia_id": 3
+        }
+    )
+    assert response.status_code == 201
+    data = response.json()
+    assert data["tipo"] == "baja_materia"
+
+def test_error_validacion_bienvenida(client):
+    response = client.post(
+        "/api/v1/notificaciones/bienvenida",
+        json={
+            "alumno_id": 0  # Inválido, debe ser > 0
         }
     )
     assert response.status_code == 400

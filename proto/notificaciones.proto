@@ -5,6 +5,12 @@ package agm.notificaciones.v1;
 service NotificacionService {
   // El MS-3 llamará a esto tras importar un alumno del PDF
   rpc SendBienvenida(BienvenidaRequest) returns (NotifResponse);
+  
+  // Dispara el correo al docente cuando un alumno se da de baja
+  rpc SendBajaNotif(BajaNotifRequest) returns (NotifResponse);
+  
+  // Dispara el correo masivo cuando se cierran las actas de una materia
+  rpc SendCierreMateria(CierreMateriaRequest) returns (NotifResponse);
 }
 
 message BienvenidaRequest {
@@ -12,4 +18,17 @@ message BienvenidaRequest {
   string materia_id = 2;
 }
 
-message NotifResponse { bool success = 1; }
+message BajaNotifRequest {
+  string alumno_id = 1;
+  string docente_id = 2;
+  string materia_id = 3;
+}
+
+message CierreMateriaRequest {
+  string materia_id = 1;
+}
+
+message NotifResponse { 
+  bool success = 1; 
+  string message = 2; // Añadido para mandar detalle del error si ocurre
+}

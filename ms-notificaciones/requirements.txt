@@ -8,3 +8,5 @@ pydantic
 pydantic-settings
 pytest
 httpx
+grpcio
+grpcio-tools
