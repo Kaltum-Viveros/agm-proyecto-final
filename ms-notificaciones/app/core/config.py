@@ -16,6 +16,12 @@ class settings(BaseSettings):
     CORS_ORIGINS: str = ""
     
     DATABASE_URL: str
+    
+    # SMTP Config
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
