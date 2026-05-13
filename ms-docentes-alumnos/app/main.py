@@ -1,3 +1,13 @@
+import sys
+import os
+
+# --- EL TRUCO PARA ARREGLAR gRPC EN PYTHON ---
+# Obtenemos la ruta absoluta de la carpeta raíz del microservicio
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Añadimos la carpeta 'generated' al inicio del path para que los imports internos de gRPC funcionen
+sys.path.insert(0, os.path.join(BASE_DIR, "app", "grpc", "generated"))
+# ---------------------------------------------
+
 from fastapi import FastAPI
 from app.db.base import Base
 from app.db.session import engine

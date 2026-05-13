@@ -1,6 +1,7 @@
 import grpc
 import os
-from app.grpc.generated import periodos_materias_pb2, periodos_materias_pb2_grpc
+from app.grpc.generated import periodos_materias_pb2
+from app.grpc.generated import periodos_materias_pb2_grpc
 
 class MS2Client:
     def __init__(self):

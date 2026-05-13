@@ -22,4 +22,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # 7. Comando para arrancar la app
-CMD ["python", "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8003"]
+CMD python grpc_server.py & uvicorn app.main:app --host 0.0.0.0 --port 8003

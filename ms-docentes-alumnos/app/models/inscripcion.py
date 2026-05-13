@@ -10,8 +10,8 @@ class Inscripcion(Base):
     inscripcion_id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     alumno_id = Column(UUID(as_uuid=True), ForeignKey("alumnos.alumno_id"), nullable=False)
     docente_id = Column(UUID(as_uuid=True), ForeignKey("docentes.docente_id"), nullable=False)
-    materia_id = Column(UUID(as_uuid=True), nullable=True, index=True) #Cambiar a nullable a false cuando ms-2 se conecte
-    periodo_id = Column(UUID(as_uuid=True), nullable=True, index=True) #Cambiar a nullable a false cuando ms-2 se conecte
+    materia_id = Column(UUID(as_uuid=True), nullable=False, index=True) #Cambiar a nullable a false cuando ms-2 se conecte
+    periodo_id = Column(UUID(as_uuid=True), nullable=False, index=True) #Cambiar a nullable a false cuando ms-2 se conecte
     nrc_materia = Column(String(10), nullable=False)
     seccion_materia = Column(String(10), nullable=True)
     activa = Column(Boolean, default=True, nullable=False)
