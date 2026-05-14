@@ -1,0 +1,82 @@
+syntax = "proto3";
+
+package calificaciones;
+
+service CalificacionesService {
+  rpc GetConcentrado(GetConcentradoRequest) returns (GetConcentradoResponse);
+  rpc GetPromedioAlumno(GetPromedioAlumnoRequest) returns (PromedioAlumnoResponse);
+  rpc GetEstadisticasMateria(GetEstadisticasMateriaRequest) returns (StatsMateriaResponse);
+}
+
+message GetConcentradoRequest {
+  string materia_id = 1;
+  string modo = 2; // actual | final
+}
+
+message GetPromedioAlumnoRequest {
+  string alumno_id = 1;
+  string materia_id = 2;
+  string modo = 3; // actual | final
+}
+
+message GetEstadisticasMateriaRequest {
+  string materia_id = 1;
+  string modo = 2; // actual | final
+}
+
+message PonderacionInfo {
+  string id = 1;
+  string materia_id = 2;
+  string nombre = 3;
+  double porcentaje = 4;
+  int32 orden = 5;
+}
+
+message DetallePonderacion {
+  string ponderacion_id = 1;
+  string nombre = 2;
+  double porcentaje = 3;
+  int32 total_actividades = 4;
+  int32 actividades_calificadas = 5;
+  double promedio_criterio = 6;
+  double aporte = 7;
+  bool incluida_en_calculo = 8;
+}
+
+message AlumnoConcentrado {
+  string alumno_id = 1;
+  string modo = 2;
+  double peso_considerado = 3;
+  double promedio_real = 4;
+  int32 promedio_redondeado = 5;
+  repeated DetallePonderacion detalle_ponderaciones = 6;
+}
+
+message GetConcentradoResponse {
+  string materia_id = 1;
+  string modo = 2;
+  int32 total_alumnos = 3;
+  repeated PonderacionInfo ponderaciones = 4;
+  repeated AlumnoConcentrado alumnos = 5;
+}
+
+message PromedioAlumnoResponse {
+  string alumno_id = 1;
+  string materia_id = 2;
+  string modo = 3;
+  double peso_considerado = 4;
+  double promedio_real = 5;
+  int32 promedio_redondeado = 6;
+  repeated DetallePonderacion detalle_ponderaciones = 7;
+}
+
+message StatsMateriaResponse {
+  string materia_id = 1;
+  string modo = 2;
+  int32 total_alumnos = 3;
+  double promedio_grupal = 4;
+  int32 aprobados = 5;
+  int32 reprobados = 6;
+  double promedio_minimo = 7;
+  double promedio_maximo = 8;
+}
