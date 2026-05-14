@@ -8,6 +8,7 @@ class AlumnoBase(BaseModel):
     correo: EmailStr
     matricula: str
     estatus_academico: bool = True
+    tipo_formacion: Optional[str] = None
 
 class AlumnoCreate(AlumnoBase):
     user_id: UUID
