@@ -51,6 +51,24 @@ class ResetPasswordRequest(BaseModel):
     )
 
 
+class CreateUserIdentityRequest(BaseModel):
+    nombre_completo: str = Field(
+        ...,
+        min_length=1,
+        max_length=150,
+    )
+    email: str = Field(
+        ...,
+        min_length=3,
+        max_length=150,
+    )
+    rol: str = Field(
+        ...,
+        min_length=3,
+        max_length=20,
+    )
+
+
 class AuthUserResponse(BaseModel):
     user_id: str
     nombre_completo: str
@@ -90,3 +108,9 @@ class ForgotPasswordResponseData(BaseModel):
 
 class ResetPasswordResponseData(BaseModel):
     password_updated: bool
+
+
+class CreateUserIdentityResponseData(BaseModel):
+    created: bool
+    user: AuthUserResponse
+    temporary_password: str

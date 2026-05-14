@@ -1,5 +1,7 @@
 from app.schemas.auth import (
     AuthUserResponse,
+    CreateUserIdentityRequest,
+    CreateUserIdentityResponseData,
     ForgotPasswordRequest,
     ForgotPasswordResponseData,
     LoginRequest,
@@ -14,6 +16,8 @@ from app.schemas.auth import (
 
 __all__ = [
     "AuthUserResponse",
+    "CreateUserIdentityRequest",
+    "CreateUserIdentityResponseData",
     "ForgotPasswordRequest",
     "ForgotPasswordResponseData",
     "LoginRequest",

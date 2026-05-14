@@ -7,8 +7,11 @@ from sqlalchemy.orm import Session
 from app.api.dependencies import get_bearer_token
 from app.core.responses import error_response, success_response
 from app.db.session import get_db
+from app.models.enums import UserRole
 from app.schemas.auth import (
     AuthUserResponse,
+    CreateUserIdentityRequest,
+    CreateUserIdentityResponseData,
     ForgotPasswordRequest,
     ForgotPasswordResponseData,
     LoginRequest,
@@ -28,7 +31,9 @@ from app.services.auth_service import (
     InvalidCredentialsError,
     InvalidPasswordResetTokenError,
     InvalidRefreshTokenError,
+    InvalidUserIdentityDataError,
 )
+from app.services.rbac_service import ForbiddenRoleError
 
 router = APIRouter(
     prefix="/auth",
@@ -162,6 +167,79 @@ def me(
             content=error_response(
                 message="Usuario inactivo",
                 error_code="AUTH_INACTIVE_USER",
+            ),
+        )
+
+
+@router.post("/users")
+def create_user_identity(
+    payload: CreateUserIdentityRequest,
+    access_token: str = Depends(get_bearer_token),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict:
+    try:
+        auth_service.validate_current_user_roles(
+            access_token=access_token,
+            allowed_roles=[UserRole.ADMIN],
+        )
+
+        result = auth_service.create_or_get_user_identity(
+            nombre_completo=payload.nombre_completo,
+            email=payload.email,
+            role=payload.rol,
+        )
+
+        response_data = CreateUserIdentityResponseData(**result).model_dump(
+            mode="json",
+        )
+
+        return success_response(
+            data=response_data,
+            message="Identidad de usuario procesada correctamente",
+        )
+
+    except AccessTokenExpiredError:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=error_response(
+                message="Access token expirado",
+                error_code="AUTH_ACCESS_TOKEN_EXPIRED",
+            ),
+        )
+
+    except InvalidAccessTokenError:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=error_response(
+                message="Access token invalido",
+                error_code="AUTH_INVALID_ACCESS_TOKEN",
+            ),
+        )
+
+    except ForbiddenRoleError:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content=error_response(
+                message="Rol no autorizado",
+                error_code="AUTH_ROLE_NOT_ALLOWED",
+            ),
+        )
+
+    except InactiveUserError:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content=error_response(
+                message="Usuario inactivo",
+                error_code="AUTH_INACTIVE_USER",
+            ),
+        )
+
+    except InvalidUserIdentityDataError:
+        return JSONResponse(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            content=error_response(
+                message="Datos de identidad invalidos",
+                error_code="AUTH_INVALID_USER_IDENTITY_DATA",
             ),
         )
 
