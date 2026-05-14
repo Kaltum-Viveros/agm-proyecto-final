@@ -194,6 +194,10 @@ class AuthService:
 
         return self._build_user_response(user)
 
+    def get_all_users(self) -> list[Dict[str, Any]]:
+        users = self.user_repository.get_all()
+        return [self._build_user_response(user) for user in users]
+
     def validate_current_user_roles(
         self,
         access_token: str,

@@ -171,6 +171,62 @@ def me(
         )
 
 
+@router.get("/users")
+def get_all_users_endpoint(
+    access_token: str = Depends(get_bearer_token),
+    auth_service: AuthService = Depends(get_auth_service),
+) -> dict:
+    try:
+        # Solo administradores pueden ver todos los usuarios
+        auth_service.validate_current_user_roles(
+            access_token=access_token,
+            allowed_roles=[UserRole.ADMIN],
+        )
+
+        users = auth_service.get_all_users()
+
+        return success_response(
+            data={"users": users},
+            message="Usuarios obtenidos correctamente",
+        )
+
+    except AccessTokenExpiredError:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=error_response(
+                message="Access token expirado",
+                error_code="AUTH_ACCESS_TOKEN_EXPIRED",
+            ),
+        )
+
+    except InvalidAccessTokenError:
+        return JSONResponse(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            content=error_response(
+                message="Access token invalido",
+                error_code="AUTH_INVALID_ACCESS_TOKEN",
+            ),
+        )
+
+    except ForbiddenRoleError:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content=error_response(
+                message="Rol no autorizado",
+                error_code="AUTH_ROLE_NOT_ALLOWED",
+            ),
+        )
+
+    except InactiveUserError:
+        return JSONResponse(
+            status_code=status.HTTP_403_FORBIDDEN,
+            content=error_response(
+                message="Usuario inactivo",
+                error_code="AUTH_INACTIVE_USER",
+            ),
+        )
+
+
 @router.post("/users")
 def create_user_identity(
     payload: CreateUserIdentityRequest,

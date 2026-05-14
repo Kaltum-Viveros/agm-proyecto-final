@@ -9,7 +9,7 @@ async def get_current_user(authorization: str = Header(...)):
         raise HTTPException(status_code=401, detail="Token inválido")
     
     token = authorization.split(" ")[1]
-    res = auth_client.validar_token(token)
+    res = auth_client.validate_token(token)
     
     if not res or not res.valid:
         raise HTTPException(status_code=401, detail="Sesión no válida")

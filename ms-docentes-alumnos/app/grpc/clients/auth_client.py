@@ -41,13 +41,13 @@ class AuthClient:
             print(f"Error gRPC CheckRole (MS-1): {e.details()}")
             return False
 
-    def crear_identidad_alumno(self, nombre: str, email: str):
-        """Registra al alumno y obtiene su user_id real"""
+    def crear_identidad(self, nombre: str, email: str, role: str = "Alumno"):
+        """Registra al usuario (Alumno o Docente) y obtiene su user_id real"""
         try:
             request = auth_pb2.CreateOrGetUserIdentityRequest(
                 nombre_completo=nombre,
                 email=email,
-                role="Alumno"
+                role=role
             )
             response = self.stub.CreateOrGetUserIdentity(request)
             if response.created or response.user.user_id:

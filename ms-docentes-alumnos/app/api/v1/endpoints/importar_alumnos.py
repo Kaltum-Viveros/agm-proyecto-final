@@ -54,9 +54,10 @@ async def importar_alumnos_pdf(
                 if not m_id: raise Exception(f"NRC {nrc} no hallado en MS-2.")
 
                 # 3. Crear Identidad Real vía gRPC (MS-1)
-                u_id, temp_pass = auth_client.crear_identidad_alumno(
+                u_id, temp_pass = auth_client.crear_identidad(
                     nombre=data["alumno"]["nombre_completo"],
-                    email=data["alumno"]["correo"]
+                    email=data["alumno"]["correo"],
+                    role="Alumno"
                 )
                 if not u_id: raise Exception("No se pudo crear el usuario en MS-1.")
                 

@@ -7,71 +7,6 @@
   },
   "item": [
     {
-      "name": "Utilidades",
-      "item": [
-        {
-          "name": "Preparar datos dinámicos",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url_auth}}/health",
-              "host": [
-                "{{base_url_auth}}/health"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "prerequest",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "function uuidv4() {",
-                  "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
-                  "    const r = Math.random() * 16 | 0;",
-                  "    const v = c === 'x' ? r : (r & 0x3 | 0x8);",
-                  "    return v.toString(16);",
-                  "  });",
-                  "}",
-                  "const suffix = Date.now().toString();",
-                  "const shortSuffix = suffix.slice(-10);",
-                  "pm.environment.set('test_suffix', shortSuffix);",
-                  "pm.environment.set('docente_nombre', 'Docente Prueba ' + shortSuffix);",
-                  "pm.environment.set('docente_correo', 'docente.prueba.' + shortSuffix + '@buap.mx');",
-                  "pm.environment.set('docente_cubiculo', 'CCO-' + shortSuffix.slice(-3));",
-                  "pm.environment.set('docente_horario_atencion', 'Lunes 10:00-12:00');",
-                  "pm.environment.set('alumno_nombre', 'Alumno Prueba ' + shortSuffix);",
-                  "pm.environment.set('alumno_correo', 'alumno.prueba.' + shortSuffix + '@alumno.buap.mx');",
-                  "pm.environment.set('alumno_matricula', '2023' + shortSuffix.slice(-6));",
-                  "pm.environment.set('alumno_tipo_formacion', 'Licenciatura');",
-                  "pm.environment.set('materia_id', uuidv4());",
-                  "pm.environment.set('periodo_id', uuidv4());",
-                  "pm.environment.set('nrc_materia', 'NRC' + shortSuffix.slice(-5));",
-                  "pm.environment.set('seccion_materia', '001');",
-                  "console.log('Datos dinámicos preparados con suffix:', shortSuffix);"
-                ]
-              }
-            },
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
-                  "pm.test('Datos dinámicos guardados', function () {",
-                  "  pm.expect(pm.environment.get('docente_correo')).to.include('@buap.mx');",
-                  "  pm.expect(pm.environment.get('alumno_matricula')).to.be.a('string');",
-                  "});"
-                ]
-              }
-            }
-          ],
-          "description": "Genera correos, matrícula, NRC, materia_id y periodo_id para pruebas limpias."
-        }
-      ]
-    },
-    {
       "name": "Auth y Usuarios",
       "item": [
         {
@@ -104,7 +39,7 @@
           ]
         },
         {
-          "name": "Login administrador",
+          "name": "Login",
           "request": {
             "method": "POST",
             "header": [
@@ -184,105 +119,7 @@
           ]
         },
         {
-          "name": "Crear identidad para docente",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url_auth}}/auth/users",
-              "host": [
-                "{{base_url_auth}}/auth/users"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre_completo\": \"{{docente_nombre}}\",\n  \"email\": \"{{docente_correo}}\",\n  \"rol\": \"DOCENTE\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
-                  "const body = pm.response.json();",
-                  "pm.test('Identidad de docente procesada', function () { pm.expect(body.success).to.eql(true); });",
-                  "pm.environment.set('docente_user_id', body.data.user.user_id);",
-                  "pm.environment.set('docente_identity_created', String(body.data.created));",
-                  "pm.environment.set('docente_temporary_password', body.data.temporary_password || '');",
-                  "console.log('docente_user_id guardado:', body.data.user.user_id);"
-                ]
-              }
-            }
-          ],
-          "description": "Auth crea una identidad/persona con rol DOCENTE. No crea el registro académico en MS Docentes y Alumnos."
-        },
-        {
-          "name": "Crear identidad para alumno",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              },
-              {
-                "key": "Authorization",
-                "value": "Bearer {{access_token}}"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url_auth}}/auth/users",
-              "host": [
-                "{{base_url_auth}}/auth/users"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre_completo\": \"{{alumno_nombre}}\",\n  \"email\": \"{{alumno_correo}}\",\n  \"rol\": \"ALUMNO\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
-                  "const body = pm.response.json();",
-                  "pm.test('Identidad de alumno procesada', function () { pm.expect(body.success).to.eql(true); });",
-                  "pm.environment.set('alumno_user_id', body.data.user.user_id);",
-                  "pm.environment.set('alumno_identity_created', String(body.data.created));",
-                  "pm.environment.set('alumno_temporary_password', body.data.temporary_password || '');",
-                  "console.log('alumno_user_id guardado:', body.data.user.user_id);"
-                ]
-              }
-            }
-          ],
-          "description": "Auth crea una identidad/persona con rol ALUMNO. No crea el registro académico en MS Docentes y Alumnos."
-        },
-        {
-          "name": "Refresh token",
+          "name": "Refresh Token",
           "request": {
             "method": "POST",
             "header": [
@@ -325,7 +162,7 @@
           ]
         },
         {
-          "name": "Forgot password",
+          "name": "Forgot Password",
           "request": {
             "method": "POST",
             "header": [
@@ -453,6 +290,28 @@
               }
             }
           ]
+        },
+        {
+          "name": "Obtener Usuarios",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_auth}}/auth/users",
+              "host": [
+                "{{base_url_auth}}"
+              ],
+              "path": [
+                "auth",
+                "users"
+              ]
+            }
+          }
         }
       ]
     },
@@ -486,7 +345,7 @@
           ]
         },
         {
-          "name": "Crear docente académico",
+          "name": "Crear docente",
           "request": {
             "method": "POST",
             "header": [
@@ -555,7 +414,7 @@
           ]
         },
         {
-          "name": "Crear alumno académico",
+          "name": "Crear alumno",
           "request": {
             "method": "POST",
             "header": [
@@ -689,14 +548,9 @@
               }
             }
           ]
-        }
-      ]
-    },
-    {
-      "name": "Importaciones",
-      "item": [
+        },
         {
-          "name": "Importar docentes desde PDF",
+          "name": "Importar docentes desde pdf",
           "request": {
             "method": "POST",
             "header": [],
@@ -737,7 +591,7 @@
           ]
         },
         {
-          "name": "Importar alumnos desde PDF",
+          "name": "Importar alumnos desde pdf",
           "request": {
             "method": "POST",
             "header": [
@@ -777,219 +631,6 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Respuesta recibida', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201, 400, 401, 403, 500]); });"
-                ]
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Casos de error",
-      "item": [
-        {
-          "name": "Auth - Login con credenciales incorrectas",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url_auth}}/auth/login",
-              "host": [
-                "{{base_url_auth}}/auth/login"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"email\": \"{{auth_admin_email}}\",\n  \"contrasena\": \"password-incorrecto\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 401', function () { pm.response.to.have.status(401); });",
-                  "const body = pm.response.json();",
-                  "pm.test('Credenciales inválidas', function () { pm.expect(body.error_code).to.eql('AUTH_INVALID_CREDENTIALS'); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Auth - Me sin token",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url_auth}}/auth/me",
-              "host": [
-                "{{base_url_auth}}/auth/me"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 401', function () { pm.response.to.have.status(401); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Docentes y Alumnos - Docente duplicado",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url_docentes_alumnos}}/api/v1/docentes/",
-              "host": [
-                "{{base_url_docentes_alumnos}}/api/v1/docentes/"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre_completo\": \"{{docente_nombre}}\",\n  \"correo\": \"{{docente_correo}}\",\n  \"user_id\": \"{{docente_user_id}}\",\n  \"cubiculo\": \"{{docente_cubiculo}}\",\n  \"horario_atencion\": \"{{docente_horario_atencion}}\",\n  \"estatus_laboral\": true\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 400', function () { pm.response.to.have.status(400); });",
-                  "const body = pm.response.json();",
-                  "pm.test('Mensaje menciona correo', function () { pm.expect(body.detail).to.include('correo'); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Docentes y Alumnos - Alumno duplicado",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url_docentes_alumnos}}/api/v1/alumnos/",
-              "host": [
-                "{{base_url_docentes_alumnos}}/api/v1/alumnos/"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"nombre_completo\": \"{{alumno_nombre}}\",\n  \"correo\": \"{{alumno_correo}}\",\n  \"matricula\": \"{{alumno_matricula}}\",\n  \"user_id\": \"{{alumno_user_id}}\",\n  \"estatus_academico\": true,\n  \"tipo_formacion\": \"{{alumno_tipo_formacion}}\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 400', function () { pm.response.to.have.status(400); });",
-                  "const body = pm.response.json();",
-                  "pm.test('Mensaje menciona matrícula', function () { pm.expect(body.detail).to.include('matrícula'); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Docentes y Alumnos - Inscripción duplicada",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "url": {
-              "raw": "{{base_url_docentes_alumnos}}/api/v1/inscripciones/",
-              "host": [
-                "{{base_url_docentes_alumnos}}/api/v1/inscripciones/"
-              ]
-            },
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"docente_id\": \"{{docente_id}}\",\n  \"alumno_id\": \"{{alumno_id}}\",\n  \"materia_id\": \"{{materia_id}}\",\n  \"periodo_id\": \"{{periodo_id}}\",\n  \"nrc_materia\": \"{{nrc_materia}}\",\n  \"seccion_materia\": \"{{seccion_materia}}\",\n  \"activa\": true\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 400', function () { pm.response.to.have.status(400); });",
-                  "const body = pm.response.json();",
-                  "pm.test('Mensaje menciona inscrito', function () { pm.expect(body.detail).to.include('inscrito'); });"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "Docentes y Alumnos - Endpoint inexistente",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{base_url_docentes_alumnos}}/api/v1/no-existe",
-              "host": [
-                "{{base_url_docentes_alumnos}}/api/v1/no-existe"
-              ]
-            }
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 404', function () { pm.response.to.have.status(404); });"
                 ]
               }
             }
