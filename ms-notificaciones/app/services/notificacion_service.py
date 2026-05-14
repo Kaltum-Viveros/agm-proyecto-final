@@ -8,8 +8,6 @@ from app.grpc.clients.alumnos_client import alumnos_client
 from app.grpc.clients.materias_client import materias_client
 
 def procesar_bienvenida(db: Session, data: BienvenidaRequest):
-    # TODO: 1. Llamar al cliente gRPC del MS-3 para obtener el email y nombre del alumno
-    # TODO: 2. Construir el mensaje de bienvenida
     # 1 y 2: Llamar al cliente gRPC del MS-3 para obtener el email y nombre del alumno
     alumno_data = alumnos_client.obtener_alumno(data.alumno_id)
     email_obtenido = alumno_data.get("email") or "correo_por_defecto@ejemplo.com"
@@ -66,7 +64,7 @@ def procesar_cierre_materia(db: Session, data: CierreMateriaRequest):
     nombre_materia = materia_data.get("nombre") or str(data.materia_id)
     
     # TODO: gRPC para obtener la lista de correos de los alumnos (MS-3) inscritos en la materia (MS-4)
-    # Por ahora simulamos 1 solo correo (puedes reemplazarlo por un ciclo for cuando tengas la lista real)
+    # Por ahora simulamos 1 solo correo (Se reemplaza por un ciclo for cuando tengamos la lista real)
     email_mock = "rinava404@gmail.com"
     
     html = f"<h2>Cierre de Actas Oficial</h2><p>Estimado Alumno, las calificaciones de la materia <b>{nombre_materia}</b> han sido publicadas en el sistema.</p>"
