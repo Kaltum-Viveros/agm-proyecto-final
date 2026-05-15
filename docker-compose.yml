@@ -108,6 +108,10 @@ services:
       - REST_PORT=8003
       - MS1_HOST=ms-auth
       - MS1_PORT=50051
+      - MS2_HOST=ms-periodos-materias
+      - MS2_PORT=50052
+      - MS6_HOST=ms-notificaciones
+      - MS6_PORT=50056
     depends_on:
       - db-docentes
       - ms-auth

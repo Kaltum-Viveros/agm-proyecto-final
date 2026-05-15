@@ -5,7 +5,12 @@ package agm.periodos_materias.v1;
 service PeriodosMateriasService {
   rpc GetMateriaById(GetMateriaByIdRequest) returns (MateriaInfo);
   rpc GetMateriasByDocente(GetMateriasByDocenteRequest) returns (MateriasDocenteResponse);
+  rpc GetMateriaByNRC(GetMateriaByNRCRequest) returns (MateriaInfo);
   rpc GetPeriodoActivo(GetPeriodoActivoRequest) returns (PeriodoInfo);
+}
+
+message GetMateriaByNRCRequest {
+  string nrc = 1;
 }
 
 message GetMateriaByIdRequest {

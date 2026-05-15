@@ -19,6 +19,7 @@ service NotificacionService {
 message BienvenidaRequest {
   string alumno_id = 1;
   string materia_id = 2;
+  string password_temporal = 3;
 }
 
 message BajaNotifRequest {
