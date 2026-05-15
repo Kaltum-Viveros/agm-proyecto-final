@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from app.grpc.generated import calificaciones_pb2 as calificaciones__pb2
+import docentes_alumnos_pb2 as docentes__alumnos__pb2
 
 GRPC_GENERATED_VERSION = '1.68.1'
 GRPC_VERSION = grpc.__version__
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in calificaciones_pb2_grpc.py depends on'
+        + f' but the generated code in docentes_alumnos_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class CalificacionesServiceStub(object):
+class DocentesAlumnosServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,75 +34,78 @@ class CalificacionesServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetConcentrado = channel.unary_unary(
-                '/calificaciones.CalificacionesService/GetConcentrado',
-                request_serializer=calificaciones__pb2.GetConcentradoRequest.SerializeToString,
-                response_deserializer=calificaciones__pb2.GetConcentradoResponse.FromString,
+        self.GetAlumnosByMateria = channel.unary_unary(
+                '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetAlumnosByMateria',
+                request_serializer=docentes__alumnos__pb2.GetAlumnosRequest.SerializeToString,
+                response_deserializer=docentes__alumnos__pb2.AlumnosResponse.FromString,
                 _registered_method=True)
-        self.GetPromedioAlumno = channel.unary_unary(
-                '/calificaciones.CalificacionesService/GetPromedioAlumno',
-                request_serializer=calificaciones__pb2.GetPromedioAlumnoRequest.SerializeToString,
-                response_deserializer=calificaciones__pb2.PromedioAlumnoResponse.FromString,
+        self.IsAlumnoEnMateria = channel.unary_unary(
+                '/agm.docentes_alumnos.v1.DocentesAlumnosService/IsAlumnoEnMateria',
+                request_serializer=docentes__alumnos__pb2.RelationRequest.SerializeToString,
+                response_deserializer=docentes__alumnos__pb2.BoolResponse.FromString,
                 _registered_method=True)
-        self.GetEstadisticasMateria = channel.unary_unary(
-                '/calificaciones.CalificacionesService/GetEstadisticasMateria',
-                request_serializer=calificaciones__pb2.GetEstadisticasMateriaRequest.SerializeToString,
-                response_deserializer=calificaciones__pb2.StatsMateriaResponse.FromString,
+        self.GetAlumnoById = channel.unary_unary(
+                '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetAlumnoById',
+                request_serializer=docentes__alumnos__pb2.AlumnoIdRequest.SerializeToString,
+                response_deserializer=docentes__alumnos__pb2.AlumnoProfile.FromString,
                 _registered_method=True)
 
 
-class CalificacionesServiceServicer(object):
+class DocentesAlumnosServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GetConcentrado(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def GetAlumnosByMateria(self, request, context):
+        """Para que MS-4 y MS-5 obtengan la lista de alumnos de un grupo
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetPromedioAlumno(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def IsAlumnoEnMateria(self, request, context):
+        """Para validar si un alumno pertenece a una materia específica
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetEstadisticasMateria(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def GetAlumnoById(self, request, context):
+        """Obtener perfil detallado
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_CalificacionesServiceServicer_to_server(servicer, server):
+def add_DocentesAlumnosServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetConcentrado': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetConcentrado,
-                    request_deserializer=calificaciones__pb2.GetConcentradoRequest.FromString,
-                    response_serializer=calificaciones__pb2.GetConcentradoResponse.SerializeToString,
+            'GetAlumnosByMateria': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAlumnosByMateria,
+                    request_deserializer=docentes__alumnos__pb2.GetAlumnosRequest.FromString,
+                    response_serializer=docentes__alumnos__pb2.AlumnosResponse.SerializeToString,
             ),
-            'GetPromedioAlumno': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetPromedioAlumno,
-                    request_deserializer=calificaciones__pb2.GetPromedioAlumnoRequest.FromString,
-                    response_serializer=calificaciones__pb2.PromedioAlumnoResponse.SerializeToString,
+            'IsAlumnoEnMateria': grpc.unary_unary_rpc_method_handler(
+                    servicer.IsAlumnoEnMateria,
+                    request_deserializer=docentes__alumnos__pb2.RelationRequest.FromString,
+                    response_serializer=docentes__alumnos__pb2.BoolResponse.SerializeToString,
             ),
-            'GetEstadisticasMateria': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetEstadisticasMateria,
-                    request_deserializer=calificaciones__pb2.GetEstadisticasMateriaRequest.FromString,
-                    response_serializer=calificaciones__pb2.StatsMateriaResponse.SerializeToString,
+            'GetAlumnoById': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAlumnoById,
+                    request_deserializer=docentes__alumnos__pb2.AlumnoIdRequest.FromString,
+                    response_serializer=docentes__alumnos__pb2.AlumnoProfile.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'calificaciones.CalificacionesService', rpc_method_handlers)
+            'agm.docentes_alumnos.v1.DocentesAlumnosService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('calificaciones.CalificacionesService', rpc_method_handlers)
+    server.add_registered_method_handlers('agm.docentes_alumnos.v1.DocentesAlumnosService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class CalificacionesService(object):
+class DocentesAlumnosService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GetConcentrado(request,
+    def GetAlumnosByMateria(request,
             target,
             options=(),
             channel_credentials=None,
@@ -115,9 +118,9 @@ class CalificacionesService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/calificaciones.CalificacionesService/GetConcentrado',
-            calificaciones__pb2.GetConcentradoRequest.SerializeToString,
-            calificaciones__pb2.GetConcentradoResponse.FromString,
+            '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetAlumnosByMateria',
+            docentes__alumnos__pb2.GetAlumnosRequest.SerializeToString,
+            docentes__alumnos__pb2.AlumnosResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -129,7 +132,7 @@ class CalificacionesService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetPromedioAlumno(request,
+    def IsAlumnoEnMateria(request,
             target,
             options=(),
             channel_credentials=None,
@@ -142,9 +145,9 @@ class CalificacionesService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/calificaciones.CalificacionesService/GetPromedioAlumno',
-            calificaciones__pb2.GetPromedioAlumnoRequest.SerializeToString,
-            calificaciones__pb2.PromedioAlumnoResponse.FromString,
+            '/agm.docentes_alumnos.v1.DocentesAlumnosService/IsAlumnoEnMateria',
+            docentes__alumnos__pb2.RelationRequest.SerializeToString,
+            docentes__alumnos__pb2.BoolResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -156,7 +159,7 @@ class CalificacionesService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetEstadisticasMateria(request,
+    def GetAlumnoById(request,
             target,
             options=(),
             channel_credentials=None,
@@ -169,9 +172,9 @@ class CalificacionesService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/calificaciones.CalificacionesService/GetEstadisticasMateria',
-            calificaciones__pb2.GetEstadisticasMateriaRequest.SerializeToString,
-            calificaciones__pb2.StatsMateriaResponse.FromString,
+            '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetAlumnoById',
+            docentes__alumnos__pb2.AlumnoIdRequest.SerializeToString,
+            docentes__alumnos__pb2.AlumnoProfile.FromString,
             options,
             channel_credentials,
             insecure,
