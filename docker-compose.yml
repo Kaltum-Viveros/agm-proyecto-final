@@ -234,6 +234,36 @@ services:
     volumes:
       - ./proto:/app/proto
 
+  # ==================================
+  # MS-7: Reportes
+  # ==================================
+  reportes_db:
+    image: postgres:15-alpine
+    container_name: reportes_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres_password
+      POSTGRES_DB: agm_reportes_db
+    ports:
+      - "5437:5432"
+    volumes:
+      - reportes_data:/var/lib/postgresql/data
+
+  ms-reportes:
+    build:
+      context: ./ms-reportes
+      dockerfile: Dockerfile
+    container_name: ms-reportes
+    restart: always
+    ports:
+      - "8007:8007"
+      - "50057:50057"
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres_password@reportes_db:5432/agm_reportes_db
+    depends_on:
+      - reportes_db
+
 volumes:
   auth_db_data:
   periodos_db_data:
@@ -241,3 +271,4 @@ volumes:
   calificaciones_data:
   asistencias_db_data:
   notificaciones_data:
+  reportes_data:
