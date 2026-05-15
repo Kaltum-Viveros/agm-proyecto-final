@@ -227,7 +227,7 @@ services:
       - DATABASE_URL=postgresql+psycopg://postgres:1234@notificaciones_db:5432/agm_notificaciones_db
       - SMTP_HOST=smtp.gmail.com
       - SMTP_PORT=587
-      - SMTP_USER=test@gmail.com
+      - SMTP_USER=agm.notificaciones.pnzns@gmail.com
       - SMTP_PASSWORD=test_password
     depends_on:
       - notificaciones_db
