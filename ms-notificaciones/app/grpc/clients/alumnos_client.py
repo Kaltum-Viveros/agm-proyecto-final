@@ -1,9 +1,17 @@
 import grpc
 import logging
-# from app.grpc.generated import alumnos_pb2, alumnos_pb2_grpc
+import sys
+import os
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'generated')))
+
+try:
+    from app.grpc.generated import docentes_alumnos_pb2, docentes_alumnos_pb2_grpc
+except ImportError:
+    pass
 
 class AlumnosClient:
-    def __init__(self, host: str = "ms-alumnos", port: int = 50053):
+    def __init__(self, host: str = "ms-docentes-alumnos", port: int = 50051):
         self.host = host
         self.port = port
         self.channel = None
@@ -12,25 +20,26 @@ class AlumnosClient:
     def _connect(self):
         if not self.channel:
             self.channel = grpc.insecure_channel(f"{self.host}:{self.port}")
-            # self.stub = alumnos_pb2_grpc.AlumnoServiceStub(self.channel)
+            if 'docentes_alumnos_pb2_grpc' in globals():
+                self.stub = docentes_alumnos_pb2_grpc.DocentesAlumnosServiceStub(self.channel)
 
     def obtener_alumno(self, alumno_id: int) -> dict:
         """
-        Llama al MS-3 para obtener los datos de un alumno dado su ID.
-        Retorna un diccionario con 'email' y 'nombre'.
+        Llama al ms-docentes-alumnos para obtener el perfil detallado.
         """
-        # TODO: Descomentar esto cuando tus compañeros agreguen alumnos.proto al monorepo
-        # self._connect()
-        # try:
-        #     request = alumnos_pb2.GetAlumnoRequest(alumno_id=alumno_id)
-        #     response = self.stub.GetAlumno(request)
-        #     return {"email": response.email, "nombre": response.nombre}
-        # except grpc.RpcError as e:
-        #     logging.error(f"Error gRPC al consultar MS-3: {e}")
-        #     return {"email": None, "nombre": None}
-        
-        # MOCK MIENTRAS SE CONECTAN LOS SERVICIOS:
-        logging.info(f"MOCK gRPC: Consultando MS-3 por el alumno {alumno_id}")
-        return {"email": "rinava404@gmail.com", "nombre": "Estudiante Prueba"}
+        self._connect()
+        try:
+            if not self.stub:
+                return {"email": "rinava404@gmail.com", "nombre": "MOCK (Falta compilar protos)"}
+            
+            request = docentes_alumnos_pb2.AlumnoIdRequest(alumno_id=str(alumno_id))
+            response = self.stub.GetAlumnoById(request)
+            
+            # Si el correo de respuesta está vacío, usamos un default de seguridad para que no falle el SMTP
+            correo = response.correo if response.correo else "correo_por_defecto@ejemplo.com"
+            return {"email": correo, "nombre": response.nombre_completo}
+        except Exception as e:
+            logging.error(f"Error gRPC al consultar MS-3: {e}")
+            return {"email": "error@ejemplo.com", "nombre": "Desconocido"}
 
 alumnos_client = AlumnosClient()
