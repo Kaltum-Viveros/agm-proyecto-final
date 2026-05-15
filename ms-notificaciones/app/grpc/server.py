@@ -35,8 +35,12 @@ class NotificacionServiceServicer(notificaciones_pb2_grpc.NotificacionServiceSer
     def SendBienvenida(self, request, context):
         try:
             db = next(self._get_db())
-            # Convertimos de string (gRPC) a int (Pydantic/DB)
-            data = BienvenidaRequest(alumno_id=int(request.alumno_id))
+            # Tomamos los strings directamente (UUIDs)
+            data = BienvenidaRequest(
+                alumno_id=request.alumno_id,
+                materia_id=request.materia_id if request.materia_id else "",
+                password_temporal=request.password_temporal
+            )
             notificacion_service.procesar_bienvenida(db, data)
             return notificaciones_pb2.NotifResponse(success=True, message="Notificación de bienvenida procesada")
         except Exception as e:
@@ -47,9 +51,9 @@ class NotificacionServiceServicer(notificaciones_pb2_grpc.NotificacionServiceSer
         try:
             db = next(self._get_db())
             data = BajaMateriaRequest(
-                alumno_id=int(request.alumno_id),
-                docente_id=int(request.docente_id),
-                materia_id=int(request.materia_id)
+                alumno_id=request.alumno_id,
+                docente_id=request.docente_id,
+                materia_id=request.materia_id
             )
             notificacion_service.procesar_baja(db, data)
             return notificaciones_pb2.NotifResponse(success=True, message="Notificación de baja procesada")
@@ -60,7 +64,7 @@ class NotificacionServiceServicer(notificaciones_pb2_grpc.NotificacionServiceSer
     def SendCierreMateria(self, request, context):
         try:
             db = next(self._get_db())
-            data = CierreMateriaRequest(materia_id=int(request.materia_id))
+            data = CierreMateriaRequest(materia_id=request.materia_id)
             notificacion_service.procesar_cierre_materia(db, data)
             return notificaciones_pb2.NotifResponse(success=True, message="Notificación de cierre de actas procesada")
         except Exception as e:

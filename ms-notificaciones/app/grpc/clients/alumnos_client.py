@@ -11,7 +11,7 @@ except ImportError:
     pass
 
 class AlumnosClient:
-    def __init__(self, host: str = "ms-docentes-alumnos", port: int = 50051):
+    def __init__(self, host: str = "ms-docentes-alumnos", port: int = 50053):
         self.host = host
         self.port = port
         self.channel = None
@@ -23,7 +23,7 @@ class AlumnosClient:
             if 'docentes_alumnos_pb2_grpc' in globals():
                 self.stub = docentes_alumnos_pb2_grpc.DocentesAlumnosServiceStub(self.channel)
 
-    def obtener_alumno(self, alumno_id: int) -> dict:
+    def obtener_alumno(self, alumno_id: str) -> dict:
         """
         Llama al ms-docentes-alumnos para obtener el perfil detallado.
         """

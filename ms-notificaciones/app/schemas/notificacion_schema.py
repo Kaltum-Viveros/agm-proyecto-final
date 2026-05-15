@@ -6,15 +6,17 @@ from typing import Optional
 # ---- Request Schemas (Peticiones REST) ----
 
 class BienvenidaRequest(BaseModel):
-    alumno_id: int = Field(..., gt=0, description="ID numérico del alumno registrado")
+    alumno_id: str = Field(..., description="ID (UUID) del alumno registrado")
+    materia_id: str = Field("", description="ID (UUID) de la materia")
+    password_temporal: str = Field(..., description="Contraseña temporal generada")
 
 class BajaMateriaRequest(BaseModel):
-    alumno_id: int = Field(..., gt=0, description="ID del alumno que se da de baja")
-    docente_id: int = Field(..., gt=0, description="ID del docente responsable")
-    materia_id: int = Field(..., gt=0, description="ID de la materia")
+    alumno_id: str = Field(..., description="ID (UUID) del alumno que se da de baja")
+    docente_id: str = Field(..., description="ID (UUID) del docente responsable")
+    materia_id: str = Field(..., description="ID (UUID) de la materia")
 
 class CierreMateriaRequest(BaseModel):
-    materia_id: int = Field(..., gt=0, description="ID de la materia que cerró actas")
+    materia_id: str = Field(..., description="ID (UUID) de la materia que cerró actas")
 
 class ResetPasswordRequest(BaseModel):
     usuario_id: str = Field(..., description="ID del usuario (UUID de ms-auth o numérico)")

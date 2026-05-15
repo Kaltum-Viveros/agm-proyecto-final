@@ -23,7 +23,7 @@ class MateriasClient:
             if 'periodos_materias_pb2_grpc' in globals():
                 self.stub = periodos_materias_pb2_grpc.PeriodosMateriasServiceStub(self.channel)
 
-    def obtener_materia(self, materia_id: int) -> dict:
+    def obtener_materia(self, materia_id: str) -> dict:
         """
         Llama al MS-2 para obtener los datos de una materia.
         """

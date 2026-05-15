@@ -32,7 +32,8 @@ def procesar_bienvenida(db: Session, data: BienvenidaRequest):
     
     # 3. Construir HTML dinámico
     asunto, html = renderizar_plantilla(db, "bienvenida", {
-        "nombre_obtenido": nombre_obtenido
+        "nombre_obtenido": nombre_obtenido,
+        "password_temporal": data.password_temporal
     })
     
     # 4. Enviar correo en segundo plano
