@@ -312,6 +312,1715 @@
               ]
             }
           }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_auth}}/health",
+              "host": [
+                "{{base_url_auth}}"
+              ],
+              "path": [
+                "health"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_auth}}/auth/login",
+              "host": [
+                "{{base_url_auth}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"string\",\n  \"contrasena\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_auth}}/auth/refresh-token",
+              "host": [
+                "{{base_url_auth}}"
+              ],
+              "path": [
+                "auth",
+                "refresh-token"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_auth}}/auth/me",
+              "host": [
+                "{{base_url_auth}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Create User Identity",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_auth}}/auth/users",
+              "host": [
+                "{{base_url_auth}}"
+              ],
+              "path": [
+                "auth",
+                "users"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_completo\": \"string\",\n  \"email\": \"string\",\n  \"rol\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_auth}}/auth/logout",
+              "host": [
+                "{{base_url_auth}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Forgot Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_auth}}/auth/forgot-password",
+              "host": [
+                "{{base_url_auth}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_auth}}/auth/reset-password",
+              "host": [
+                "{{base_url_auth}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reset_token\": \"string\",\n  \"nueva_contrasena\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Periodos y Materias",
+      "item": [
+        {
+          "name": "Crear Periodo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/periodos",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "periodos"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{periodo_nombre}}\",\n  \"fecha_inicio\": \"2024-08-01\",\n  \"fecha_fin\": \"2024-12-15\",\n  \"activo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "const body = pm.response.json();",
+                  "if(body.data && body.data.periodo_id) { pm.environment.set('periodo_id', body.data.periodo_id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar Periodos",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/periodos",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "periodos"
+              ]
+            }
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/health",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Database Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/health/db",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health",
+                "db"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Get Periodo Activo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/periodos/activo",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "periodos",
+                "activo"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Get Periodo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/periodos/:periodo_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "periodos",
+                ":periodo_id"
+              ],
+              "variable": [
+                {
+                  "key": "periodo_id",
+                  "value": "{{periodo_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Periodo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/periodos/:periodo_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "periodos",
+                ":periodo_id"
+              ],
+              "variable": [
+                {
+                  "key": "periodo_id",
+                  "value": "{{periodo_id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"string\",\n  \"fecha_inicio\": \"2024-01-01\",\n  \"fecha_fin\": \"2024-01-01\",\n  \"activo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Deactivate Periodo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/periodos/:periodo_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "periodos",
+                ":periodo_id"
+              ],
+              "variable": [
+                {
+                  "key": "periodo_id",
+                  "value": "{{periodo_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Activar Periodo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/periodos/:periodo_id/activar",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "periodos",
+                ":periodo_id",
+                "activar"
+              ],
+              "variable": [
+                {
+                  "key": "periodo_id",
+                  "value": "{{periodo_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Planes Estudio",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/planes-estudio",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "planes-estudio"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Create Plan Estudio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/planes-estudio",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "planes-estudio"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"string\",\n  \"activo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Plan Estudio",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/planes-estudio/:plan_estudio_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "planes-estudio",
+                ":plan_estudio_id"
+              ],
+              "variable": [
+                {
+                  "key": "plan_estudio_id",
+                  "value": "{{plan_estudio_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Plan Estudio",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/planes-estudio/:plan_estudio_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "planes-estudio",
+                ":plan_estudio_id"
+              ],
+              "variable": [
+                {
+                  "key": "plan_estudio_id",
+                  "value": "{{plan_estudio_id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"string\",\n  \"activo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Deactivate Plan Estudio",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/planes-estudio/:plan_estudio_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "planes-estudio",
+                ":plan_estudio_id"
+              ],
+              "variable": [
+                {
+                  "key": "plan_estudio_id",
+                  "value": "{{plan_estudio_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Materias Catalogo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-catalogo",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-catalogo"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Create Materia Catalogo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-catalogo",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-catalogo"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clave\": \"string\",\n  \"nombre\": \"string\",\n  \"activo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Materia Catalogo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-catalogo/:materia_catalogo_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-catalogo",
+                ":materia_catalogo_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_catalogo_id",
+                  "value": "{{materia_catalogo_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Materia Catalogo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-catalogo/:materia_catalogo_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-catalogo",
+                ":materia_catalogo_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_catalogo_id",
+                  "value": "{{materia_catalogo_id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clave\": \"string\",\n  \"nombre\": \"string\",\n  \"activo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Deactivate Materia Catalogo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-catalogo/:materia_catalogo_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-catalogo",
+                ":materia_catalogo_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_catalogo_id",
+                  "value": "{{materia_catalogo_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Materias Planes Estudio",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-planes-estudio",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-planes-estudio"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Create Materia Plan Estudio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-planes-estudio",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-planes-estudio"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materia_catalogo_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"plan_estudio_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"activa\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Materia Plan Estudio",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-planes-estudio/:materia_plan_estudio_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-planes-estudio",
+                ":materia_plan_estudio_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_plan_estudio_id",
+                  "value": "{{materia_plan_estudio_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Materia Plan Estudio",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-planes-estudio/:materia_plan_estudio_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-planes-estudio",
+                ":materia_plan_estudio_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_plan_estudio_id",
+                  "value": "{{materia_plan_estudio_id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"activa\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Deactivate Materia Plan Estudio",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-planes-estudio/:materia_plan_estudio_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-planes-estudio",
+                ":materia_plan_estudio_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_plan_estudio_id",
+                  "value": "{{materia_plan_estudio_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Materias Ofertadas",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-ofertadas",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-ofertadas"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Create Materia Ofertada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-ofertadas",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-ofertadas"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"periodo_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"materia_catalogo_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"nrc\": \"string\",\n  \"seccion\": \"string\",\n  \"docente_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"docente_nombre\": \"string\",\n  \"estado\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Materia Ofertada",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-ofertadas/:materia_ofertada_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-ofertadas",
+                ":materia_ofertada_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_ofertada_id",
+                  "value": "{{materia_ofertada_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Materia Ofertada",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-ofertadas/:materia_ofertada_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-ofertadas",
+                ":materia_ofertada_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_ofertada_id",
+                  "value": "{{materia_ofertada_id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"periodo_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"materia_catalogo_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"nrc\": \"string\",\n  \"seccion\": \"string\",\n  \"docente_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"docente_nombre\": \"string\",\n  \"estado\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Deactivate Materia Ofertada",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-ofertadas/:materia_ofertada_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-ofertadas",
+                ":materia_ofertada_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_ofertada_id",
+                  "value": "{{materia_ofertada_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Activar Materia Ofertada",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-ofertadas/:materia_ofertada_id/activar",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-ofertadas",
+                ":materia_ofertada_id",
+                "activar"
+              ],
+              "variable": [
+                {
+                  "key": "materia_ofertada_id",
+                  "value": "{{materia_ofertada_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cerrar Materia Ofertada",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-ofertadas/:materia_ofertada_id/cerrar",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-ofertadas",
+                ":materia_ofertada_id",
+                "cerrar"
+              ],
+              "variable": [
+                {
+                  "key": "materia_ofertada_id",
+                  "value": "{{materia_ofertada_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Cancelar Materia Ofertada",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-ofertadas/:materia_ofertada_id/cancelar",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-ofertadas",
+                ":materia_ofertada_id",
+                "cancelar"
+              ],
+              "variable": [
+                {
+                  "key": "materia_ofertada_id",
+                  "value": "{{materia_ofertada_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Asignar Docente Materia Ofertada",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias-ofertadas/:materia_ofertada_id/asignar-docente",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias-ofertadas",
+                ":materia_ofertada_id",
+                "asignar-docente"
+              ],
+              "variable": [
+                {
+                  "key": "materia_ofertada_id",
+                  "value": "{{materia_ofertada_id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"docente_nombre\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "List Materia Horarios",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materia-horarios",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materia-horarios"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Create Materia Horario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materia-horarios",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materia-horarios"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materia_ofertada_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"dia\": \"string\",\n  \"hora_inicio\": \"string\",\n  \"hora_fin\": \"string\",\n  \"salon\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Get Materia Horario",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materia-horarios/:materia_horario_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materia-horarios",
+                ":materia_horario_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_horario_id",
+                  "value": "{{materia_horario_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Update Materia Horario",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materia-horarios/:materia_horario_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materia-horarios",
+                ":materia_horario_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_horario_id",
+                  "value": "{{materia_horario_id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dia\": \"string\",\n  \"hora_inicio\": \"string\",\n  \"hora_fin\": \"string\",\n  \"salon\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Delete Materia Horario",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materia-horarios/:materia_horario_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materia-horarios",
+                ":materia_horario_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_horario_id",
+                  "value": "{{materia_horario_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Importar Programacion Academica",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/importaciones/programacion-academica",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "importaciones",
+                "programacion-academica"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "List Materias",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "List Materias Periodo Activo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias/periodo-activo",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias",
+                "periodo-activo"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "List Materias By Periodo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias/periodo/:periodo_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias",
+                "periodo",
+                ":periodo_id"
+              ],
+              "variable": [
+                {
+                  "key": "periodo_id",
+                  "value": "{{periodo_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "List Materias By Docente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias/docente/:docente_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias",
+                "docente",
+                ":docente_id"
+              ],
+              "variable": [
+                {
+                  "key": "docente_id",
+                  "value": "{{docente_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Materia By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_periodos}}/api/v1/materias/:materia_ofertada_id",
+              "host": [
+                "{{base_url_periodos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "materias",
+                ":materia_ofertada_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_ofertada_id",
+                  "value": "{{materia_ofertada_id}}"
+                }
+              ]
+            }
+          }
         }
       ]
     },
@@ -635,6 +2344,1329 @@
               }
             }
           ]
+        },
+        {
+          "name": "Create Alumno",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_docentes_alumnos}}/api/v1/alumnos/",
+              "host": [
+                "{{base_url_docentes_alumnos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "alumnos"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_completo\": \"string\",\n  \"correo\": \"string\",\n  \"matricula\": \"string\",\n  \"estatus_academico\": true,\n  \"tipo_formacion\": \"string\",\n  \"user_id\": \"00000000-0000-0000-0000-000000000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Read Alumnos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_docentes_alumnos}}/api/v1/alumnos/",
+              "host": [
+                "{{base_url_docentes_alumnos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "alumnos"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Create Docente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_docentes_alumnos}}/api/v1/docentes/",
+              "host": [
+                "{{base_url_docentes_alumnos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "docentes"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_completo\": \"string\",\n  \"correo\": \"string\",\n  \"cubiculo\": \"string\",\n  \"horario_atencion\": \"string\",\n  \"estatus_laboral\": true,\n  \"user_id\": \"00000000-0000-0000-0000-000000000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Read Docentes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_docentes_alumnos}}/api/v1/docentes/",
+              "host": [
+                "{{base_url_docentes_alumnos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "docentes"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Listar Inscripciones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_docentes_alumnos}}/api/v1/inscripciones/",
+              "host": [
+                "{{base_url_docentes_alumnos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inscripciones"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Crear Inscripcion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_docentes_alumnos}}/api/v1/inscripciones/",
+              "host": [
+                "{{base_url_docentes_alumnos}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "inscripciones"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"alumno_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"materia_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"periodo_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"nrc_materia\": \"string\",\n  \"seccion_materia\": \"string\",\n  \"activa\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Calificaciones",
+      "item": [
+        {
+          "name": "Crear Ponderaciones",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/ponderaciones/{{materia_id}}",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ponderaciones",
+                "{{materia_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"criterios\": [\n    {\"nombre\": \"Exámenes\", \"porcentaje\": 40.0, \"orden\": 1},\n    {\"nombre\": \"Proyectos\", \"porcentaje\": 60.0, \"orden\": 2}\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Crear Actividad",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/actividades/{{materia_id}}",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "actividades",
+                "{{materia_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Proyecto Final\",\n  \"descripcion\": \"Desarrollo del microservicio\",\n  \"criterio_id\": \"{{criterio_id}}\",\n  \"fecha_vencimiento\": \"2024-12-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/health",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Crear Ponderaciones",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/ponderaciones/:materia_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ponderaciones",
+                ":materia_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_id",
+                  "value": "{{materia_id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"criterios\": [\n    {\n      \"nombre\": \"string\",\n      \"porcentaje\": {},\n      \"orden\": 0\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Obtener Ponderaciones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/ponderaciones/:materia_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ponderaciones",
+                ":materia_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_id",
+                  "value": "{{materia_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Ponderaciones",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/ponderaciones/:materia_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ponderaciones",
+                ":materia_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_id",
+                  "value": "{{materia_id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"criterios\": [\n    {\n      \"nombre\": \"string\",\n      \"porcentaje\": {},\n      \"orden\": 0\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Eliminar Ponderaciones",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/ponderaciones/:materia_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ponderaciones",
+                ":materia_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_id",
+                  "value": "{{materia_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear Actividad",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/actividades",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "actividades"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materia_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"ponderacion_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"nombre\": \"string\",\n  \"descripcion\": \"string\",\n  \"valor_maximo\": 0.0,\n  \"fecha_aplicacion\": \"2024-01-01\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Obtener Actividades Por Materia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/actividades/materia/:materia_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "actividades",
+                "materia",
+                ":materia_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_id",
+                  "value": "{{materia_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Actividad Por Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/actividades/:actividad_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "actividades",
+                ":actividad_id"
+              ],
+              "variable": [
+                {
+                  "key": "actividad_id",
+                  "value": "{{actividad_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Actividad",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/actividades/:actividad_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "actividades",
+                ":actividad_id"
+              ],
+              "variable": [
+                {
+                  "key": "actividad_id",
+                  "value": "{{actividad_id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"ponderacion_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"nombre\": \"string\",\n  \"descripcion\": \"string\",\n  \"valor_maximo\": 0.0,\n  \"fecha_aplicacion\": \"2024-01-01\",\n  \"estado\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Eliminar Actividad",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/actividades/:actividad_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "actividades",
+                ":actividad_id"
+              ],
+              "variable": [
+                {
+                  "key": "actividad_id",
+                  "value": "{{actividad_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Crear Calificacion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/calificaciones",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actividad_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"alumno_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"calificacion\": 0.0,\n  \"observaciones\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Importar Calificaciones",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/calificaciones/importar",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones",
+                "importar"
+              ],
+              "variable": []
+            }
+          }
+        },
+        {
+          "name": "Obtener Calificaciones Por Actividad",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/calificaciones/actividad/:actividad_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones",
+                "actividad",
+                ":actividad_id"
+              ],
+              "variable": [
+                {
+                  "key": "actividad_id",
+                  "value": "{{actividad_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Calificaciones Por Alumno Y Materia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/calificaciones/alumno/:alumno_id/materia/:materia_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones",
+                "alumno",
+                ":alumno_id",
+                "materia",
+                ":materia_id"
+              ],
+              "variable": [
+                {
+                  "key": "alumno_id",
+                  "value": "{{alumno_id}}"
+                },
+                {
+                  "key": "materia_id",
+                  "value": "{{materia_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Calificacion Por Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/calificaciones/:calificacion_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones",
+                ":calificacion_id"
+              ],
+              "variable": [
+                {
+                  "key": "calificacion_id",
+                  "value": "{{calificacion_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Calificacion",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/calificaciones/:calificacion_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones",
+                ":calificacion_id"
+              ],
+              "variable": [
+                {
+                  "key": "calificacion_id",
+                  "value": "{{calificacion_id}}"
+                }
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"calificacion\": 0.0,\n  \"observaciones\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Eliminar Calificacion",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/calificaciones/:calificacion_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones",
+                ":calificacion_id"
+              ],
+              "variable": [
+                {
+                  "key": "calificacion_id",
+                  "value": "{{calificacion_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Concentrado",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/api/v1/concentrado/:materia_id",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "concentrado",
+                ":materia_id"
+              ],
+              "variable": [
+                {
+                  "key": "materia_id",
+                  "value": "{{materia_id}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_calificaciones}}/",
+              "host": [
+                "{{base_url_calificaciones}}"
+              ],
+              "path": [],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Asistencias",
+      "item": [
+        {
+          "name": "Iniciar Sesion",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_asistencias}}/sesiones/iniciar",
+              "host": [
+                "{{base_url_asistencias}}"
+              ],
+              "path": [
+                "sesiones",
+                "iniciar"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_materia\": \"{{materia_id}}\",\n  \"id_docente\": \"{{docente_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if(body.id_sesion) pm.environment.set('sesion_id', body.id_sesion);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Generar QR (Alumno)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_asistencias}}/qr/generar",
+              "host": [
+                "{{base_url_asistencias}}"
+              ],
+              "path": [
+                "qr",
+                "generar"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_sesion\": \"{{sesion_id}}\",\n  \"id_alumno\": \"{{alumno_id}}\",\n  \"matricula\": \"{{alumno_matricula}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const body = pm.response.json();",
+                  "if(body.token) pm.environment.set('token_qr', body.token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Escanear QR (Docente)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_asistencias}}/asistencias/escanear-qr",
+              "host": [
+                "{{base_url_asistencias}}"
+              ],
+              "path": [
+                "asistencias",
+                "escanear-qr"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token_cifrado\": \"{{token_qr}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Cerrar una sesión manualmente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_asistencias}}/sesiones/:id_sesion/cerrar",
+              "host": [
+                "{{base_url_asistencias}}"
+              ],
+              "path": [
+                "sesiones",
+                ":id_sesion",
+                "cerrar"
+              ],
+              "variable": [
+                {
+                  "key": "id_sesion",
+                  "value": "{{id_sesion}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Registrar la asistencia de un alumno validando su QR",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_asistencias}}/asistencias/registrar",
+              "host": [
+                "{{base_url_asistencias}}"
+              ],
+              "path": [
+                "asistencias",
+                "registrar"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token_cifrado\": \"string\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Obtener la lista de asistencias de una sesión específica",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_asistencias}}/asistencias/:id_sesion/historial",
+              "host": [
+                "{{base_url_asistencias}}"
+              ],
+              "path": [
+                "asistencias",
+                ":id_sesion",
+                "historial"
+              ],
+              "variable": [
+                {
+                  "key": "id_sesion",
+                  "value": "{{id_sesion}}"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_asistencias}}/health",
+              "host": [
+                "{{base_url_asistencias}}"
+              ],
+              "path": [
+                "health"
+              ],
+              "variable": []
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Notificaciones",
+      "item": [
+        {
+          "name": "Enviar Bienvenida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_notificaciones}}/api/v1/notificaciones/bienvenida",
+              "host": [
+                "{{base_url_notificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "notificaciones",
+                "bienvenida"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alumno_id\": \"{{alumno_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Baja Materia",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_notificaciones}}/api/v1/notificaciones/baja",
+              "host": [
+                "{{base_url_notificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "notificaciones",
+                "baja"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alumno_id\": \"{{alumno_id}}\",\n  \"docente_id\": \"{{docente_id}}\",\n  \"materia_id\": \"{{materia_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Enviar Cierre Materia",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_notificaciones}}/api/v1/notificaciones/cierre-materia",
+              "host": [
+                "{{base_url_notificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "notificaciones",
+                "cierre-materia"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materia_id\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Enviar Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_notificaciones}}/api/v1/notificaciones/reset-password",
+              "host": [
+                "{{base_url_notificaciones}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "notificaciones",
+                "reset-password"
+              ],
+              "variable": []
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario_id\": 0\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          }
+        },
+        {
+          "name": "Root",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url_notificaciones}}/",
+              "host": [
+                "{{base_url_notificaciones}}"
+              ],
+              "path": [],
+              "variable": []
+            }
+          }
         }
       ]
     }

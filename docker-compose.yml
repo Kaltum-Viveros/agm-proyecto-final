@@ -1,37 +1,7 @@
 services:
-  asistencias_db:
-    image: postgres:15-alpine
-    container_name: asistencias_db
-    restart: always
-    environment:
-      POSTGRES_USER: agm_user
-      POSTGRES_PASSWORD: agm_password
-      POSTGRES_DB: agm_asistencias_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - asistencias_db_data:/var/lib/postgresql/data
-
-  ms-asistencias:
-    build:
-      context: ./ms-asistencias
-      dockerfile: Dockerfile
-    container_name: ms-asistencias
-    restart: always
-    ports:
-      - "8005:8005"
-      - "50055:50055"
-    environment:
-      - ENVIRONMENT=production
-      # Nota: Usamos 'asistencias_db' como host para que apunte al contenedor de BD
-      - DATABASE_URL=postgresql+asyncpg://agm_user:agm_password@asistencias_db:5432/agm_asistencias_db
-      - QR_SECRET_KEY=bWlfY2xhdmVfc2VjcmV0YV9wYXJhX2NpZnJhcl9xcg==
-      - QR_TTL_SECONDS=20
-      - SESSION_DURATION_MINUTES=10
-      - PRESENT_LIMIT_MINUTES=5
-    depends_on:
-      - asistencias_db
-
+  # ==================================
+  # MS-1: Auth
+  # ==================================
   auth_db:
     image: postgres:15-alpine
     container_name: auth_db
@@ -41,7 +11,7 @@ services:
       POSTGRES_PASSWORD: agm_auth_password
       POSTGRES_DB: agm_auth_db
     ports:
-      - "5434:5432"
+      - "5431:5432"
     volumes:
       - auth_db_data:/var/lib/postgresql/data
 
@@ -64,6 +34,51 @@ services:
     depends_on:
       - auth_db
 
+  # ==================================
+  # MS-2: Periodos y Materias
+  # ==================================
+  periodos_db:
+    image: postgres:16-alpine
+    container_name: periodos_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: agm_periodos_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - periodos_db_data:/var/lib/postgresql/data
+
+  ms-periodos-materias:
+    build:
+      context: ./ms-periodos-materias
+      dockerfile: Dockerfile
+    container_name: ms-periodos-materias
+    restart: always
+    ports:
+      - "8002:8002"
+      - "50052:50052"
+    environment:
+      - PROJECT_NAME=MS-2 Periodos y Materias
+      - SERVICE_NAME=ms-periodos-materias
+      - ENVIRONMENT=development
+      - REST_HOST=0.0.0.0
+      - REST_PORT=8002
+      - GRPC_HOST=0.0.0.0
+      - GRPC_PORT=50052
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@periodos_db:5432/agm_periodos_db
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:8000
+      - MS_AUTH_GRPC_HOST=ms-auth
+      - MS_AUTH_GRPC_PORT=50051
+      - MS_DOCENTES_ALUMNOS_GRPC_HOST=ms-docentes-alumnos
+      - MS_DOCENTES_ALUMNOS_GRPC_PORT=50053
+    depends_on:
+      - periodos_db
+
+  # ==================================
+  # MS-3: Docentes y Alumnos
+  # ==================================
   db-docentes:
     image: postgres:15-alpine
     container_name: db-docentes-alumnos
@@ -95,7 +110,134 @@ services:
       - db-docentes
       - ms-auth
 
+  # ==================================
+  # MS-4: Calificaciones
+  # ==================================
+  calificaciones_db:
+    image: postgres:16-alpine
+    container_name: calificaciones_db
+    restart: always
+    environment:
+      POSTGRES_USER: calificaciones_user
+      POSTGRES_PASSWORD: calificaciones_pass
+      POSTGRES_DB: agm_calificaciones_db
+    ports:
+      - "5434:5432"
+    volumes:
+      - calificaciones_data:/var/lib/postgresql/data
+
+  ms-calificaciones:
+    build:
+      context: ./ms-calificaciones
+      dockerfile: Dockerfile
+    container_name: ms-calificaciones
+    restart: always
+    ports:
+      - "8004:8004"
+      - "50054:50054"
+    environment:
+      - SERVICE_NAME=ms-calificaciones
+      - ENV=development
+      - REST_HOST=0.0.0.0
+      - REST_PORT=8004
+      - GRPC_HOST=0.0.0.0
+      - GRPC_PORT=50054
+      - DATABASE_URL=postgresql://calificaciones_user:calificaciones_pass@calificaciones_db:5432/agm_calificaciones_db
+      - MS_ALUMNOS_GRPC_URL=ms-docentes-alumnos:50053
+    depends_on:
+      - calificaciones_db
+      - ms-docentes-alumnos
+
+  # ==================================
+  # MS-5: Asistencias
+  # ==================================
+  asistencias_db:
+    image: postgres:15-alpine
+    container_name: asistencias_db
+    restart: always
+    environment:
+      POSTGRES_USER: agm_user
+      POSTGRES_PASSWORD: agm_password
+      POSTGRES_DB: agm_asistencias_db
+    ports:
+      - "5435:5432"
+    volumes:
+      - asistencias_db_data:/var/lib/postgresql/data
+
+  ms-asistencias:
+    build:
+      context: ./ms-asistencias
+      dockerfile: Dockerfile
+    container_name: ms-asistencias
+    restart: always
+    ports:
+      - "8005:8005"
+      - "50055:50055"
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql+asyncpg://agm_user:agm_password@asistencias_db:5432/agm_asistencias_db
+      - QR_SECRET_KEY=brS6PRv2RwIBFbwMK-SbjpmWzNmhDS4yAalleGsAdr8=
+      - QR_TTL_SECONDS=20
+      - SESSION_DURATION_MINUTES=10
+      - PRESENT_LIMIT_MINUTES=5
+      - AUTH_GRPC_HOST=ms-auth
+      - AUTH_GRPC_PORT=50051
+      - MATERIAS_GRPC_HOST=ms-periodos-materias
+      - MATERIAS_GRPC_PORT=50052
+      - ALUMNOS_GRPC_HOST=ms-docentes-alumnos
+      - ALUMNOS_GRPC_PORT=50053
+    depends_on:
+      - asistencias_db
+      - ms-auth
+      - ms-periodos-materias
+      - ms-docentes-alumnos
+
+  # ==================================
+  # MS-6: Notificaciones
+  # ==================================
+  notificaciones_db:
+    image: postgres:15-alpine
+    container_name: notificaciones_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: agm_notificaciones_db
+    ports:
+      - "5436:5432"
+    volumes:
+      - notificaciones_data:/var/lib/postgresql/data
+
+  ms-notificaciones:
+    build:
+      context: ./ms-notificaciones
+      dockerfile: Dockerfile
+    container_name: ms-notificaciones
+    restart: always
+    ports:
+      - "8006:8006"
+      - "50056:50056"
+    environment:
+      - APP_ENV=development
+      - DEBUG=true
+      - REST_HOST=0.0.0.0
+      - REST_PORT=8006
+      - GRPC_HOST=0.0.0.0
+      - GRPC_PORT=50056
+      - DATABASE_URL=postgresql+psycopg://postgres:1234@notificaciones_db:5432/agm_notificaciones_db
+      - SMTP_HOST=smtp.gmail.com
+      - SMTP_PORT=587
+      - SMTP_USER=test@gmail.com
+      - SMTP_PASSWORD=test_password
+    depends_on:
+      - notificaciones_db
+    volumes:
+      - ./proto:/app/proto
+
 volumes:
-  asistencias_db_data:
   auth_db_data:
+  periodos_db_data:
   postgres_data_ms3:
+  calificaciones_data:
+  asistencias_db_data:
+  notificaciones_data:

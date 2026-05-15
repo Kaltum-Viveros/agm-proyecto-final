@@ -4,7 +4,7 @@ pydantic-settings
 python-dotenv
 
 SQLAlchemy
-psycopg[binary]
+psycopg2-binary
 alembic
 
 grpcio
