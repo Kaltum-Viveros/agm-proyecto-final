@@ -22,3 +22,8 @@ class Inscripcion(Base):
 
     alumno = relationship("Alumno", back_populates="inscripciones")
     docente = relationship("Docente", back_populates="inscripciones")
+
+    __table_args__ = (
+        # Garantiza que un alumno no pueda estar inscrito dos veces en la misma materia
+        __import__('sqlalchemy').UniqueConstraint('alumno_id', 'materia_id', name='uq_inscripcion_alumno_materia'),
+    )

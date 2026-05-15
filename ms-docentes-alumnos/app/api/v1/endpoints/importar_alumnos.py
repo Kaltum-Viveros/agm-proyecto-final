@@ -65,22 +65,28 @@ async def importar_alumnos_pdf(
                 data["alumno"]["user_id"] = u_id
                 nuevo_alumno = alumno_repo.create_or_update(db, data["alumno"])
                 
-                # 5. Inscripción vinculando todos los servicios
-                inscripcion_repo.create(db, obj_in={
-                    "alumno_id": nuevo_alumno.alumno_id,
-                    "docente_id": docente.docente_id,
-                    "nrc_materia": nrc,
-                    "materia_id": m_id,
-                    "periodo_id": p_id,
-                    "activa": True
-                })
+                # 5. Inscripción — verificar idempotencia antes de insertar
+                ya_inscrito = db.query(Inscripcion).filter(
+                    Inscripcion.alumno_id == nuevo_alumno.alumno_id,
+                    Inscripcion.materia_id == m_id,
+                    Inscripcion.activa == True
+                ).first()
+
+                if not ya_inscrito:
+                    inscripcion_repo.create(db, obj_in={
+                        "alumno_id": nuevo_alumno.alumno_id,
+                        "docente_id": docente.docente_id,
+                        "nrc_materia": nrc,
+                        "materia_id": m_id,
+                        "periodo_id": p_id,
+                        "activa": True
+                    })
 
                 # 6. Notificación de bienvenida vía gRPC (MS-6)
                 notif_client.enviar_bienvenida(
-                    nombre=nuevo_alumno.nombre_completo,
-                    correo=nuevo_alumno.correo,
-                    password=temp_pass,
-                    nrc=nrc
+                    alumno_id=nuevo_alumno.alumno_id,
+                    materia_id=m_id,
+                    password=temp_pass
                 )
 
                 exitos += 1

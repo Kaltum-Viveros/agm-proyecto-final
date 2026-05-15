@@ -5,7 +5,7 @@ import warnings
 
 import periodos_materias_pb2 as periodos__materias__pb2
 
-GRPC_GENERATED_VERSION = '1.80.0'
+GRPC_GENERATED_VERSION = '1.68.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + ' but the generated code in periodos_materias_pb2_grpc.py depends on'
+        + f' but the generated code in periodos_materias_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -44,6 +44,11 @@ class PeriodosMateriasServiceStub(object):
                 request_serializer=periodos__materias__pb2.GetMateriasByDocenteRequest.SerializeToString,
                 response_deserializer=periodos__materias__pb2.MateriasDocenteResponse.FromString,
                 _registered_method=True)
+        self.GetMateriaByNRC = channel.unary_unary(
+                '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriaByNRC',
+                request_serializer=periodos__materias__pb2.GetMateriaByNRCRequest.SerializeToString,
+                response_deserializer=periodos__materias__pb2.MateriaInfo.FromString,
+                _registered_method=True)
         self.GetPeriodoActivo = channel.unary_unary(
                 '/agm.periodos_materias.v1.PeriodosMateriasService/GetPeriodoActivo',
                 request_serializer=periodos__materias__pb2.GetPeriodoActivoRequest.SerializeToString,
@@ -61,6 +66,12 @@ class PeriodosMateriasServiceServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def GetMateriasByDocente(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetMateriaByNRC(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -84,6 +95,11 @@ def add_PeriodosMateriasServiceServicer_to_server(servicer, server):
                     servicer.GetMateriasByDocente,
                     request_deserializer=periodos__materias__pb2.GetMateriasByDocenteRequest.FromString,
                     response_serializer=periodos__materias__pb2.MateriasDocenteResponse.SerializeToString,
+            ),
+            'GetMateriaByNRC': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMateriaByNRC,
+                    request_deserializer=periodos__materias__pb2.GetMateriaByNRCRequest.FromString,
+                    response_serializer=periodos__materias__pb2.MateriaInfo.SerializeToString,
             ),
             'GetPeriodoActivo': grpc.unary_unary_rpc_method_handler(
                     servicer.GetPeriodoActivo,
@@ -145,6 +161,33 @@ class PeriodosMateriasService(object):
             '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriasByDocente',
             periodos__materias__pb2.GetMateriasByDocenteRequest.SerializeToString,
             periodos__materias__pb2.MateriasDocenteResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetMateriaByNRC(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriaByNRC',
+            periodos__materias__pb2.GetMateriaByNRCRequest.SerializeToString,
+            periodos__materias__pb2.MateriaInfo.FromString,
             options,
             channel_credentials,
             insecure,

@@ -12,17 +12,16 @@ class MS2Client:
 
     def obtener_materia_y_periodo(self, docente_id: str, nrc_pdf: str):
         """
-        Pide las materias del docente al MS-2 y filtra por NRC.
+        Busca la materia directamente por NRC en el MS-2.
+        Ya no depende de que el docente_id esté vinculado en MS-2.
         """
         try:
-            request = periodos_materias_pb2.GetMateriasByDocenteRequest(docente_id=docente_id)
-            response = self.stub.GetMateriasByDocente(request)
+            request = periodos_materias_pb2.GetMateriaByNRCRequest(nrc=nrc_pdf)
+            materia = self.stub.GetMateriaByNRC(request)
             
-            for materia in response.materias:
-                if materia.nrc == nrc_pdf:
-                    # Retornamos el materia_ofertada_id y el periodo_id del contrato
-                    return materia.materia_ofertada_id, materia.periodo.periodo_id
+            if materia and materia.materia_ofertada_id:
+                return materia.materia_ofertada_id, materia.periodo.periodo_id
             return None, None
         except Exception as e:
-            print(f"Error gRPC con MS-2: {e}")
+            print(f"Error gRPC con MS-2 (NRC {nrc_pdf}): {e}")
             return None, None

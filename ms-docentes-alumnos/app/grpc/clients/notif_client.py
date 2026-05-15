@@ -9,14 +9,13 @@ class NotifClient:
         self.channel = grpc.insecure_channel(f"{self.host}:{self.port}")
         self.stub = notificaciones_pb2_grpc.NotificacionServiceStub(self.channel)
 
-    def enviar_bienvenida(self, nombre: str, correo: str, password: str, nrc: str):
+    def enviar_bienvenida(self, alumno_id: int, materia_id: int, password: str):
         """Dispara el correo al MS-6 con las credenciales del alumno"""
         try:
             request = notificaciones_pb2.BienvenidaRequest(
-                nombre_alumno=nombre,
-                correo_alumno=correo,
-                password_temporal=password,
-                nrc_materia=nrc
+                alumno_id=str(alumno_id),
+                materia_id=str(materia_id),
+                password_temporal=password
             )
             response = self.stub.SendBienvenida(request)
             return response.success

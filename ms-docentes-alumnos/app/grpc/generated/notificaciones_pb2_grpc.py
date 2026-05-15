@@ -3,9 +3,9 @@
 import grpc
 import warnings
 
-import notificaciones_pb2 as notificaciones__pb2
+from app.grpc.generated import notificaciones_pb2 as notificaciones__pb2
 
-GRPC_GENERATED_VERSION = '1.80.0'
+GRPC_GENERATED_VERSION = '1.68.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -18,7 +18,7 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + ' but the generated code in notificaciones_pb2_grpc.py depends on'
+        + f' but the generated code in notificaciones_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
@@ -39,6 +39,21 @@ class NotificacionServiceStub(object):
                 request_serializer=notificaciones__pb2.BienvenidaRequest.SerializeToString,
                 response_deserializer=notificaciones__pb2.NotifResponse.FromString,
                 _registered_method=True)
+        self.SendBajaNotif = channel.unary_unary(
+                '/agm.notificaciones.v1.NotificacionService/SendBajaNotif',
+                request_serializer=notificaciones__pb2.BajaNotifRequest.SerializeToString,
+                response_deserializer=notificaciones__pb2.NotifResponse.FromString,
+                _registered_method=True)
+        self.SendCierreMateria = channel.unary_unary(
+                '/agm.notificaciones.v1.NotificacionService/SendCierreMateria',
+                request_serializer=notificaciones__pb2.CierreMateriaRequest.SerializeToString,
+                response_deserializer=notificaciones__pb2.NotifResponse.FromString,
+                _registered_method=True)
+        self.SendResetPassword = channel.unary_unary(
+                '/agm.notificaciones.v1.NotificacionService/SendResetPassword',
+                request_serializer=notificaciones__pb2.ResetPasswordRequest.SerializeToString,
+                response_deserializer=notificaciones__pb2.NotifResponse.FromString,
+                _registered_method=True)
 
 
 class NotificacionServiceServicer(object):
@@ -51,12 +66,48 @@ class NotificacionServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SendBajaNotif(self, request, context):
+        """Dispara el correo al docente cuando un alumno se da de baja
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendCierreMateria(self, request, context):
+        """Dispara el correo masivo cuando se cierran las actas de una materia
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SendResetPassword(self, request, context):
+        """Dispara correo de recuperación de contraseña desde ms-auth
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_NotificacionServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SendBienvenida': grpc.unary_unary_rpc_method_handler(
                     servicer.SendBienvenida,
                     request_deserializer=notificaciones__pb2.BienvenidaRequest.FromString,
+                    response_serializer=notificaciones__pb2.NotifResponse.SerializeToString,
+            ),
+            'SendBajaNotif': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendBajaNotif,
+                    request_deserializer=notificaciones__pb2.BajaNotifRequest.FromString,
+                    response_serializer=notificaciones__pb2.NotifResponse.SerializeToString,
+            ),
+            'SendCierreMateria': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendCierreMateria,
+                    request_deserializer=notificaciones__pb2.CierreMateriaRequest.FromString,
+                    response_serializer=notificaciones__pb2.NotifResponse.SerializeToString,
+            ),
+            'SendResetPassword': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendResetPassword,
+                    request_deserializer=notificaciones__pb2.ResetPasswordRequest.FromString,
                     response_serializer=notificaciones__pb2.NotifResponse.SerializeToString,
             ),
     }
@@ -86,6 +137,87 @@ class NotificacionService(object):
             target,
             '/agm.notificaciones.v1.NotificacionService/SendBienvenida',
             notificaciones__pb2.BienvenidaRequest.SerializeToString,
+            notificaciones__pb2.NotifResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendBajaNotif(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/agm.notificaciones.v1.NotificacionService/SendBajaNotif',
+            notificaciones__pb2.BajaNotifRequest.SerializeToString,
+            notificaciones__pb2.NotifResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendCierreMateria(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/agm.notificaciones.v1.NotificacionService/SendCierreMateria',
+            notificaciones__pb2.CierreMateriaRequest.SerializeToString,
+            notificaciones__pb2.NotifResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def SendResetPassword(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/agm.notificaciones.v1.NotificacionService/SendResetPassword',
+            notificaciones__pb2.ResetPasswordRequest.SerializeToString,
             notificaciones__pb2.NotifResponse.FromString,
             options,
             channel_credentials,
