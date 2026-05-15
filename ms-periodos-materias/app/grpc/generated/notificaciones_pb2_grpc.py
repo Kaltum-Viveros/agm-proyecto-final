@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import periodos_materias_pb2 as periodos__materias__pb2
+from app.grpc.generated import notificaciones_pb2 as notificaciones__pb2
 
 GRPC_GENERATED_VERSION = '1.68.1'
 GRPC_VERSION = grpc.__version__
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in periodos_materias_pb2_grpc.py depends on'
+        + f' but the generated code in notificaciones_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class PeriodosMateriasServiceStub(object):
+class NotificacionServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,91 +34,95 @@ class PeriodosMateriasServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetMateriaById = channel.unary_unary(
-                '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriaById',
-                request_serializer=periodos__materias__pb2.GetMateriaByIdRequest.SerializeToString,
-                response_deserializer=periodos__materias__pb2.MateriaInfo.FromString,
+        self.SendBienvenida = channel.unary_unary(
+                '/agm.notificaciones.v1.NotificacionService/SendBienvenida',
+                request_serializer=notificaciones__pb2.BienvenidaRequest.SerializeToString,
+                response_deserializer=notificaciones__pb2.NotifResponse.FromString,
                 _registered_method=True)
-        self.GetMateriasByDocente = channel.unary_unary(
-                '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriasByDocente',
-                request_serializer=periodos__materias__pb2.GetMateriasByDocenteRequest.SerializeToString,
-                response_deserializer=periodos__materias__pb2.MateriasDocenteResponse.FromString,
+        self.SendBajaNotif = channel.unary_unary(
+                '/agm.notificaciones.v1.NotificacionService/SendBajaNotif',
+                request_serializer=notificaciones__pb2.BajaNotifRequest.SerializeToString,
+                response_deserializer=notificaciones__pb2.NotifResponse.FromString,
                 _registered_method=True)
-        self.GetMateriaByNRC = channel.unary_unary(
-                '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriaByNRC',
-                request_serializer=periodos__materias__pb2.GetMateriaByNRCRequest.SerializeToString,
-                response_deserializer=periodos__materias__pb2.MateriaInfo.FromString,
+        self.SendCierreMateria = channel.unary_unary(
+                '/agm.notificaciones.v1.NotificacionService/SendCierreMateria',
+                request_serializer=notificaciones__pb2.CierreMateriaRequest.SerializeToString,
+                response_deserializer=notificaciones__pb2.NotifResponse.FromString,
                 _registered_method=True)
-        self.GetPeriodoActivo = channel.unary_unary(
-                '/agm.periodos_materias.v1.PeriodosMateriasService/GetPeriodoActivo',
-                request_serializer=periodos__materias__pb2.GetPeriodoActivoRequest.SerializeToString,
-                response_deserializer=periodos__materias__pb2.PeriodoInfo.FromString,
+        self.SendResetPassword = channel.unary_unary(
+                '/agm.notificaciones.v1.NotificacionService/SendResetPassword',
+                request_serializer=notificaciones__pb2.ResetPasswordRequest.SerializeToString,
+                response_deserializer=notificaciones__pb2.NotifResponse.FromString,
                 _registered_method=True)
 
 
-class PeriodosMateriasServiceServicer(object):
+class NotificacionServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GetMateriaById(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def SendBienvenida(self, request, context):
+        """El MS-3 llamará a esto tras importar un alumno del PDF
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetMateriasByDocente(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def SendBajaNotif(self, request, context):
+        """Dispara el correo al docente cuando un alumno se da de baja
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetMateriaByNRC(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def SendCierreMateria(self, request, context):
+        """Dispara el correo masivo cuando se cierran las actas de una materia
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetPeriodoActivo(self, request, context):
-        """Missing associated documentation comment in .proto file."""
+    def SendResetPassword(self, request, context):
+        """Dispara correo de recuperación de contraseña desde ms-auth
+        """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_PeriodosMateriasServiceServicer_to_server(servicer, server):
+def add_NotificacionServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetMateriaById': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetMateriaById,
-                    request_deserializer=periodos__materias__pb2.GetMateriaByIdRequest.FromString,
-                    response_serializer=periodos__materias__pb2.MateriaInfo.SerializeToString,
+            'SendBienvenida': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendBienvenida,
+                    request_deserializer=notificaciones__pb2.BienvenidaRequest.FromString,
+                    response_serializer=notificaciones__pb2.NotifResponse.SerializeToString,
             ),
-            'GetMateriasByDocente': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetMateriasByDocente,
-                    request_deserializer=periodos__materias__pb2.GetMateriasByDocenteRequest.FromString,
-                    response_serializer=periodos__materias__pb2.MateriasDocenteResponse.SerializeToString,
+            'SendBajaNotif': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendBajaNotif,
+                    request_deserializer=notificaciones__pb2.BajaNotifRequest.FromString,
+                    response_serializer=notificaciones__pb2.NotifResponse.SerializeToString,
             ),
-            'GetMateriaByNRC': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetMateriaByNRC,
-                    request_deserializer=periodos__materias__pb2.GetMateriaByNRCRequest.FromString,
-                    response_serializer=periodos__materias__pb2.MateriaInfo.SerializeToString,
+            'SendCierreMateria': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendCierreMateria,
+                    request_deserializer=notificaciones__pb2.CierreMateriaRequest.FromString,
+                    response_serializer=notificaciones__pb2.NotifResponse.SerializeToString,
             ),
-            'GetPeriodoActivo': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetPeriodoActivo,
-                    request_deserializer=periodos__materias__pb2.GetPeriodoActivoRequest.FromString,
-                    response_serializer=periodos__materias__pb2.PeriodoInfo.SerializeToString,
+            'SendResetPassword': grpc.unary_unary_rpc_method_handler(
+                    servicer.SendResetPassword,
+                    request_deserializer=notificaciones__pb2.ResetPasswordRequest.FromString,
+                    response_serializer=notificaciones__pb2.NotifResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'agm.periodos_materias.v1.PeriodosMateriasService', rpc_method_handlers)
+            'agm.notificaciones.v1.NotificacionService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('agm.periodos_materias.v1.PeriodosMateriasService', rpc_method_handlers)
+    server.add_registered_method_handlers('agm.notificaciones.v1.NotificacionService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class PeriodosMateriasService(object):
+class NotificacionService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GetMateriaById(request,
+    def SendBienvenida(request,
             target,
             options=(),
             channel_credentials=None,
@@ -131,9 +135,9 @@ class PeriodosMateriasService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriaById',
-            periodos__materias__pb2.GetMateriaByIdRequest.SerializeToString,
-            periodos__materias__pb2.MateriaInfo.FromString,
+            '/agm.notificaciones.v1.NotificacionService/SendBienvenida',
+            notificaciones__pb2.BienvenidaRequest.SerializeToString,
+            notificaciones__pb2.NotifResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -145,7 +149,7 @@ class PeriodosMateriasService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetMateriasByDocente(request,
+    def SendBajaNotif(request,
             target,
             options=(),
             channel_credentials=None,
@@ -158,9 +162,9 @@ class PeriodosMateriasService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriasByDocente',
-            periodos__materias__pb2.GetMateriasByDocenteRequest.SerializeToString,
-            periodos__materias__pb2.MateriasDocenteResponse.FromString,
+            '/agm.notificaciones.v1.NotificacionService/SendBajaNotif',
+            notificaciones__pb2.BajaNotifRequest.SerializeToString,
+            notificaciones__pb2.NotifResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -172,7 +176,7 @@ class PeriodosMateriasService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetMateriaByNRC(request,
+    def SendCierreMateria(request,
             target,
             options=(),
             channel_credentials=None,
@@ -185,9 +189,9 @@ class PeriodosMateriasService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriaByNRC',
-            periodos__materias__pb2.GetMateriaByNRCRequest.SerializeToString,
-            periodos__materias__pb2.MateriaInfo.FromString,
+            '/agm.notificaciones.v1.NotificacionService/SendCierreMateria',
+            notificaciones__pb2.CierreMateriaRequest.SerializeToString,
+            notificaciones__pb2.NotifResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -199,7 +203,7 @@ class PeriodosMateriasService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetPeriodoActivo(request,
+    def SendResetPassword(request,
             target,
             options=(),
             channel_credentials=None,
@@ -212,9 +216,9 @@ class PeriodosMateriasService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/agm.periodos_materias.v1.PeriodosMateriasService/GetPeriodoActivo',
-            periodos__materias__pb2.GetPeriodoActivoRequest.SerializeToString,
-            periodos__materias__pb2.PeriodoInfo.FromString,
+            '/agm.notificaciones.v1.NotificacionService/SendResetPassword',
+            notificaciones__pb2.ResetPasswordRequest.SerializeToString,
+            notificaciones__pb2.NotifResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import periodos_materias_pb2 as periodos__materias__pb2
+from app.grpc.generated import auth_pb2 as auth__pb2
 
 GRPC_GENERATED_VERSION = '1.68.1'
 GRPC_VERSION = grpc.__version__
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + f' but the generated code in periodos_materias_pb2_grpc.py depends on'
+        + f' but the generated code in auth_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class PeriodosMateriasServiceStub(object):
+class AuthServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,91 +34,91 @@ class PeriodosMateriasServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetMateriaById = channel.unary_unary(
-                '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriaById',
-                request_serializer=periodos__materias__pb2.GetMateriaByIdRequest.SerializeToString,
-                response_deserializer=periodos__materias__pb2.MateriaInfo.FromString,
+        self.ValidateToken = channel.unary_unary(
+                '/agm.auth.v1.AuthService/ValidateToken',
+                request_serializer=auth__pb2.ValidateTokenRequest.SerializeToString,
+                response_deserializer=auth__pb2.ValidateTokenResponse.FromString,
                 _registered_method=True)
-        self.GetMateriasByDocente = channel.unary_unary(
-                '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriasByDocente',
-                request_serializer=periodos__materias__pb2.GetMateriasByDocenteRequest.SerializeToString,
-                response_deserializer=periodos__materias__pb2.MateriasDocenteResponse.FromString,
+        self.GetUserById = channel.unary_unary(
+                '/agm.auth.v1.AuthService/GetUserById',
+                request_serializer=auth__pb2.GetUserByIdRequest.SerializeToString,
+                response_deserializer=auth__pb2.GetUserByIdResponse.FromString,
                 _registered_method=True)
-        self.GetMateriaByNRC = channel.unary_unary(
-                '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriaByNRC',
-                request_serializer=periodos__materias__pb2.GetMateriaByNRCRequest.SerializeToString,
-                response_deserializer=periodos__materias__pb2.MateriaInfo.FromString,
+        self.CheckRole = channel.unary_unary(
+                '/agm.auth.v1.AuthService/CheckRole',
+                request_serializer=auth__pb2.CheckRoleRequest.SerializeToString,
+                response_deserializer=auth__pb2.CheckRoleResponse.FromString,
                 _registered_method=True)
-        self.GetPeriodoActivo = channel.unary_unary(
-                '/agm.periodos_materias.v1.PeriodosMateriasService/GetPeriodoActivo',
-                request_serializer=periodos__materias__pb2.GetPeriodoActivoRequest.SerializeToString,
-                response_deserializer=periodos__materias__pb2.PeriodoInfo.FromString,
+        self.CreateOrGetUserIdentity = channel.unary_unary(
+                '/agm.auth.v1.AuthService/CreateOrGetUserIdentity',
+                request_serializer=auth__pb2.CreateOrGetUserIdentityRequest.SerializeToString,
+                response_deserializer=auth__pb2.CreateOrGetUserIdentityResponse.FromString,
                 _registered_method=True)
 
 
-class PeriodosMateriasServiceServicer(object):
+class AuthServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GetMateriaById(self, request, context):
+    def ValidateToken(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetMateriasByDocente(self, request, context):
+    def GetUserById(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetMateriaByNRC(self, request, context):
+    def CheckRole(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetPeriodoActivo(self, request, context):
+    def CreateOrGetUserIdentity(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_PeriodosMateriasServiceServicer_to_server(servicer, server):
+def add_AuthServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetMateriaById': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetMateriaById,
-                    request_deserializer=periodos__materias__pb2.GetMateriaByIdRequest.FromString,
-                    response_serializer=periodos__materias__pb2.MateriaInfo.SerializeToString,
+            'ValidateToken': grpc.unary_unary_rpc_method_handler(
+                    servicer.ValidateToken,
+                    request_deserializer=auth__pb2.ValidateTokenRequest.FromString,
+                    response_serializer=auth__pb2.ValidateTokenResponse.SerializeToString,
             ),
-            'GetMateriasByDocente': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetMateriasByDocente,
-                    request_deserializer=periodos__materias__pb2.GetMateriasByDocenteRequest.FromString,
-                    response_serializer=periodos__materias__pb2.MateriasDocenteResponse.SerializeToString,
+            'GetUserById': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetUserById,
+                    request_deserializer=auth__pb2.GetUserByIdRequest.FromString,
+                    response_serializer=auth__pb2.GetUserByIdResponse.SerializeToString,
             ),
-            'GetMateriaByNRC': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetMateriaByNRC,
-                    request_deserializer=periodos__materias__pb2.GetMateriaByNRCRequest.FromString,
-                    response_serializer=periodos__materias__pb2.MateriaInfo.SerializeToString,
+            'CheckRole': grpc.unary_unary_rpc_method_handler(
+                    servicer.CheckRole,
+                    request_deserializer=auth__pb2.CheckRoleRequest.FromString,
+                    response_serializer=auth__pb2.CheckRoleResponse.SerializeToString,
             ),
-            'GetPeriodoActivo': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetPeriodoActivo,
-                    request_deserializer=periodos__materias__pb2.GetPeriodoActivoRequest.FromString,
-                    response_serializer=periodos__materias__pb2.PeriodoInfo.SerializeToString,
+            'CreateOrGetUserIdentity': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateOrGetUserIdentity,
+                    request_deserializer=auth__pb2.CreateOrGetUserIdentityRequest.FromString,
+                    response_serializer=auth__pb2.CreateOrGetUserIdentityResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'agm.periodos_materias.v1.PeriodosMateriasService', rpc_method_handlers)
+            'agm.auth.v1.AuthService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('agm.periodos_materias.v1.PeriodosMateriasService', rpc_method_handlers)
+    server.add_registered_method_handlers('agm.auth.v1.AuthService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class PeriodosMateriasService(object):
+class AuthService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GetMateriaById(request,
+    def ValidateToken(request,
             target,
             options=(),
             channel_credentials=None,
@@ -131,9 +131,9 @@ class PeriodosMateriasService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriaById',
-            periodos__materias__pb2.GetMateriaByIdRequest.SerializeToString,
-            periodos__materias__pb2.MateriaInfo.FromString,
+            '/agm.auth.v1.AuthService/ValidateToken',
+            auth__pb2.ValidateTokenRequest.SerializeToString,
+            auth__pb2.ValidateTokenResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -145,7 +145,7 @@ class PeriodosMateriasService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetMateriasByDocente(request,
+    def GetUserById(request,
             target,
             options=(),
             channel_credentials=None,
@@ -158,9 +158,9 @@ class PeriodosMateriasService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriasByDocente',
-            periodos__materias__pb2.GetMateriasByDocenteRequest.SerializeToString,
-            periodos__materias__pb2.MateriasDocenteResponse.FromString,
+            '/agm.auth.v1.AuthService/GetUserById',
+            auth__pb2.GetUserByIdRequest.SerializeToString,
+            auth__pb2.GetUserByIdResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -172,7 +172,7 @@ class PeriodosMateriasService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetMateriaByNRC(request,
+    def CheckRole(request,
             target,
             options=(),
             channel_credentials=None,
@@ -185,9 +185,9 @@ class PeriodosMateriasService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/agm.periodos_materias.v1.PeriodosMateriasService/GetMateriaByNRC',
-            periodos__materias__pb2.GetMateriaByNRCRequest.SerializeToString,
-            periodos__materias__pb2.MateriaInfo.FromString,
+            '/agm.auth.v1.AuthService/CheckRole',
+            auth__pb2.CheckRoleRequest.SerializeToString,
+            auth__pb2.CheckRoleResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -199,7 +199,7 @@ class PeriodosMateriasService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetPeriodoActivo(request,
+    def CreateOrGetUserIdentity(request,
             target,
             options=(),
             channel_credentials=None,
@@ -212,9 +212,9 @@ class PeriodosMateriasService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/agm.periodos_materias.v1.PeriodosMateriasService/GetPeriodoActivo',
-            periodos__materias__pb2.GetPeriodoActivoRequest.SerializeToString,
-            periodos__materias__pb2.PeriodoInfo.FromString,
+            '/agm.auth.v1.AuthService/CreateOrGetUserIdentity',
+            auth__pb2.CreateOrGetUserIdentityRequest.SerializeToString,
+            auth__pb2.CreateOrGetUserIdentityResponse.FromString,
             options,
             channel_credentials,
             insecure,

@@ -84,6 +84,24 @@ class PeriodosMateriasGrpcService(
                 materias=materias
             )
 
+    async def GetMateriaByNRC(self, request, context):
+        """Busca una materia por su NRC (global)"""
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(
+                select(MateriaOfertada)
+                .where(MateriaOfertada.nrc == request.nrc)
+                .limit(1)
+            )
+            materia_ofertada = result.scalar_one_or_none()
+
+            if materia_ofertada is None:
+                await context.abort(
+                    grpc.StatusCode.NOT_FOUND,
+                    f"Materia con NRC {request.nrc} no encontrada"
+                )
+
+            return await self._build_materia_info(db, materia_ofertada)
+
     async def GetPeriodoActivo(self, request, context):
         async with AsyncSessionLocal() as db:
             result = await db.execute(
