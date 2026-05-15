@@ -31,6 +31,8 @@ services:
       - GRPC_HOST=0.0.0.0
       - GRPC_PORT=50051
       - JWT_SECRET_KEY=change-this-secret-key
+      - NOTIFICACIONES_GRPC_HOST=ms-notificaciones
+      - NOTIFICACIONES_GRPC_PORT=50056
     depends_on:
       - auth_db
 
@@ -228,7 +230,7 @@ services:
       - SMTP_HOST=smtp.gmail.com
       - SMTP_PORT=587
       - SMTP_USER=agm.notificaciones.pnzns@gmail.com
-      - SMTP_PASSWORD=test_password
+      - SMTP_PASSWORD=qmpotoybedzoqlls
     depends_on:
       - notificaciones_db
     volumes:

@@ -11,6 +11,9 @@ service NotificacionService {
   
   // Dispara el correo masivo cuando se cierran las actas de una materia
   rpc SendCierreMateria(CierreMateriaRequest) returns (NotifResponse);
+
+  // Dispara correo de recuperación de contraseña desde ms-auth
+  rpc SendResetPassword(ResetPasswordRequest) returns (NotifResponse);
 }
 
 message BienvenidaRequest {
@@ -26,6 +29,12 @@ message BajaNotifRequest {
 
 message CierreMateriaRequest {
   string materia_id = 1;
+}
+
+message ResetPasswordRequest {
+  string usuario_id = 1;
+  string email = 2;
+  string reset_token = 3;
 }
 
 message NotifResponse { 

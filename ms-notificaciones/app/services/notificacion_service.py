@@ -105,21 +105,17 @@ def procesar_cierre_materia(db: Session, data: CierreMateriaRequest):
     return notificacion
 
 def procesar_reset_password(db: Session, data: ResetPasswordRequest):
-    # TODO: gRPC para obtener email del usuario
-    email_usuario = "rinava404@gmail.com"
-    token_simulado = "abc-123-xyz"
-    
     asunto, html = renderizar_plantilla(db, "reset_password", {
-        "token_simulado": token_simulado
+        "token_simulado": data.reset_token
     })
-    enviar_correo_background(email_usuario, asunto, html)
+    enviar_correo_background(data.email, asunto, html)
     
     notificacion = notificacion_repository.crear_notificacion(
         db=db,
         usuario_id=data.usuario_id,
-        email=email_usuario,
+        email=data.email,
         tipo="reset_password",
         asunto=asunto,
-        mensaje=f"Usa este token para recuperar tu contraseña."
+        mensaje=f"Se envió un token de recuperación a {data.email}."
     )
     return notificacion

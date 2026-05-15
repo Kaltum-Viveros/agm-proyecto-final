@@ -20,4 +20,4 @@ EXPOSE 8006 50056
 # 1. Crea la carpeta si no existe
 # 2. Genera los archivos de gRPC leyendo de la carpeta compartida /app/proto
 # 3. Inicia uvicorn
-CMD ["bash", "-c", "mkdir -p app/grpc/generated && touch app/grpc/generated/__init__.py && python -m grpc_tools.protoc -I=proto --python_out=app/grpc/generated --grpc_python_out=app/grpc/generated proto/*.proto && uvicorn app.main:app --host 0.0.0.0 --port 8006 --reload"]
+CMD ["bash", "-c", "mkdir -p app/grpc/generated && touch app/grpc/generated/__init__.py && python -m grpc_tools.protoc -I=proto --python_out=app/grpc/generated --grpc_python_out=app/grpc/generated proto/*.proto && python -m app.grpc.server & uvicorn app.main:app --host 0.0.0.0 --port 8006 --reload"]

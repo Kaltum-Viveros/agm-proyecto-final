@@ -7,7 +7,7 @@ class Notificacion(Base):
     __tablename__ = "notificaciones"
 
     id = Column(Integer, primary_key=True, index=True)
-    usuario_id = Column(Integer, nullable=False)
+    usuario_id = Column(String, nullable=False)
     email = Column(String, nullable=False)
     tipo = Column(String, nullable=False)
     asunto = Column(String, nullable=False)

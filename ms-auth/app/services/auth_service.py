@@ -14,6 +14,7 @@ from app.services.jwt_service import JWTService, TokenExpiredError, TokenInvalid
 from app.services.password_service import PasswordService
 from app.services.rbac_service import RBACService
 from app.services.token_service import TokenService
+from app.grpc.clients.notificaciones_client import notificaciones_client
 
 
 class InvalidCredentialsError(Exception):
@@ -353,6 +354,16 @@ class AuthService:
             jti=None,
             expiracion=reset_expires_at,
         )
+
+        # Disparamos el correo de recuperación vía gRPC
+        try:
+            notificaciones_client.enviar_reset_password(
+                usuario_id=str(user.user_id),
+                email=user.email,
+                reset_token=reset_token
+            )
+        except Exception as e:
+            pass # No bloqueamos si falla la notificación
 
         token_to_return = None
 

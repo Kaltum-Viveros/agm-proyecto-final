@@ -17,7 +17,9 @@ class CierreMateriaRequest(BaseModel):
     materia_id: int = Field(..., gt=0, description="ID de la materia que cerró actas")
 
 class ResetPasswordRequest(BaseModel):
-    usuario_id: int = Field(..., gt=0, description="ID del usuario (alumno o docente)")
+    usuario_id: str = Field(..., description="ID del usuario (UUID de ms-auth o numérico)")
+    email: EmailStr = Field(..., description="Correo del usuario para enviar el token")
+    reset_token: str = Field(..., description="Token seguro generado por ms-auth")
 
 # ---- Response Schemas (Salidas REST) ----
 

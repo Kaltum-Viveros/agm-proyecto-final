@@ -19,7 +19,8 @@ from app.services import notificacion_service
 from app.schemas.notificacion_schema import (
     BienvenidaRequest, 
     BajaMateriaRequest, 
-    CierreMateriaRequest
+    CierreMateriaRequest,
+    ResetPasswordRequest
 )
 
 class NotificacionServiceServicer(notificaciones_pb2_grpc.NotificacionServiceServicer if 'notificaciones_pb2_grpc' in globals() else object):
@@ -64,6 +65,20 @@ class NotificacionServiceServicer(notificaciones_pb2_grpc.NotificacionServiceSer
             return notificaciones_pb2.NotifResponse(success=True, message="Notificación de cierre de actas procesada")
         except Exception as e:
             logging.error(f"Error en SendCierreMateria: {e}")
+            return notificaciones_pb2.NotifResponse(success=False, message=str(e))
+
+    def SendResetPassword(self, request, context):
+        try:
+            db = next(self._get_db())
+            data = ResetPasswordRequest(
+                usuario_id=request.usuario_id,
+                email=request.email,
+                reset_token=request.reset_token
+            )
+            notificacion_service.procesar_reset_password(db, data)
+            return notificaciones_pb2.NotifResponse(success=True, message="Notificación de reseteo de contraseña enviada")
+        except Exception as e:
+            logging.error(f"Error en SendResetPassword: {e}")
             return notificaciones_pb2.NotifResponse(success=False, message=str(e))
 
 
