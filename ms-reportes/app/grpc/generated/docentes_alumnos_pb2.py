@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16\x64ocentes_alumnos.proto\x12\x17\x61gm.docentes_alumnos.v1\"\'\n\x11GetAlumnosRequest\x12\x12\n\nmateria_id\x18\x01 \x01(\t\"$\n\x0f\x41lumnoIdRequest\x12\x11\n\talumno_id\x18\x01 \x01(\t\"8\n\x0fRelationRequest\x12\x11\n\talumno_id\x18\x01 \x01(\t\x12\x12\n\nmateria_id\x18\x02 \x01(\t\"/\n\x14\x44ocenteNombreRequest\x12\x17\n\x0fnombre_completo\x18\x01 \x01(\t\"\x1e\n\x0c\x42oolResponse\x12\x0e\n\x06\x65xists\x18\x01 \x01(\x08\"^\n\rAlumnoProfile\x12\x11\n\talumno_id\x18\x01 \x01(\t\x12\x17\n\x0fnombre_completo\x18\x02 \x01(\t\x12\x11\n\tmatricula\x18\x03 \x01(\t\x12\x0e\n\x06\x63orreo\x18\x04 \x01(\t\"J\n\x0f\x41lumnosResponse\x12\x37\n\x07\x61lumnos\x18\x01 \x03(\x0b\x32&.agm.docentes_alumnos.v1.AlumnoProfile\"a\n\x0e\x44ocenteProfile\x12\x12\n\ndocente_id\x18\x01 \x01(\t\x12\x17\n\x0fnombre_completo\x18\x02 \x01(\t\x12\x0e\n\x06\x63orreo\x18\x03 \x01(\t\x12\x12\n\nencontrado\x18\x04 \x01(\x08\x32\xbc\x03\n\x16\x44ocentesAlumnosService\x12k\n\x13GetAlumnosByMateria\x12*.agm.docentes_alumnos.v1.GetAlumnosRequest\x1a(.agm.docentes_alumnos.v1.AlumnosResponse\x12\x64\n\x11IsAlumnoEnMateria\x12(.agm.docentes_alumnos.v1.RelationRequest\x1a%.agm.docentes_alumnos.v1.BoolResponse\x12\x61\n\rGetAlumnoById\x12(.agm.docentes_alumnos.v1.AlumnoIdRequest\x1a&.agm.docentes_alumnos.v1.AlumnoProfile\x12l\n\x12GetDocenteByNombre\x12-.agm.docentes_alumnos.v1.DocenteNombreRequest\x1a\'.agm.docentes_alumnos.v1.DocenteProfileb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x16\x64ocentes_alumnos.proto\x12\x17\x61gm.docentes_alumnos.v1\"\'\n\x11GetAlumnosRequest\x12\x12\n\nmateria_id\x18\x01 \x01(\t\"$\n\x0f\x41lumnoIdRequest\x12\x11\n\talumno_id\x18\x01 \x01(\t\"8\n\x0fRelationRequest\x12\x11\n\talumno_id\x18\x01 \x01(\t\x12\x12\n\nmateria_id\x18\x02 \x01(\t\"/\n\x14\x44ocenteNombreRequest\x12\x17\n\x0fnombre_completo\x18\x01 \x01(\t\"\x1d\n\x0c\x45mailRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"\x1e\n\x0c\x42oolResponse\x12\x0e\n\x06\x65xists\x18\x01 \x01(\x08\"^\n\rAlumnoProfile\x12\x11\n\talumno_id\x18\x01 \x01(\t\x12\x17\n\x0fnombre_completo\x18\x02 \x01(\t\x12\x11\n\tmatricula\x18\x03 \x01(\t\x12\x0e\n\x06\x63orreo\x18\x04 \x01(\t\"J\n\x0f\x41lumnosResponse\x12\x37\n\x07\x61lumnos\x18\x01 \x03(\x0b\x32&.agm.docentes_alumnos.v1.AlumnoProfile\"a\n\x0e\x44ocenteProfile\x12\x12\n\ndocente_id\x18\x01 \x01(\t\x12\x17\n\x0fnombre_completo\x18\x02 \x01(\t\x12\x0e\n\x06\x63orreo\x18\x03 \x01(\t\x12\x12\n\nencontrado\x18\x04 \x01(\x08\x32\x84\x05\n\x16\x44ocentesAlumnosService\x12k\n\x13GetAlumnosByMateria\x12*.agm.docentes_alumnos.v1.GetAlumnosRequest\x1a(.agm.docentes_alumnos.v1.AlumnosResponse\x12\x64\n\x11IsAlumnoEnMateria\x12(.agm.docentes_alumnos.v1.RelationRequest\x1a%.agm.docentes_alumnos.v1.BoolResponse\x12\x61\n\rGetAlumnoById\x12(.agm.docentes_alumnos.v1.AlumnoIdRequest\x1a&.agm.docentes_alumnos.v1.AlumnoProfile\x12l\n\x12GetDocenteByNombre\x12-.agm.docentes_alumnos.v1.DocenteNombreRequest\x1a\'.agm.docentes_alumnos.v1.DocenteProfile\x12\x63\n\x11GetDocenteByEmail\x12%.agm.docentes_alumnos.v1.EmailRequest\x1a\'.agm.docentes_alumnos.v1.DocenteProfile\x12\x61\n\x10GetAlumnoByEmail\x12%.agm.docentes_alumnos.v1.EmailRequest\x1a&.agm.docentes_alumnos.v1.AlumnoProfileb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -39,14 +39,16 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_RELATIONREQUEST']._serialized_end=186
   _globals['_DOCENTENOMBREREQUEST']._serialized_start=188
   _globals['_DOCENTENOMBREREQUEST']._serialized_end=235
-  _globals['_BOOLRESPONSE']._serialized_start=237
-  _globals['_BOOLRESPONSE']._serialized_end=267
-  _globals['_ALUMNOPROFILE']._serialized_start=269
-  _globals['_ALUMNOPROFILE']._serialized_end=363
-  _globals['_ALUMNOSRESPONSE']._serialized_start=365
-  _globals['_ALUMNOSRESPONSE']._serialized_end=439
-  _globals['_DOCENTEPROFILE']._serialized_start=441
-  _globals['_DOCENTEPROFILE']._serialized_end=538
-  _globals['_DOCENTESALUMNOSSERVICE']._serialized_start=541
-  _globals['_DOCENTESALUMNOSSERVICE']._serialized_end=985
+  _globals['_EMAILREQUEST']._serialized_start=237
+  _globals['_EMAILREQUEST']._serialized_end=266
+  _globals['_BOOLRESPONSE']._serialized_start=268
+  _globals['_BOOLRESPONSE']._serialized_end=298
+  _globals['_ALUMNOPROFILE']._serialized_start=300
+  _globals['_ALUMNOPROFILE']._serialized_end=394
+  _globals['_ALUMNOSRESPONSE']._serialized_start=396
+  _globals['_ALUMNOSRESPONSE']._serialized_end=470
+  _globals['_DOCENTEPROFILE']._serialized_start=472
+  _globals['_DOCENTEPROFILE']._serialized_end=569
+  _globals['_DOCENTESALUMNOSSERVICE']._serialized_start=572
+  _globals['_DOCENTESALUMNOSSERVICE']._serialized_end=1216
 # @@protoc_insertion_point(module_scope)
