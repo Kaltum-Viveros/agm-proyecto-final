@@ -20,8 +20,8 @@ class MS2Client:
             materia = self.stub.GetMateriaByNRC(request)
             
             if materia and materia.materia_ofertada_id:
-                return materia.materia_ofertada_id, materia.periodo.periodo_id
-            return None, None
+                return materia.materia_ofertada_id, materia.periodo.periodo_id, materia.seccion
+            return None, None, None
         except Exception as e:
             print(f"Error gRPC con MS-2 (NRC {nrc_pdf}): {e}")
-            return None, None
+            return None, None, None

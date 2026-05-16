@@ -37,5 +37,12 @@ class AlumnoRepository(BaseRepository[Alumno]):
     def get_by_matricula(self, db: Session, matricula: str) -> Alumno:
         return db.query(Alumno).filter(Alumno.matricula == matricula).first()
 
+    def get_by_materia(self, db: Session, materia_id: UUID):
+        from app.models.inscripcion import Inscripcion
+        return db.query(Alumno).join(Inscripcion).filter(
+            Inscripcion.materia_id == materia_id,
+            Inscripcion.activa == True
+        ).all()
+
 # IMPORTANTE: Esta es la instancia que busca app/api/v1/endpoints/alumnos.py
 alumno_repository = AlumnoRepository(Alumno)

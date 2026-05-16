@@ -1,0 +1,571 @@
+{
+  "info": {
+    "_postman_id": "dcb055b1-00be-492f-9047-44875e72bd0e",
+    "name": "AGM - MS-3 Docentes y Alumnos - Pruebas reales",
+    "description": "Colección reformulada para revisión final de MS-3, basada en el documento base del proyecto. Conserva únicamente el flujo principal REST: health, importación del directorio de docentes, consulta/listado de docentes, importación/listado de alumnos, verificación de inscripciones, consulta de alumnos por materia y baja lógica del alumno en una materia. No incluye altas manuales ni CRUD físico de docentes/alumnos porque no forman parte de la ruta REST externa mínima marcada para demostrar el flujo real del documento. Variables esperadas: ms_docentes_alumnos_base_url, access_token, materia_ofertada_id y alumno_id.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "function getVar(name) {",
+          "  return pm.environment.get(name) || pm.collectionVariables.get(name);",
+          "}",
+          "",
+          "function setVar(name, value) {",
+          "  if (value === undefined || value === null || value === '') return;",
+          "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+          "  pm.collectionVariables.set(name, String(value));",
+          "}",
+          "",
+          "function setIfMissing(name, value) {",
+          "  if (!getVar(name)) setVar(name, value);",
+          "}",
+          "",
+          "setIfMissing('ms_docentes_alumnos_base_url', 'http://localhost:8003');",
+          "setIfMissing('ms3_skip', '0');",
+          "setIfMissing('ms3_limit', '100');",
+          "setIfMissing('materia_ofertada_id', '');",
+          "setIfMissing('periodo_id', '');",
+          "setIfMissing('materia_nrc', '');",
+          "setIfMissing('materia_seccion', '001');",
+          "",
+          "",
+          "// Compatibilidad: si tu environment usa admin_access_token, lo copia a access_token.",
+          "if (!getVar('access_token') && getVar('admin_access_token')) {",
+          "  setVar('access_token', getVar('admin_access_token'));",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Status HTTP esperado', function () {",
+          "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+          "});",
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "ms_docentes_alumnos_base_url",
+      "value": "http://localhost:8003",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ms3_skip",
+      "value": "0",
+      "type": "string"
+    },
+    {
+      "key": "ms3_limit",
+      "value": "100",
+      "type": "string"
+    },
+    {
+      "key": "materia_ofertada_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_nrc",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_seccion",
+      "value": "001",
+      "type": "string"
+    },
+    {
+      "key": "docente_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_correo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_correo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_matricula",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "inscripcion_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docentes_importados",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumnos_importados_exitos",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumnos_materia_total",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_baja_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_baja_materia_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health",
+      "item": [
+        {
+          "name": "00.1 Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_docentes_alumnos_base_url}}/",
+            "description": "Verifica que MS-3 esté levantado. Se mantiene porque los health checks van al inicio de cada microservicio."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Health responde 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - Docentes: importación y consulta",
+      "description": "Flujo real del administrador: importar el directorio institucional de docentes desde PDF y consultar el catálogo.",
+      "item": [
+        {
+          "name": "01.1 Importar docentes PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/importar/docentes",
+            "description": "Importación real del directorio institucional de docentes. Selecciona manualmente el PDF en el campo file.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "PDF institucional/directorio de docentes."
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Importación de docentes respondió 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "",
+                  "if (json.creados !== undefined) setVar('docentes_importados', json.creados);",
+                  "if (json.importados !== undefined) setVar('docentes_importados', json.importados);",
+                  "if (json.docentes_importados !== undefined) setVar('docentes_importados', json.docentes_importados);",
+                  "if (json.data && json.data.creados !== undefined) setVar('docentes_importados', json.data.creados);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.2 Listar docentes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/docentes/?skip={{ms3_skip}}&limit={{ms3_limit}}",
+            "description": "Consulta del catálogo de docentes. Sirve para validar visualización/paginación después de importar."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Listado de docentes responde 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "let data = [];",
+                  "try { data = pm.response.json(); } catch (e) { data = []; }",
+                  "if (data.data && Array.isArray(data.data)) data = data.data;",
+                  "if (data.data && data.data.items && Array.isArray(data.data.items)) data = data.data.items;",
+                  "if (data.items && Array.isArray(data.items)) data = data.items;",
+                  "",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "",
+                  "if (Array.isArray(data) && data.length > 0 && !getVar('docente_id')) {",
+                  "  setVar('docente_id', data[0].docente_id || data[0].id);",
+                  "  setVar('docente_user_id', data[0].user_id);",
+                  "  setVar('docente_correo', data[0].correo || data[0].email);",
+                  "  setVar('docente_nombre', data[0].nombre_completo || data[0].nombre);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Alumnos: importación y consulta",
+      "description": "Flujo real del docente/admin: importar alumnos por archivo de lista y verificar alumnos/inscripciones generadas.",
+      "item": [
+        {
+          "name": "02.1 Importar alumnos por archivo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/importar/alumnos",
+            "description": "Importación real de alumnos desde archivo de lista. El documento base pide Excel/CSV por materia; este endpoint refleja la superficie actual del microservicio y usa un campo file genérico para adjuntar el archivo que soporte tu implementación.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Archivo de lista de alumnos soportado por la implementación actual."
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Importación de alumnos respondió 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "",
+                  "if (json.resumen) setVar('alumnos_importados_exitos', json.resumen.exitos || json.resumen.importados || 0);",
+                  "if (json.exitos !== undefined) setVar('alumnos_importados_exitos', json.exitos);",
+                  "if (json.importados !== undefined) setVar('alumnos_importados_exitos', json.importados);",
+                  "if (json.alumnos_importados !== undefined) setVar('alumnos_importados_exitos', json.alumnos_importados);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.2 Listar alumnos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/alumnos/?skip={{ms3_skip}}&limit={{ms3_limit}}",
+            "description": "Consulta de alumnos importados. Se conserva como verificación del resultado de la importación."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Listado de alumnos responde 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "let data = [];",
+                  "try { data = pm.response.json(); } catch (e) { data = []; }",
+                  "if (data.data && Array.isArray(data.data)) data = data.data;",
+                  "if (data.data && data.data.items && Array.isArray(data.data.items)) data = data.data.items;",
+                  "if (data.items && Array.isArray(data.items)) data = data.items;",
+                  "",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "",
+                  "if (Array.isArray(data) && data.length > 0 && !getVar('alumno_id')) {",
+                  "  setVar('alumno_id', data[0].alumno_id || data[0].id);",
+                  "  setVar('alumno_user_id', data[0].user_id);",
+                  "  setVar('alumno_correo', data[0].correo || data[0].email);",
+                  "  setVar('alumno_matricula', data[0].matricula);",
+                  "  setVar('alumno_nombre', data[0].nombre_completo || data[0].nombre);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.3 Listar inscripciones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/inscripciones/",
+            "description": "Consulta de verificación de inscripciones/concentrado generado por la importación. No se incluye creación manual de inscripción porque el documento orienta este flujo a importación masiva de alumnos por materia."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Listado de inscripciones responde 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "let data = [];",
+                  "try { data = pm.response.json(); } catch (e) { data = []; }",
+                  "if (data.data && Array.isArray(data.data)) data = data.data;",
+                  "if (data.data && data.data.items && Array.isArray(data.data.items)) data = data.data.items;",
+                  "if (data.items && Array.isArray(data.items)) data = data.items;",
+                  "",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "",
+                  "if (Array.isArray(data) && data.length > 0 && !getVar('inscripcion_id')) {",
+                  "  setVar('inscripcion_id', data[0].inscripcion_id || data[0].id);",
+                  "  setVar('docente_id', data[0].docente_id);",
+                  "  setVar('alumno_id', data[0].alumno_id);",
+                  "  setVar('materia_ofertada_id', data[0].materia_id || data[0].materia_ofertada_id);",
+                  "  setVar('periodo_id', data[0].periodo_id);",
+                  "  setVar('materia_nrc', data[0].nrc_materia || data[0].nrc);",
+                  "  setVar('materia_seccion', data[0].seccion_materia || data[0].seccion);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Alumnos por materia y baja",
+      "description": "Solo endpoints faltantes del MS-3 que el documento marca explícitamente como REST externos: GET /alumnos/materia/:materiaId y DELETE /alumnos/:id/baja. No incluye CRUD físico ni altas manuales.",
+      "item": [
+        {
+          "name": "03.1 Obtener alumnos de una materia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/alumnos/materia/{{materia_ofertada_id}}",
+            "description": "Endpoint requerido por el documento base: consulta únicamente los alumnos activos inscritos en la materia indicada. Usa materia_ofertada_id generado por MS-2 o capturado desde las inscripciones."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Alumnos por materia responde 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "let data = [];",
+                  "try { data = pm.response.json(); } catch (e) { data = []; }",
+                  "if (data.data && Array.isArray(data.data)) data = data.data;",
+                  "if (data.data && data.data.items && Array.isArray(data.data.items)) data = data.data.items;",
+                  "if (data.items && Array.isArray(data.items)) data = data.items;",
+                  "",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "",
+                  "if (Array.isArray(data) && data.length > 0 && !getVar('alumno_id')) {",
+                  "  setVar('alumno_id', data[0].alumno_id || data[0].id);",
+                  "  setVar('alumno_user_id', data[0].user_id);",
+                  "  setVar('alumno_correo', data[0].correo || data[0].email);",
+                  "  setVar('alumno_matricula', data[0].matricula);",
+                  "  setVar('alumno_nombre', data[0].nombre_completo || data[0].nombre);",
+                  "}",
+                  "setVar('alumnos_materia_total', Array.isArray(data) ? data.length : 0);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.2 Baja de alumno en materia",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/alumnos/{{alumno_id}}/baja?materia_id={{materia_ofertada_id}}",
+            "description": "Endpoint requerido por el documento base: baja lógica del alumno en una materia. Ejecutar al final porque deja al alumno sin acceso activo a esa materia."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Baja respondió 2xx', function () {",
+                  "  pm.expect(pm.response.code).to.be.within(200, 299);",
+                  "});",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('alumno_baja_id', pm.environment.get('alumno_id') || pm.collectionVariables.get('alumno_id'));",
+                  "setVar('alumno_baja_materia_id', pm.environment.get('materia_ofertada_id') || pm.collectionVariables.get('materia_ofertada_id'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

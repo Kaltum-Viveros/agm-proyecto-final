@@ -50,7 +50,7 @@ async def importar_alumnos_pdf(
 
                 # 2. Resolver Materia/Periodo vía gRPC (MS-2)
                 nrc = data["inscripcion"]["nrc_materia"]
-                m_id, p_id = ms2_client.obtener_materia_y_periodo(str(docente.docente_id), nrc)
+                m_id, p_id, seccion = ms2_client.obtener_materia_y_periodo(str(docente.docente_id), nrc)
                 if not m_id: raise Exception(f"NRC {nrc} no hallado en MS-2.")
 
                 # 3. Crear Identidad Real vía gRPC (MS-1)
@@ -79,6 +79,7 @@ async def importar_alumnos_pdf(
                         "nrc_materia": nrc,
                         "materia_id": m_id,
                         "periodo_id": p_id,
+                        "seccion_materia": seccion,
                         "activa": True
                     })
 

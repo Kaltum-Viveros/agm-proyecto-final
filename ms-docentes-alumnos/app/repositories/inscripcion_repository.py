@@ -18,4 +18,11 @@ class InscripcionRepository(BaseRepository[Inscripcion]):
             Inscripcion.alumno_id == alumno_id
         ).first()
 
+    def get_by_materia_and_alumno(self, db: Session, materia_id: UUID, alumno_id: UUID):
+        return db.query(Inscripcion).filter(
+            Inscripcion.materia_id == materia_id,
+            Inscripcion.alumno_id == alumno_id,
+            Inscripcion.activa == True
+        ).first()
+
 inscripcion_repository = InscripcionRepository(Inscripcion)

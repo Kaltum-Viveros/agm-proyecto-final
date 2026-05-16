@@ -5,12 +5,17 @@ from app.db.session import get_db
 from app.models.docente import Docente
 from app.services.import_service import extraer_docentes_pdf
 from app.grpc.clients.auth_client import AuthClient
+from app.api.deps import role_required
 
 router = APIRouter()
 auth_client = AuthClient()
 
 @router.post("/docentes")
-async def importar_docentes_pdf(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def importar_docentes_pdf(
+    file: UploadFile = File(...), 
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(role_required("Administrador"))
+):
     contenido = await file.read()
     docentes_extraidos = extraer_docentes_pdf(contenido)
     

@@ -57,6 +57,27 @@ class DocentesAlumnosService(docentes_alumnos_pb2_grpc.DocentesAlumnosServiceSer
         finally:
             db.close()
 
+    def GetAlumnoByEmail(self, request, context):
+        """Busca perfil de alumno por correo (usado por MS-4 al importar Excel)"""
+        db = SessionLocal()
+        try:
+            alumno = db.query(Alumno).filter(Alumno.correo == request.email.strip().lower()).first()
+            if not alumno:
+                return docentes_alumnos_pb2.AlumnoProfile()
+            
+            return docentes_alumnos_pb2.AlumnoProfile(
+                alumno_id=str(alumno.alumno_id),
+                nombre_completo=alumno.nombre_completo,
+                matricula=alumno.matricula,
+                correo=alumno.correo
+            )
+        except Exception as e:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return docentes_alumnos_pb2.AlumnoProfile()
+        finally:
+            db.close()
+
     def IsAlumnoEnMateria(self, request, context):
         """Valida si un alumno pertenece a una materia (usado por MS-4/5)"""
         db = SessionLocal()
@@ -112,4 +133,25 @@ class DocentesAlumnosService(docentes_alumnos_pb2_grpc.DocentesAlumnosServiceSer
             context.set_details(str(e))
             return docentes_alumnos_pb2.DocenteProfile(encontrado=False)
         finally:
-            db.close()
+            db.close()
+
+    def GetDocenteByEmail(self, request, context):
+        """Busca un docente por su correo electrónico"""
+        db = SessionLocal()
+        try:
+            docente = db.query(Docente).filter(Docente.correo == request.email.strip().lower()).first()
+            if not docente:
+                return docentes_alumnos_pb2.DocenteProfile(encontrado=False)
+            
+            return docentes_alumnos_pb2.DocenteProfile(
+                docente_id=str(docente.docente_id),
+                nombre_completo=docente.nombre_completo,
+                correo=docente.correo,
+                encontrado=True
+            )
+        except Exception as e:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return docentes_alumnos_pb2.DocenteProfile(encontrado=False)
+        finally:
+            db.close()
