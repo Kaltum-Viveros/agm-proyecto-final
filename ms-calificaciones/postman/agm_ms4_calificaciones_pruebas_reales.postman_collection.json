@@ -1,8 +1,8 @@
 {
   "info": {
-    "_postman_id": "d2acd35f-4dad-4e0f-824a-e4227e33281c",
-    "name": "AGM - MS-4 Calificaciones & Ponderaciones -  Pruebas reales",
-    "description": "Colección reformulada para revisión final de MS-4 con base en el documento del proyecto. Mantiene únicamente el flujo REST externo justificado: health, ponderaciones por materia, creación de actividades, registro/importación de calificaciones y consulta de concentrado. Requiere access_token de DOCENTE, materia_id de MS-2 y alumno_id inscrito desde MS-3.",
+    "_postman_id": "4d3756cb-74d2-49c5-ba04-0c67ef635738",
+    "name": "AGM - MS-4 Calificaciones & Ponderaciones - Pruebas reales",
+    "description": "Colección de pruebas reales para MS-4 Calificaciones & Ponderaciones. Incluye health, ponderaciones, actividades, calificaciones, importación Excel/CSV y concentrado. Requiere access_token de un usuario DOCENTE válido para operaciones protegidas con RBAC/gRPC.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "auth": {
@@ -21,13 +21,6 @@
       "script": {
         "type": "text/javascript",
         "exec": [
-          "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
-          "function setVar(name, value) {",
-          "  if (value === undefined || value === null || value === '') return;",
-          "  try { pm.environment.set(name, String(value)); } catch (e) {}",
-          "  pm.collectionVariables.set(name, String(value));",
-          "}",
-          "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
           "function uuidv4() {",
           "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
           "    const r = Math.random() * 16 | 0;",
@@ -35,15 +28,40 @@
           "    return v.toString(16);",
           "  });",
           "}",
-          "function todayIso() { return new Date().toISOString().slice(0, 10); }",
+          "",
+          "function getVar(name) {",
+          "  return pm.environment.get(name) || pm.collectionVariables.get(name);",
+          "}",
+          "",
+          "function setVar(name, value) {",
+          "  if (value === undefined || value === null || value === '') return;",
+          "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+          "  pm.collectionVariables.set(name, String(value));",
+          "}",
+          "",
+          "function setIfMissing(name, value) {",
+          "  if (!getVar(name)) setVar(name, value);",
+          "}",
+          "",
+          "function todayIso() {",
+          "  return new Date().toISOString().slice(0, 10);",
+          "}",
+          "",
           "setIfMissing('ms_calificaciones_base_url', 'http://localhost:8004');",
+          "",
+          "// Para MS-4, materia_id normalmente debe ser el id de la materia ofertada creado en MS-2.",
+          "// Si ya existe materia_ofertada_id en el environment de MS-2/MS-3, se usa como materia_id.",
           "const materiaAlias = getVar('materia_ofertada_id') || getVar('ms2_materia_ofertada_id');",
           "if (!getVar('materia_id') && materiaAlias) setVar('materia_id', materiaAlias);",
           "setIfMissing('materia_id', uuidv4());",
+          "",
+          "// alumno_id debe venir idealmente de MS-3 y estar inscrito en materia_id para que calificaciones pase la validación gRPC.",
           "setIfMissing('alumno_id', uuidv4());",
           "setIfMissing('actividad_fecha', todayIso());",
           "setIfMissing('calificacion_valor', '8.50');",
-          "setIfMissing('calificacion_observaciones', 'Registro final Postman');"
+          "setIfMissing('calificacion_valor_actualizada', '9.20');",
+          "setIfMissing('calificacion_observaciones', 'Registro de prueba Postman');",
+          "setIfMissing('calificacion_observaciones_actualizada', 'Actualización de prueba Postman');"
         ]
       }
     }
@@ -115,37 +133,32 @@
       "type": "string"
     },
     {
+      "key": "calificacion_valor_actualizada",
+      "value": "9.20",
+      "type": "string"
+    },
+    {
       "key": "calificacion_observaciones",
-      "value": "Registro final Postman",
+      "value": "Registro de prueba Postman",
       "type": "string"
     },
     {
-      "key": "import_calificaciones_procesadas",
+      "key": "calificacion_observaciones_actualizada",
+      "value": "Actualización de prueba Postman",
+      "type": "string"
+    },
+    {
+      "key": "concentrado_cierre_estado",
       "value": "",
       "type": "string"
     },
     {
-      "key": "import_calificaciones_insertadas",
+      "key": "concentrado_cierre_materia_id",
       "value": "",
       "type": "string"
     },
     {
-      "key": "import_calificaciones_actualizadas",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "import_calificaciones_errores",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "concentrado_total_alumnos",
-      "value": "",
-      "type": "string"
-    },
-    {
-      "key": "concentrado_modo",
+      "key": "concentrado_cierre_id",
       "value": "",
       "type": "string"
     }
@@ -155,7 +168,7 @@
       "name": "00 - Health",
       "item": [
         {
-          "name": "00.1 Health Check",
+          "name": "Health Check",
           "request": {
             "method": "GET",
             "header": [
@@ -164,19 +177,29 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{ms_calificaciones_base_url}}/api/v1/health",
-            "description": "Valida que el microservicio MS-4 esté levantado.",
-            "auth": {
-              "type": "noauth"
-            }
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/health",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "health"
+              ]
+            },
+            "description": "Valida que el microservicio MS-4 esté levantado."
           },
+          "response": [],
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
                 ]
               }
             }
@@ -186,10 +209,10 @@
     },
     {
       "name": "01 - Ponderaciones",
-      "description": "Flujo real: el docente configura criterios de evaluación por materia, con suma exacta de 100%.",
+      "description": "Configura los criterios de evaluación de una materia. Ejecutar antes de crear actividades.",
       "item": [
         {
-          "name": "01.1 Crear ponderaciones 100%",
+          "name": "Crear ponderaciones 100%",
           "request": {
             "method": "POST",
             "header": [
@@ -202,8 +225,19 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{ms_calificaciones_base_url}}/api/v1/ponderaciones/{{materia_id}}",
-            "description": "Crea las ponderaciones iniciales de la materia. Deben sumar 100%. Ejecuta esta solicitud antes de crear actividades.",
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/ponderaciones/{{materia_id}}",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ponderaciones",
+                "{{materia_id}}"
+              ]
+            },
+            "description": "Crea o reemplaza las ponderaciones de la materia. La suma debe ser exactamente 100%.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"criterios\": [\n    {\n      \"nombre\": \"Exámenes\",\n      \"porcentaje\": 40,\n      \"orden\": 1\n    },\n    {\n      \"nombre\": \"Tareas\",\n      \"porcentaje\": 30,\n      \"orden\": 2\n    },\n    {\n      \"nombre\": \"Proyecto\",\n      \"porcentaje\": 20,\n      \"orden\": 3\n    },\n    {\n      \"nombre\": \"Asistencia\",\n      \"porcentaje\": 10,\n      \"orden\": 4\n    }\n  ]\n}",
@@ -214,19 +248,13 @@
               }
             }
           },
+          "response": [],
           "event": [
             {
               "listen": "prerequest",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
-                  "function setVar(name, value) {",
-                  "  if (value === undefined || value === null || value === '') return;",
-                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
-                  "  pm.collectionVariables.set(name, String(value));",
-                  "}",
-                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
                   "function uuidv4() {",
                   "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
                   "    const r = Math.random() * 16 | 0;",
@@ -234,13 +262,33 @@
                   "    return v.toString(16);",
                   "  });",
                   "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
                   "function todayIso() { return new Date().toISOString().slice(0, 10); }",
+                  "",
                   "const materiaAlias = getVar('materia_ofertada_id') || getVar('ms2_materia_ofertada_id');",
                   "if (materiaAlias) setVar('materia_id', materiaAlias);",
                   "if (!getVar('materia_id')) setVar('materia_id', uuidv4());",
                   "if (!getVar('alumno_id')) setVar('alumno_id', uuidv4());",
                   "setVar('actividad_fecha', todayIso());",
-                  "['ponderacion_examen_id','ponderacion_tareas_id','ponderacion_proyecto_id','ponderacion_asistencia_id','actividad_id','calificacion_id'].forEach(function (name) {",
+                  "setVar('calificacion_valor', '8.50');",
+                  "setVar('calificacion_valor_actualizada', '9.20');",
+                  "setVar('calificacion_observaciones', 'Registro de prueba Postman');",
+                  "setVar('calificacion_observaciones_actualizada', 'Actualización de prueba Postman');",
+                  "",
+                  "// Limpia IDs propios de MS-4 para que se capturen los recursos recién creados.",
+                  "[",
+                  "  'ponderacion_examen_id',",
+                  "  'ponderacion_tareas_id',",
+                  "  'ponderacion_proyecto_id',",
+                  "  'ponderacion_asistencia_id',",
+                  "  'actividad_id',",
+                  "  'calificacion_id'",
+                  "].forEach(function (name) {",
                   "  try { pm.environment.unset(name); } catch (e) {}",
                   "  pm.collectionVariables.unset(name);",
                   "});"
@@ -253,33 +301,31 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
-                  "let json = {};",
-                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
-                  "const data = json.data || json;",
-                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
                   "function setVar(name, value) {",
                   "  if (value === undefined || value === null || value === '') return;",
                   "  try { pm.environment.set(name, String(value)); } catch (e) {}",
                   "  pm.collectionVariables.set(name, String(value));",
                   "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || {};",
                   "setVar('materia_id', data.materia_id);",
-                  "const criterios = data.criterios || data.ponderaciones || [];",
+                  "const criterios = data.criterios || [];",
                   "criterios.forEach(function (c) {",
                   "  const name = (c.nombre || '').toLowerCase();",
-                  "  const id = c.id || c.ponderacion_id;",
-                  "  if (name.includes('examen') || name.includes('exámen')) setVar('ponderacion_examen_id', id);",
-                  "  if (name.includes('tarea')) setVar('ponderacion_tareas_id', id);",
-                  "  if (name.includes('proyecto')) setVar('ponderacion_proyecto_id', id);",
-                  "  if (name.includes('asistencia')) setVar('ponderacion_asistencia_id', id);",
+                  "  if (name.includes('examen') || name.includes('exámen')) setVar('ponderacion_examen_id', c.id);",
+                  "  if (name.includes('tarea')) setVar('ponderacion_tareas_id', c.id);",
+                  "  if (name.includes('proyecto')) setVar('ponderacion_proyecto_id', c.id);",
+                  "  if (name.includes('asistencia')) setVar('ponderacion_asistencia_id', c.id);",
                   "});",
-                  "if (criterios.length && !getVar('ponderacion_examen_id')) setVar('ponderacion_examen_id', criterios[0].id || criterios[0].ponderacion_id);"
+                  "if (criterios.length && !pm.variables.get('ponderacion_examen_id')) setVar('ponderacion_examen_id', criterios[0].id);"
                 ]
               }
             }
           ]
         },
         {
-          "name": "01.2 Obtener ponderaciones",
+          "name": "Obtener ponderaciones",
           "request": {
             "method": "GET",
             "header": [
@@ -288,9 +334,21 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{ms_calificaciones_base_url}}/api/v1/ponderaciones/{{materia_id}}",
-            "description": "Consulta las ponderaciones configuradas para la materia."
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/ponderaciones/{{materia_id}}",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ponderaciones",
+                "{{materia_id}}"
+              ]
+            },
+            "description": ""
           },
+          "response": [],
           "event": [
             {
               "listen": "test",
@@ -298,33 +356,31 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
-                  "let json = {};",
-                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
-                  "const data = json.data || json;",
-                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
                   "function setVar(name, value) {",
                   "  if (value === undefined || value === null || value === '') return;",
                   "  try { pm.environment.set(name, String(value)); } catch (e) {}",
                   "  pm.collectionVariables.set(name, String(value));",
                   "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || {};",
                   "setVar('materia_id', data.materia_id);",
-                  "const criterios = data.criterios || data.ponderaciones || [];",
+                  "const criterios = data.criterios || [];",
                   "criterios.forEach(function (c) {",
                   "  const name = (c.nombre || '').toLowerCase();",
-                  "  const id = c.id || c.ponderacion_id;",
-                  "  if (name.includes('examen') || name.includes('exámen')) setVar('ponderacion_examen_id', id);",
-                  "  if (name.includes('tarea')) setVar('ponderacion_tareas_id', id);",
-                  "  if (name.includes('proyecto')) setVar('ponderacion_proyecto_id', id);",
-                  "  if (name.includes('asistencia')) setVar('ponderacion_asistencia_id', id);",
+                  "  if (name.includes('examen') || name.includes('exámen')) setVar('ponderacion_examen_id', c.id);",
+                  "  if (name.includes('tarea')) setVar('ponderacion_tareas_id', c.id);",
+                  "  if (name.includes('proyecto')) setVar('ponderacion_proyecto_id', c.id);",
+                  "  if (name.includes('asistencia')) setVar('ponderacion_asistencia_id', c.id);",
                   "});",
-                  "if (criterios.length && !getVar('ponderacion_examen_id')) setVar('ponderacion_examen_id', criterios[0].id || criterios[0].ponderacion_id);"
+                  "if (criterios.length && !pm.variables.get('ponderacion_examen_id')) setVar('ponderacion_examen_id', criterios[0].id);"
                 ]
               }
             }
           ]
         },
         {
-          "name": "01.3 Actualizar ponderaciones",
+          "name": "Actualizar ponderaciones antes de actividades",
           "request": {
             "method": "PUT",
             "header": [
@@ -337,8 +393,19 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{ms_calificaciones_base_url}}/api/v1/ponderaciones/{{materia_id}}",
-            "description": "Actualiza las ponderaciones antes de tener actividades/calificaciones asociadas. El documento sí contempla PUT sobre ponderaciones.",
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/ponderaciones/{{materia_id}}",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ponderaciones",
+                "{{materia_id}}"
+              ]
+            },
+            "description": "Debe ejecutarse antes de tener actividades asociadas; el código impide modificar ponderaciones si ya existen actividades.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"criterios\": [\n    {\n      \"nombre\": \"Exámenes\",\n      \"porcentaje\": 50,\n      \"orden\": 1\n    },\n    {\n      \"nombre\": \"Tareas\",\n      \"porcentaje\": 20,\n      \"orden\": 2\n    },\n    {\n      \"nombre\": \"Proyecto\",\n      \"porcentaje\": 20,\n      \"orden\": 3\n    },\n    {\n      \"nombre\": \"Asistencia\",\n      \"porcentaje\": 10,\n      \"orden\": 4\n    }\n  ]\n}",
@@ -349,6 +416,7 @@
               }
             }
           },
+          "response": [],
           "event": [
             {
               "listen": "test",
@@ -356,26 +424,24 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
-                  "let json = {};",
-                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
-                  "const data = json.data || json;",
-                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
                   "function setVar(name, value) {",
                   "  if (value === undefined || value === null || value === '') return;",
                   "  try { pm.environment.set(name, String(value)); } catch (e) {}",
                   "  pm.collectionVariables.set(name, String(value));",
                   "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || {};",
                   "setVar('materia_id', data.materia_id);",
-                  "const criterios = data.criterios || data.ponderaciones || [];",
+                  "const criterios = data.criterios || [];",
                   "criterios.forEach(function (c) {",
                   "  const name = (c.nombre || '').toLowerCase();",
-                  "  const id = c.id || c.ponderacion_id;",
-                  "  if (name.includes('examen') || name.includes('exámen')) setVar('ponderacion_examen_id', id);",
-                  "  if (name.includes('tarea')) setVar('ponderacion_tareas_id', id);",
-                  "  if (name.includes('proyecto')) setVar('ponderacion_proyecto_id', id);",
-                  "  if (name.includes('asistencia')) setVar('ponderacion_asistencia_id', id);",
+                  "  if (name.includes('examen') || name.includes('exámen')) setVar('ponderacion_examen_id', c.id);",
+                  "  if (name.includes('tarea')) setVar('ponderacion_tareas_id', c.id);",
+                  "  if (name.includes('proyecto')) setVar('ponderacion_proyecto_id', c.id);",
+                  "  if (name.includes('asistencia')) setVar('ponderacion_asistencia_id', c.id);",
                   "});",
-                  "if (criterios.length && !getVar('ponderacion_examen_id')) setVar('ponderacion_examen_id', criterios[0].id || criterios[0].ponderacion_id);"
+                  "if (criterios.length && !pm.variables.get('ponderacion_examen_id')) setVar('ponderacion_examen_id', criterios[0].id);"
                 ]
               }
             }
@@ -385,10 +451,10 @@
     },
     {
       "name": "02 - Actividades",
-      "description": "Flujo real: el docente crea actividades específicas bajo una categoría de ponderación.",
+      "description": "Crea y consulta actividades asociadas a una ponderación.",
       "item": [
         {
-          "name": "02.1 Crear actividad",
+          "name": "Crear actividad",
           "request": {
             "method": "POST",
             "header": [
@@ -401,11 +467,21 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{ms_calificaciones_base_url}}/api/v1/actividades",
-            "description": "Crea una actividad bajo una ponderación ya configurada y guarda actividad_id.",
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/actividades",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "actividades"
+              ]
+            },
+            "description": "Crea una actividad debajo de una ponderación ya configurada. Guarda actividad_id.",
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"materia_id\": \"{{materia_id}}\",\n  \"ponderacion_id\": \"{{ponderacion_examen_id}}\",\n  \"nombre\": \"Examen Parcial 1\",\n  \"descripcion\": \"Actividad creada desde Postman para el flujo final de calificaciones.\",\n  \"valor_maximo\": 10,\n  \"fecha_aplicacion\": \"{{actividad_fecha}}\"\n}",
+              "raw": "{\n  \"materia_id\": \"{{materia_id}}\",\n  \"ponderacion_id\": \"{{ponderacion_examen_id}}\",\n  \"nombre\": \"Examen Parcial 1\",\n  \"descripcion\": \"Actividad creada desde Postman para prueba real del flujo de calificaciones.\",\n  \"valor_maximo\": 10,\n  \"fecha_aplicacion\": \"{{actividad_fecha}}\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -413,6 +489,7 @@
               }
             }
           },
+          "response": [],
           "event": [
             {
               "listen": "test",
@@ -420,16 +497,176 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
                   "let json = {};",
                   "try { json = pm.response.json(); } catch (e) { json = {}; }",
-                  "const data = json.data || json;",
+                  "const data = json.data || {};",
+                  "setVar('actividad_id', data.id);",
+                  "setVar('materia_id', data.materia_id);",
+                  "setVar('ponderacion_examen_id', data.ponderacion_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener actividades por materia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/actividades/materia/{{materia_id}}",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "actividades",
+                "materia",
+                "{{materia_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
                   "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
                   "function setVar(name, value) {",
                   "  if (value === undefined || value === null || value === '') return;",
                   "  try { pm.environment.set(name, String(value)); } catch (e) {}",
                   "  pm.collectionVariables.set(name, String(value));",
                   "}",
-                  "setVar('actividad_id', data.id || data.actividad_id);",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || [];",
+                  "if (Array.isArray(data) && data.length > 0 && !getVar('actividad_id')) {",
+                  "  setVar('actividad_id', data[0].id);",
+                  "  setVar('materia_id', data[0].materia_id);",
+                  "  setVar('ponderacion_examen_id', data[0].ponderacion_id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener actividad por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/actividades/{{actividad_id}}",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "actividades",
+                "{{actividad_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || {};",
+                  "setVar('actividad_id', data.id);",
+                  "setVar('materia_id', data.materia_id);",
+                  "setVar('ponderacion_examen_id', data.ponderacion_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar actividad",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/actividades/{{actividad_id}}",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "actividades",
+                "{{actividad_id}}"
+              ]
+            },
+            "description": "Actualiza metadatos de la actividad sin cambiar la ponderación.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Examen Parcial 1 - Actualizado\",\n  \"descripcion\": \"Descripción actualizada desde Postman.\",\n  \"valor_maximo\": 10,\n  \"fecha_aplicacion\": \"{{actividad_fecha}}\",\n  \"estado\": \"activa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || {};",
+                  "setVar('actividad_id', data.id);",
                   "setVar('materia_id', data.materia_id);",
                   "setVar('ponderacion_examen_id', data.ponderacion_id);"
                 ]
@@ -441,10 +678,10 @@
     },
     {
       "name": "03 - Calificaciones",
-      "description": "Flujo real: registro individual y registro masivo por Excel/CSV. alumno_id debe existir en MS-3 y estar inscrito en materia_id.",
+      "description": "Registro individual y masivo de calificaciones. Para crear calificación individual, alumno_id debe existir en MS-3 y estar inscrito en materia_id.",
       "item": [
         {
-          "name": "03.1 Registrar calificación individual",
+          "name": "Crear calificación individual",
           "request": {
             "method": "POST",
             "header": [
@@ -457,11 +694,455 @@
                 "value": "application/json"
               }
             ],
-            "url": "{{ms_calificaciones_base_url}}/api/v1/calificaciones",
-            "description": "Registra la calificación individual de un alumno para la actividad. El servicio debe validar inscripción por gRPC contra MS-3.",
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/calificaciones",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones"
+              ]
+            },
+            "description": "Registra la calificación de un alumno. El servicio valida inscripción del alumno por gRPC contra MS-3.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"actividad_id\": \"{{actividad_id}}\",\n  \"alumno_id\": \"{{alumno_id}}\",\n  \"calificacion\": \"{{calificacion_valor}}\",\n  \"observaciones\": \"{{calificacion_observaciones}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || {};",
+                  "setVar('calificacion_id', data.id);",
+                  "setVar('actividad_id', data.actividad_id);",
+                  "setVar('materia_id', data.materia_id);",
+                  "setVar('alumno_id', data.alumno_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener calificaciones por actividad",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/calificaciones/actividad/{{actividad_id}}",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones",
+                "actividad",
+                "{{actividad_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || [];",
+                  "if (Array.isArray(data) && data.length > 0 && !getVar('calificacion_id')) {",
+                  "  setVar('calificacion_id', data[0].id);",
+                  "  setVar('actividad_id', data[0].actividad_id);",
+                  "  setVar('materia_id', data[0].materia_id);",
+                  "  setVar('alumno_id', data[0].alumno_id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener calificaciones por alumno y materia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/calificaciones/alumno/{{alumno_id}}/materia/{{materia_id}}",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones",
+                "alumno",
+                "{{alumno_id}}",
+                "materia",
+                "{{materia_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || [];",
+                  "if (Array.isArray(data) && data.length > 0 && !getVar('calificacion_id')) {",
+                  "  setVar('calificacion_id', data[0].id);",
+                  "  setVar('actividad_id', data[0].actividad_id);",
+                  "  setVar('materia_id', data[0].materia_id);",
+                  "  setVar('alumno_id', data[0].alumno_id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener calificación por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/calificaciones/{{calificacion_id}}",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones",
+                "{{calificacion_id}}"
+              ]
+            },
+            "description": ""
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || {};",
+                  "setVar('calificacion_id', data.id);",
+                  "setVar('actividad_id', data.actividad_id);",
+                  "setVar('materia_id', data.materia_id);",
+                  "setVar('alumno_id', data.alumno_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar calificación",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/calificaciones/{{calificacion_id}}",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones",
+                "{{calificacion_id}}"
+              ]
+            },
+            "description": "Actualiza la calificación individual registrada.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"calificacion\": \"{{calificacion_valor_actualizada}}\",\n  \"observaciones\": \"{{calificacion_observaciones_actualizada}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || {};",
+                  "setVar('calificacion_id', data.id);",
+                  "setVar('actividad_id', data.actividad_id);",
+                  "setVar('materia_id', data.materia_id);",
+                  "setVar('alumno_id', data.alumno_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Importar calificaciones Excel/CSV",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "actividad_id",
+                  "value": "{{actividad_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "archivo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/calificaciones/importar",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones",
+                "importar"
+              ]
+            },
+            "description": "Importación masiva. En Postman selecciona manualmente un archivo .xlsx, .xls o .csv. El archivo debe contener las columnas: Dirección de correo, Puntos, Puntos máximos; opcional: Comentarios."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || {};",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('import_calificaciones_procesadas', data.procesadas);",
+                  "setVar('import_calificaciones_insertadas', data.insertadas);",
+                  "setVar('import_calificaciones_actualizadas', data.actualizadas);",
+                  "setVar('import_calificaciones_errores', Array.isArray(data.errores) ? data.errores.length : undefined);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Concentrado",
+      "description": "Consulta el concentrado de promedio ponderado de la materia.",
+      "item": [
+        {
+          "name": "Obtener concentrado - modo actual",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/concentrado/{{materia_id}}?modo=actual",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "concentrado",
+                "{{materia_id}}"
+              ]
+            },
+            "description": "Modo actual: solo ponderaciones con calificaciones cuentan en el cálculo."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || {};",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('concentrado_total_alumnos', data.total_alumnos);",
+                  "setVar('concentrado_modo', data.modo);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener concentrado - modo final",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/concentrado/{{materia_id}}?modo=final",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "concentrado",
+                "{{materia_id}}"
+              ]
+            },
+            "description": "Modo final: las actividades faltantes cuentan como 0."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || {};",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('concentrado_total_alumnos', data.total_alumnos);",
+                  "setVar('concentrado_modo', data.modo);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cierre final de concentrado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/concentrado/{{materia_id}}/cierre",
+            "description": "Cierra/finaliza el concentrado de la materia. Ejecutar al final del flujo, después de registrar o importar calificaciones.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"modo\": \"final\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -475,74 +1156,18 @@
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "pm.test('Cierre final respondió 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
                   "let json = {};",
                   "try { json = pm.response.json(); } catch (e) { json = {}; }",
                   "const data = json.data || json;",
-                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
                   "function setVar(name, value) {",
                   "  if (value === undefined || value === null || value === '') return;",
                   "  try { pm.environment.set(name, String(value)); } catch (e) {}",
                   "  pm.collectionVariables.set(name, String(value));",
                   "}",
-                  "setVar('calificacion_id', data.id || data.calificacion_id);",
-                  "setVar('actividad_id', data.actividad_id);",
-                  "setVar('materia_id', data.materia_id);",
-                  "setVar('alumno_id', data.alumno_id);"
-                ]
-              }
-            }
-          ]
-        },
-        {
-          "name": "03.2 Importar calificaciones Excel/CSV",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Accept",
-                "value": "application/json"
-              }
-            ],
-            "url": "{{ms_calificaciones_base_url}}/api/v1/calificaciones/importar",
-            "body": {
-              "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "actividad_id",
-                  "value": "{{actividad_id}}",
-                  "type": "text"
-                },
-                {
-                  "key": "archivo",
-                  "type": "file",
-                  "src": [],
-                  "description": "Selecciona .xlsx, .xls o .csv con las columnas esperadas por tu backend."
-                }
-              ]
-            },
-            "description": "Importación masiva de calificaciones. En Postman selecciona manualmente el archivo en el campo archivo."
-          },
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "type": "text/javascript",
-                "exec": [
-                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
-                  "let json = {};",
-                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
-                  "const data = json.data || json;",
-                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
-                  "function setVar(name, value) {",
-                  "  if (value === undefined || value === null || value === '') return;",
-                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
-                  "  pm.collectionVariables.set(name, String(value));",
-                  "}",
-                  "setVar('import_calificaciones_procesadas', data.procesadas || data.total_procesadas);",
-                  "setVar('import_calificaciones_insertadas', data.insertadas || data.creadas);",
-                  "setVar('import_calificaciones_actualizadas', data.actualizadas);",
-                  "setVar('import_calificaciones_errores', Array.isArray(data.errores) ? data.errores.length : undefined);"
+                  "setVar('concentrado_cierre_materia_id', data.materia_id || pm.environment.get('materia_id') || pm.collectionVariables.get('materia_id'));",
+                  "setVar('concentrado_cierre_estado', data.estado || data.status || data.estatus || 'cerrado');",
+                  "setVar('concentrado_cierre_id', data.id || data.cierre_id || data.concentrado_id);"
                 ]
               }
             }
@@ -551,40 +1176,121 @@
       ]
     },
     {
-      "name": "04 - Concentrado",
-      "description": "Flujo real: consulta el concentrado y el cálculo de promedio ponderado/redondeado por materia.",
+      "name": "99 - Estados terminales y limpieza",
+      "description": "Operaciones destructivas o de limpieza. Ejecutar solo al final del flujo de pruebas.",
       "item": [
         {
-          "name": "04.1 Obtener concentrado por materia",
+          "name": "Eliminar calificación",
           "request": {
-            "method": "GET",
+            "method": "DELETE",
             "header": [
               {
                 "key": "Accept",
                 "value": "application/json"
               }
             ],
-            "url": "{{ms_calificaciones_base_url}}/api/v1/concentrado/{{materia_id}}",
-            "description": "Consulta el concentrado final de la materia. Debe mostrar promedio real y redondeado según reglas institucionales."
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/calificaciones/{{calificacion_id}}",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "calificaciones",
+                "{{calificacion_id}}"
+              ]
+            },
+            "description": "Elimina la calificación individual creada en el flujo."
           },
+          "response": [],
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
-                  "let json = {};",
-                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
-                  "const data = json.data || json;",
-                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
-                  "function setVar(name, value) {",
-                  "  if (value === undefined || value === null || value === '') return;",
-                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
-                  "  pm.collectionVariables.set(name, String(value));",
-                  "}",
-                  "setVar('concentrado_total_alumnos', data.total_alumnos);",
-                  "setVar('concentrado_modo', data.modo);"
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar actividad",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/actividades/{{actividad_id}}",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "actividades",
+                "{{actividad_id}}"
+              ]
+            },
+            "description": "Elimina la actividad creada. Fallará si existen calificaciones asociadas no eliminadas."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Eliminar ponderaciones",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{ms_calificaciones_base_url}}/api/v1/ponderaciones/{{materia_id}}",
+              "host": [
+                "{{ms_calificaciones_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "ponderaciones",
+                "{{materia_id}}"
+              ]
+            },
+            "description": "Elimina ponderaciones de la materia. Fallará si todavía existen actividades asociadas."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
                 ]
               }
             }

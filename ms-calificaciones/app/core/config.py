@@ -19,6 +19,11 @@ class Settings(BaseSettings):
     ms_docentes_alumnos_grpc_host: str = "ms-docentes-alumnos"
     ms_docentes_alumnos_grpc_port: int = 50053
 
+    # MS-Notificaciones (MS-6) — para el cierre de actas
+    ms_notificaciones_grpc_host: str = "ms-notificaciones"
+    ms_notificaciones_grpc_port: int = 50056
+
+
     # Legacy (mantener por compatibilidad interna)
     ms_alumnos_grpc_url: str = "ms-docentes-alumnos:50053"
 

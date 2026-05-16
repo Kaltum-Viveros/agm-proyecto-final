@@ -49,6 +49,11 @@ class DocentesAlumnosServiceStub(object):
                 request_serializer=docentes__alumnos__pb2.AlumnoIdRequest.SerializeToString,
                 response_deserializer=docentes__alumnos__pb2.AlumnoProfile.FromString,
                 _registered_method=True)
+        self.GetDocenteById = channel.unary_unary(
+                '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetDocenteById',
+                request_serializer=docentes__alumnos__pb2.DocenteIdRequest.SerializeToString,
+                response_deserializer=docentes__alumnos__pb2.DocenteProfile.FromString,
+                _registered_method=True)
         self.GetDocenteByNombre = channel.unary_unary(
                 '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetDocenteByNombre',
                 request_serializer=docentes__alumnos__pb2.DocenteNombreRequest.SerializeToString,
@@ -90,6 +95,12 @@ class DocentesAlumnosServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetDocenteById(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def GetDocenteByNombre(self, request, context):
         """Para que MS-2 resuelva el docente_id al importar PDFs de programación
         """
@@ -126,6 +137,11 @@ def add_DocentesAlumnosServiceServicer_to_server(servicer, server):
                     servicer.GetAlumnoById,
                     request_deserializer=docentes__alumnos__pb2.AlumnoIdRequest.FromString,
                     response_serializer=docentes__alumnos__pb2.AlumnoProfile.SerializeToString,
+            ),
+            'GetDocenteById': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetDocenteById,
+                    request_deserializer=docentes__alumnos__pb2.DocenteIdRequest.FromString,
+                    response_serializer=docentes__alumnos__pb2.DocenteProfile.SerializeToString,
             ),
             'GetDocenteByNombre': grpc.unary_unary_rpc_method_handler(
                     servicer.GetDocenteByNombre,
@@ -224,6 +240,33 @@ class DocentesAlumnosService(object):
             '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetAlumnoById',
             docentes__alumnos__pb2.AlumnoIdRequest.SerializeToString,
             docentes__alumnos__pb2.AlumnoProfile.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetDocenteById(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetDocenteById',
+            docentes__alumnos__pb2.DocenteIdRequest.SerializeToString,
+            docentes__alumnos__pb2.DocenteProfile.FromString,
             options,
             channel_credentials,
             insecure,
