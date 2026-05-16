@@ -1,0 +1,766 @@
+{
+  "info": {
+    "_postman_id": "3f3e1d84-2c72-44c0-bb05-4c0dd984790d",
+    "name": "AGM - MS-2 Periodos & Materias - Pruebas reales",
+    "description": "Colección reformulada para revisión final de MS-2 con base en el documento del proyecto. Prioriza solo los flujos exigidos o directamente justificados por el documento: health, gestión de periodos, preparación mínima de plan de estudio cuando la implementación lo requiere, importación PDF de programación académica y consultas de materias. Se eliminaron de la ruta principal los CRUD internos de catálogo, relación materia-plan, materias ofertadas y horarios porque el documento pide que la programación académica se registre automáticamente desde el PDF.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{access_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "function uuidv4() {",
+          "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+          "    const r = Math.random() * 16 | 0;",
+          "    const v = c === 'x' ? r : (r & 0x3 | 0x8);",
+          "    return v.toString(16);",
+          "  });",
+          "}",
+          "",
+          "function getVar(name) {",
+          "  return pm.environment.get(name) || pm.collectionVariables.get(name);",
+          "}",
+          "",
+          "function setVar(name, value) {",
+          "  if (value === undefined || value === null || value === '') return;",
+          "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+          "  pm.collectionVariables.set(name, String(value));",
+          "}",
+          "",
+          "function setIfMissing(name, value) {",
+          "  if (!getVar(name)) setVar(name, value);",
+          "}",
+          "",
+          "setIfMissing('ms_periodos_materias_base_url', 'http://localhost:8002/api/v1');",
+          "setIfMissing('ms2_page', '1');",
+          "setIfMissing('ms2_limit', '10');",
+          "setIfMissing('periodo_fecha_inicio', '2030-01-01');",
+          "setIfMissing('periodo_fecha_fin', '2030-06-30');",
+          "setIfMissing('periodo_fecha_fin_actualizada', '2030-07-15');",
+          "setIfMissing('docente_id', uuidv4());",
+          "setIfMissing('docente_nombre', 'Docente externo MS-3');"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Status HTTP esperado', function () {",
+          "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+          "});",
+          "",
+          "let json = {};",
+          "try {",
+          "  json = pm.response.json();",
+          "} catch (e) {",
+          "  json = {};",
+          "}",
+          "",
+          "if (Object.prototype.hasOwnProperty.call(json, 'success')) {",
+          "  pm.test('Respuesta success=true', function () {",
+          "    pm.expect(json.success).to.eql(true);",
+          "  });",
+          "}"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "ms_periodos_materias_base_url",
+      "value": "http://localhost:8002/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ms2_page",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "ms2_limit",
+      "value": "10",
+      "type": "string"
+    },
+    {
+      "key": "periodo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_activo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_nombre_actualizado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_fecha_inicio",
+      "value": "2030-01-01",
+      "type": "string"
+    },
+    {
+      "key": "periodo_fecha_fin",
+      "value": "2030-06-30",
+      "type": "string"
+    },
+    {
+      "key": "periodo_fecha_fin_actualizada",
+      "value": "2030-07-15",
+      "type": "string"
+    },
+    {
+      "key": "plan_estudio_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "plan_estudio_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "plan_estudio_nombre_actualizado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_ofertada_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_nombre",
+      "value": "Docente externo MS-3",
+      "type": "string"
+    },
+    {
+      "key": "materia_nrc",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health",
+      "item": [
+        {
+          "name": "00.1 Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/health",
+            "description": "Verifica que el microservicio MS-2 esté levantado.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function uuidv4() {",
+                  "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+                  "    const r = Math.random() * 16 | 0;",
+                  "    const v = c === 'x' ? r : (r & 0x3 | 0x8);",
+                  "    return v.toString(16);",
+                  "  });",
+                  "}",
+                  "",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "",
+                  "const suffix = Date.now().toString().slice(-8);",
+                  "const nrc = String(10000 + Math.floor(Math.random() * 89999));",
+                  "",
+                  "setVar('ms2_run_suffix', suffix);",
+                  "setVar('periodo_nombre', `Periodo Postman ${suffix}`);",
+                  "setVar('periodo_nombre_actualizado', `Periodo Postman ${suffix} Actualizado`);",
+                  "setVar('plan_estudio_nombre', `Plan AGM Postman ${suffix}`);",
+                  "setVar('plan_estudio_nombre_actualizado', `Plan AGM Postman ${suffix} Actualizado`);",
+                  "setVar('materia_clave', `SW${suffix}`.slice(0, 30));",
+                  "setVar('materia_clave_actualizada', `SW${suffix}A`.slice(0, 30));",
+                  "setVar('materia_nombre', `Servicios Web Postman ${suffix}`);",
+                  "setVar('materia_nombre_actualizado', `Servicios Web Postman ${suffix} Actualizada`);",
+                  "setVar('materia_nrc', nrc);",
+                  "",
+                  "// Limpia ids para que el flujo tome los recursos recién creados.",
+                  "['periodo_id','periodo_activo_id','plan_estudio_id','materia_catalogo_id','materia_plan_estudio_id','materia_ofertada_id','materia_horario_id'].forEach(function (name) {",
+                  "  try { pm.environment.unset(name); } catch (e) {}",
+                  "  pm.collectionVariables.unset(name);",
+                  "});",
+                  "",
+                  "if (!(pm.environment.get('docente_id') || pm.collectionVariables.get('docente_id'))) {",
+                  "  setVar('docente_id', uuidv4());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "00.2 Database Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/health/db",
+            "description": "Verifica que MS-2 tenga conexión con su base de datos.",
+            "auth": {
+              "type": "noauth"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "01 - Periodos académicos",
+      "item": [
+        {
+          "name": "01.1 Listar periodos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/periodos?page={{ms2_page}}&limit={{ms2_limit}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "const items = data && data.items ? data.items : [];",
+                  "if (items.length > 0) {",
+                  "  setIfMissing('periodo_id', items[0]['periodo_id']);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.2 Crear periodo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{ms_periodos_materias_base_url}}/periodos",
+            "description": "Crea un periodo académico inactivo. Después se activa explícitamente para probar la regla de periodo único activo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{periodo_nombre}}\",\n  \"fecha_inicio\": \"{{periodo_fecha_inicio}}\",\n  \"fecha_fin\": \"{{periodo_fecha_fin}}\",\n  \"activo\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('periodo_id', data && data['periodo_id']);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.3 Activar periodo",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/periodos/{{periodo_id}}/activar",
+            "description": "Activa el periodo creado. Si ya existe otro periodo activo, el backend responde conflicto según la regla de negocio."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('periodo_id', data && data['periodo_id']);",
+                  "setVar('periodo_activo_id', data && data['periodo_id']);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.4 Obtener periodo activo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/periodos/activo"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('periodo_activo_id', data && data['periodo_id']);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.5 Obtener periodo por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/periodos/{{periodo_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('periodo_id', data && data['periodo_id']);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.6 Actualizar periodo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{ms_periodos_materias_base_url}}/periodos/{{periodo_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{periodo_nombre_actualizado}}\",\n  \"fecha_fin\": \"{{periodo_fecha_fin_actualizada}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('periodo_id', data && data['periodo_id']);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.7 Desactivar periodo",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/periodos/{{periodo_id}}",
+            "description": "Soft delete: marca el periodo como inactivo. Úsalo al final para no romper las consultas del flujo."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('periodo_id', data && data['periodo_id']);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Precondición técnica: plan de estudio",
+      "item": [
+        {
+          "name": "02.1 Listar planes de estudio",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/planes-estudio?page={{ms2_page}}&limit={{ms2_limit}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "const items = data && data.items ? data.items : [];",
+                  "if (items.length > 0) {",
+                  "  setIfMissing('plan_estudio_id', items[0]['plan_estudio_id']);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.2 Crear plan de estudio",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{ms_periodos_materias_base_url}}/planes-estudio",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{plan_estudio_nombre}}\",\n  \"activo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('plan_estudio_id', data && data['plan_estudio_id']);"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "El documento indica que un periodo contiene plan de estudios; en esta implementación el importador requiere plan_estudio_id. Por eso solo se deja crear/listar plan como precondición técnica, no como flujo de revisión principal."
+    },
+    {
+      "name": "03 - Importación PDF de programación académica",
+      "item": [
+        {
+          "name": "03.1 Importar programación académica PDF",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/importaciones/programacion-academica",
+            "description": "Adjunta manualmente el PDF oficial de programación académica en el campo archivo. El documento base lo define como POST /periodos/importar; en esta implementación el endpoint Swagger es /importaciones/programacion-academica. periodo_id y plan_estudio_id quedan ligados a variables.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "periodo_id",
+                  "value": "{{periodo_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "plan_estudio_id",
+                  "value": "{{plan_estudio_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "archivo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "pm.test('Importación procesó filas del PDF', function () {",
+                  "  pm.expect(data).to.have.property('filas_extraidas');",
+                  "  pm.expect(data.filas_extraidas).to.be.above(0);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Flujo principal del MS-2: cargar el PDF oficial de programación académica para que el servicio extraiga NRC, materia, sección, docente y horario."
+    },
+    {
+      "name": "04 - Consultas reales de materias",
+      "item": [
+        {
+          "name": "04.1 Listar materias por periodo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/materias/periodo/{{periodo_id}}?page={{ms2_page}}&limit={{ms2_limit}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "const items = data && data.items ? data.items : [];",
+                  "if (items.length > 0) {",
+                  "  setIfMissing('materia_ofertada_id', items[0]['materia_ofertada_id']);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.2 Listar materias del periodo activo",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/materias/periodo-activo?page={{ms2_page}}&limit={{ms2_limit}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "const items = data && data.items ? data.items : [];",
+                  "if (items.length > 0) {",
+                  "  setIfMissing('materia_ofertada_id', items[0]['materia_ofertada_id']);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.3 Listar materias por docente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/materias/docente/{{docente_id}}?page={{ms2_page}}&limit={{ms2_limit}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "const items = data && data.items ? data.items : [];",
+                  "if (items.length > 0) {",
+                  "  setIfMissing('materia_ofertada_id', items[0]['materia_ofertada_id']);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.4 Obtener materia por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/materias/{{materia_ofertada_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('materia_ofertada_id', data && data['materia_ofertada_id']);"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Consultas finales sobre materias importadas/ofertadas. Son las que permiten validar que la importación alimentó la oferta académica consultable por periodo, docente y detalle."
+    }
+  ]
+}
