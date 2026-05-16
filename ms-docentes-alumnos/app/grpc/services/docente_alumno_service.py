@@ -71,3 +71,45 @@ class DocentesAlumnosService(docentes_alumnos_pb2_grpc.DocentesAlumnosServiceSer
             return docentes_alumnos_pb2.BoolResponse(exists=False)
         finally:
             db.close()
+
+    def GetDocenteByNombre(self, request, context):
+        """
+        Busca un docente por nombre (usado por MS-2 al importar PDF de programación).
+        Hace una búsqueda flexible: verifica si todas las palabras del nombre
+        del PDF están contenidas en el nombre completo registrado.
+        """
+        import unicodedata
+
+        def normalizar(t: str) -> str:
+            if not t:
+                return ""
+            t = unicodedata.normalize('NFD', t).encode('ascii', 'ignore').decode('utf-8')
+            return t.upper().strip()
+
+        db = SessionLocal()
+        try:
+            nombre_buscado = normalizar(request.nombre_completo)
+            palabras_buscadas = set(nombre_buscado.split())
+
+            todos_docentes = db.query(Docente).filter(Docente.estatus_laboral == True).all()
+
+            for docente in todos_docentes:
+                nombre_db = normalizar(docente.nombre_completo)
+                palabras_db = set(nombre_db.split())
+                # Coincide si las palabras del PDF están todas en el nombre registrado
+                if palabras_buscadas.issubset(palabras_db):
+                    return docentes_alumnos_pb2.DocenteProfile(
+                        docente_id=str(docente.docente_id),
+                        nombre_completo=docente.nombre_completo,
+                        correo=docente.correo,
+                        encontrado=True
+                    )
+
+            # No encontrado — retornar con encontrado=False en lugar de lanzar error
+            return docentes_alumnos_pb2.DocenteProfile(encontrado=False)
+        except Exception as e:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return docentes_alumnos_pb2.DocenteProfile(encontrado=False)
+        finally:
+            db.close()
