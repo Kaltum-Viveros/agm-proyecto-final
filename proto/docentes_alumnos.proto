@@ -11,6 +11,7 @@ service DocentesAlumnosService {
   
   // Obtener perfil detallado
   rpc GetAlumnoById(AlumnoIdRequest) returns (AlumnoProfile);
+  rpc GetDocenteById(DocenteIdRequest) returns (DocenteProfile);
 
   // Para que MS-2 resuelva el docente_id al importar PDFs de programación
   rpc GetDocenteByNombre(DocenteNombreRequest) returns (DocenteProfile);
@@ -20,6 +21,7 @@ service DocentesAlumnosService {
 
 message GetAlumnosRequest { string materia_id = 1; }
 message AlumnoIdRequest { string alumno_id = 1; }
+message DocenteIdRequest { string docente_id = 1; }
 message RelationRequest { 
   string alumno_id = 1; 
   string materia_id = 2; 
