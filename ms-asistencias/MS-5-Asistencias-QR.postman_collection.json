@@ -1,0 +1,167 @@
+{
+    "info": {
+        "_postman_id": "b1b7d54b-d7d4-4a25-a1d2-a7d5b1b4b1a1",
+        "name": "MS-5 Asistencias QR",
+        "description": "Colección de endpoints para el microservicio de Asistencias QR (MS-5) del sistema AGM.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "1. Sesiones de Asistencia",
+            "item": [
+                {
+                    "name": "Iniciar Sesión de Clase",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id_materia\": 101,\n  \"id_docente\": 5\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:8005/sesiones/iniciar",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8005",
+                            "path": [
+                                "sesiones",
+                                "iniciar"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Cerrar Sesión Manualmente",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8005/sesiones/1/cerrar",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8005",
+                            "path": [
+                                "sesiones",
+                                "1",
+                                "cerrar"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "2. Generación QR",
+            "item": [
+                {
+                    "name": "Generar Token QR (Alumno)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"id_sesion\": 1,\n  \"id_alumno\": 999,\n  \"matricula\": \"202012345\"\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:8005/qr/generar",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8005",
+                            "path": [
+                                "qr",
+                                "generar"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "3. Registro de Asistencias",
+            "item": [
+                {
+                    "name": "Registrar Asistencia (Docente escanea)",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n  \"token_cifrado\": \"COPIA_AQUI_EL_TOKEN_GIGANTE_QUE_TE_DIO_EL_ENDPOINT_ANTERIOR\"\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:8005/asistencias/registrar",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8005",
+                            "path": [
+                                "asistencias",
+                                "registrar"
+                            ]
+                        }
+                    }
+                },
+                {
+                    "name": "Historial de la Sesión",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8005/asistencias/1/historial",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8005",
+                            "path": [
+                                "asistencias",
+                                "1",
+                                "historial"
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "Health Check",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "http://localhost:8005/health",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "8005",
+                    "path": [
+                        "health"
+                    ]
+                }
+            }
+        }
+    ]
+}
