@@ -7,8 +7,12 @@ from app.repositories.inscripcion_repository import inscripcion_repository
 from app.repositories.alumno_repository import alumno_repository
 from app.db.session import get_db
 from app.api.deps import role_required, get_current_user
+from app.grpc.clients.auth_client import AuthClient
+from app.grpc.clients.notif_client import NotifClient
 
 router = APIRouter()
+auth_client = AuthClient()
+notif_client = NotifClient()
 
 @router.post("/", response_model=AlumnoOut, status_code=status.HTTP_201_CREATED)
 def create_alumno(
@@ -19,7 +23,28 @@ def create_alumno(
     existing = alumno_repository.get_by_matricula(db, matricula=alumno_in.matricula)
     if existing:
         raise HTTPException(status_code=400, detail="La matrícula ya está registrada.")
-    return alumno_repository.create(db, obj_in=alumno_in.model_dump())
+    
+    # 1. Crear identidad en MS-1
+    u_id, temp_pass = auth_client.crear_identidad(
+        nombre=alumno_in.nombre_completo,
+        email=alumno_in.correo,
+        role="Alumno"
+    )
+    if not u_id:
+        raise HTTPException(status_code=500, detail="No se pudo crear la identidad en MS-Auth.")
+    
+    # 2. Guardar en MS-3
+    alumno_data = alumno_in.model_dump()
+    alumno_data["user_id"] = u_id
+    nuevo_alumno = alumno_repository.create(db, obj_in=alumno_data)
+
+    # 3. Enviar notificación de bienvenida (MS-6)
+    notif_client.enviar_bienvenida(
+        alumno_id=nuevo_alumno.alumno_id,
+        materia_id="",
+        password=temp_pass
+    )
+    return nuevo_alumno
 
 @router.get("/", response_model=List[AlumnoOut])
 def read_alumnos(
@@ -89,4 +114,11 @@ def baja_alumno(
     
     # Baja lógica
     inscripcion_repository.update(db, db_obj=inscripcion, obj_in={"activa": False})
+    
+    # Notificar al docente vía MS-6
+    notif_client.enviar_baja(
+        alumno_id=str(alumno_id),
+        docente_id=str(inscripcion.docente_id),
+        materia_id=str(materia_id)
+    )
     return None

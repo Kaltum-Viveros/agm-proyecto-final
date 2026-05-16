@@ -57,6 +57,27 @@ class DocentesAlumnosService(docentes_alumnos_pb2_grpc.DocentesAlumnosServiceSer
         finally:
             db.close()
 
+    def GetDocenteById(self, request, context):
+        """Obtiene perfil de docente por ID (usado por MS-6)"""
+        db = SessionLocal()
+        try:
+            docente = db.query(Docente).filter(Docente.docente_id == request.docente_id).first()
+            if not docente:
+                return docentes_alumnos_pb2.DocenteProfile(encontrado=False)
+            
+            return docentes_alumnos_pb2.DocenteProfile(
+                docente_id=str(docente.docente_id),
+                nombre_completo=docente.nombre_completo,
+                correo=docente.correo,
+                encontrado=True
+            )
+        except Exception as e:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return docentes_alumnos_pb2.DocenteProfile(encontrado=False)
+        finally:
+            db.close()
+
     def GetAlumnoByEmail(self, request, context):
         """Busca perfil de alumno por correo (usado por MS-4 al importar Excel)"""
         db = SessionLocal()
