@@ -1,0 +1,481 @@
+{
+  "info": {
+    "_postman_id": "5502ddfb-fda0-4391-b7cf-40403400dc2e",
+    "name": "AGM - MS-1 Auth & Users - Pruebas reales",
+    "description": "Colección mínima para validar el microservicio MS-1 Auth & Users del proyecto AGM. Incluye únicamente el flujo real de autenticación, recuperación de contraseña, cierre de sesión y health check. No incluye POST /auth/users ni GET /auth/users porque la creación/consulta operativa de identidades no forma parte del flujo REST externo principal de demostración; las identidades se integran desde otros microservicios vía gRPC o desde seed.\n\nVariables esperadas en el environment global del proyecto: ms_auth_base_url, auth_email, auth_password, auth_new_password, password_reset_email, password_reset_token, access_token, refresh_token.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "00 - Health",
+      "description": "Debe ejecutarse primero para confirmar que el microservicio está levantado.",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ms_auth_base_url}}/health",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Verifica disponibilidad básica de MS Auth."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Respuesta estándar exitosa', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json).to.have.property('data');",
+                  "    pm.expect(json.data).to.have.property('service', 'ms-auth');",
+                  "    pm.expect(json.data).to.have.property('status', 'ok');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - Sesión JWT",
+      "description": "Flujo principal: login -> consultar usuario autenticado -> renovar sesión. Ejecuta logout únicamente al final de tus pruebas.",
+      "item": [
+        {
+          "name": "POST /auth/login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{auth_email}}\",\n  \"contrasena\": \"{{auth_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ms_auth_base_url}}/auth/login",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Inicia sesión y guarda access_token, refresh_token y datos del usuario en el environment."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Login exitoso y estructura válida', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json.data).to.have.property('access_token').that.is.a('string').and.is.not.empty;",
+                  "    pm.expect(json.data).to.have.property('refresh_token').that.is.a('string').and.is.not.empty;",
+                  "    pm.expect(json.data).to.have.property('token_type', 'Bearer');",
+                  "    pm.expect(json.data).to.have.property('expires_in').that.is.a('number');",
+                  "    pm.expect(json.data).to.have.property('user');",
+                  "    pm.expect(json.data.user).to.have.property('user_id').that.is.a('string');",
+                  "    pm.expect(json.data.user).to.have.property('email').that.is.a('string');",
+                  "    pm.expect(json.data.user).to.have.property('rol').that.is.a('string');",
+                  "    pm.expect(json.data.user).to.have.property('activo', true);",
+                  "});",
+                  "",
+                  "pm.test('Guardar variables de sesión', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.environment.set('access_token', data.access_token);",
+                  "    pm.environment.set('refresh_token', data.refresh_token);",
+                  "    pm.environment.set('current_user_id', data.user.user_id);",
+                  "    pm.environment.set('current_user_email', data.user.email);",
+                  "    pm.environment.set('current_user_role', data.user.rol);",
+                  "    pm.environment.set('current_user_name', data.user.nombre_completo);",
+                  "    pm.environment.set('access_token_expires_in', String(data.expires_in));",
+                  "    pm.environment.set('refresh_expires_at', data.refresh_expires_at);",
+                  "    pm.environment.set('auth_logged_out', 'false');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET /auth/me",
+          "request": {
+            "method": "GET",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [],
+            "url": {
+              "raw": "{{ms_auth_base_url}}/auth/me",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Valida que el access_token represente a un usuario activo."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Usuario autenticado correcto', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json.data).to.have.property('user_id').that.is.a('string');",
+                  "    pm.expect(json.data).to.have.property('email').that.is.a('string');",
+                  "    pm.expect(json.data).to.have.property('rol').that.is.a('string');",
+                  "    pm.expect(json.data).to.have.property('activo', true);",
+                  "",
+                  "    const expectedUserId = pm.environment.get('current_user_id');",
+                  "    if (expectedUserId) {",
+                  "        pm.expect(json.data.user_id).to.eql(expectedUserId);",
+                  "    }",
+                  "",
+                  "    const expectedEmail = pm.environment.get('current_user_email') || pm.environment.get('auth_email');",
+                  "    if (expectedEmail) {",
+                  "        pm.expect(json.data.email.toLowerCase()).to.eql(expectedEmail.toLowerCase());",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST /auth/refresh-token",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ms_auth_base_url}}/auth/refresh-token",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh-token"
+              ]
+            },
+            "description": "Renueva la sesión y sobrescribe access_token/refresh_token con los nuevos valores."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Refresh exitoso y tokens nuevos', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json.data).to.have.property('access_token').that.is.a('string').and.is.not.empty;",
+                  "    pm.expect(json.data).to.have.property('refresh_token').that.is.a('string').and.is.not.empty;",
+                  "    pm.expect(json.data).to.have.property('token_type', 'Bearer');",
+                  "});",
+                  "",
+                  "pm.test('Actualizar variables de sesión', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.environment.set('access_token', data.access_token);",
+                  "    pm.environment.set('refresh_token', data.refresh_token);",
+                  "    pm.environment.set('current_user_id', data.user.user_id);",
+                  "    pm.environment.set('current_user_email', data.user.email);",
+                  "    pm.environment.set('current_user_role', data.user.rol);",
+                  "    pm.environment.set('current_user_name', data.user.nombre_completo);",
+                  "    pm.environment.set('access_token_expires_in', String(data.expires_in));",
+                  "    pm.environment.set('refresh_expires_at', data.refresh_expires_at);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Recuperación de contraseña",
+      "description": "Flujo real de recuperación. En development el backend devuelve reset_token y la colección lo guarda; en producción normalmente deberás copiarlo desde el correo o logs y pegarlo en password_reset_token. El reset cambia realmente la contraseña.",
+      "item": [
+        {
+          "name": "POST /auth/forgot-password",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const resetEmail = pm.environment.get('password_reset_email') || pm.environment.get('auth_email');",
+                  "if (resetEmail) {",
+                  "    pm.environment.set('password_reset_email', resetEmail);",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Solicitud de recuperación procesada', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json.data).to.have.property('reset_requested', true);",
+                  "});",
+                  "",
+                  "pm.test('Guardar reset token si el ambiente lo devuelve', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.data && json.data.reset_token) {",
+                  "        pm.environment.set('password_reset_token', json.data.reset_token);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{password_reset_email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ms_auth_base_url}}/auth/forgot-password",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "Solicita recuperación para password_reset_email. Si password_reset_email no existe, usa auth_email."
+          }
+        },
+        {
+          "name": "POST /auth/reset-password",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('password_reset_token')) {",
+                  "    console.warn('Falta password_reset_token. Ejecuta forgot-password en development o pega el token recibido por correo/logs.');",
+                  "}",
+                  "if (!pm.environment.get('auth_new_password')) {",
+                  "    console.warn('Falta auth_new_password en el environment.');",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Contraseña actualizada', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json.data).to.have.property('password_updated', true);",
+                  "});",
+                  "",
+                  "pm.test('Sincronizar password si se reseteó el usuario de login', function () {",
+                  "    const resetEmail = (pm.environment.get('password_reset_email') || '').toLowerCase();",
+                  "    const loginEmail = (pm.environment.get('auth_email') || '').toLowerCase();",
+                  "    if (resetEmail && loginEmail && resetEmail === loginEmail && pm.environment.get('auth_new_password')) {",
+                  "        pm.environment.set('auth_password', pm.environment.get('auth_new_password'));",
+                  "    }",
+                  "    pm.environment.unset('password_reset_token');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reset_token\": \"{{password_reset_token}}\",\n  \"nueva_contrasena\": \"{{auth_new_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ms_auth_base_url}}/auth/reset-password",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            },
+            "description": "Cambia realmente la contraseña. Después de ejecutarlo, si password_reset_email == auth_email, la colección actualiza auth_password con auth_new_password."
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Cierre de sesión",
+      "description": "Ejecutar al final. Invalida access_token y refresh_token de la sesión actual.",
+      "item": [
+        {
+          "name": "POST /auth/logout",
+          "request": {
+            "method": "POST",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{access_token}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ms_auth_base_url}}/auth/logout",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Cierra sesión y revoca el access_token actual. Debe ejecutarse después de terminar las pruebas protegidas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Logout exitoso', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json.data).to.have.property('logged_out', true);",
+                  "    pm.expect(json.data).to.have.property('access_token_revoked', true);",
+                  "});",
+                  "",
+                  "pm.test('Limpiar tokens revocados del environment', function () {",
+                  "    pm.environment.unset('access_token');",
+                  "    pm.environment.unset('refresh_token');",
+                  "    pm.environment.set('auth_logged_out', 'true');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

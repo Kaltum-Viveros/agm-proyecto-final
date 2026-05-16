@@ -14,6 +14,8 @@ service DocentesAlumnosService {
 
   // Para que MS-2 resuelva el docente_id al importar PDFs de programación
   rpc GetDocenteByNombre(DocenteNombreRequest) returns (DocenteProfile);
+  rpc GetDocenteByEmail(EmailRequest) returns (DocenteProfile);
+  rpc GetAlumnoByEmail(EmailRequest) returns (AlumnoProfile);
 }
 
 message GetAlumnosRequest { string materia_id = 1; }
@@ -23,6 +25,7 @@ message RelationRequest {
   string materia_id = 2; 
 }
 message DocenteNombreRequest { string nombre_completo = 1; }
+message EmailRequest { string email = 1; }
 
 message BoolResponse { bool exists = 1; }
 

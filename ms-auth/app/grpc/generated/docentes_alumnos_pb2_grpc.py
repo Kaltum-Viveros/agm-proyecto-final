@@ -54,6 +54,16 @@ class DocentesAlumnosServiceStub(object):
                 request_serializer=docentes__alumnos__pb2.DocenteNombreRequest.SerializeToString,
                 response_deserializer=docentes__alumnos__pb2.DocenteProfile.FromString,
                 _registered_method=True)
+        self.GetDocenteByEmail = channel.unary_unary(
+                '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetDocenteByEmail',
+                request_serializer=docentes__alumnos__pb2.EmailRequest.SerializeToString,
+                response_deserializer=docentes__alumnos__pb2.DocenteProfile.FromString,
+                _registered_method=True)
+        self.GetAlumnoByEmail = channel.unary_unary(
+                '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetAlumnoByEmail',
+                request_serializer=docentes__alumnos__pb2.EmailRequest.SerializeToString,
+                response_deserializer=docentes__alumnos__pb2.AlumnoProfile.FromString,
+                _registered_method=True)
 
 
 class DocentesAlumnosServiceServicer(object):
@@ -87,6 +97,18 @@ class DocentesAlumnosServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetDocenteByEmail(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetAlumnoByEmail(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_DocentesAlumnosServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -109,6 +131,16 @@ def add_DocentesAlumnosServiceServicer_to_server(servicer, server):
                     servicer.GetDocenteByNombre,
                     request_deserializer=docentes__alumnos__pb2.DocenteNombreRequest.FromString,
                     response_serializer=docentes__alumnos__pb2.DocenteProfile.SerializeToString,
+            ),
+            'GetDocenteByEmail': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetDocenteByEmail,
+                    request_deserializer=docentes__alumnos__pb2.EmailRequest.FromString,
+                    response_serializer=docentes__alumnos__pb2.DocenteProfile.SerializeToString,
+            ),
+            'GetAlumnoByEmail': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAlumnoByEmail,
+                    request_deserializer=docentes__alumnos__pb2.EmailRequest.FromString,
+                    response_serializer=docentes__alumnos__pb2.AlumnoProfile.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -219,6 +251,60 @@ class DocentesAlumnosService(object):
             '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetDocenteByNombre',
             docentes__alumnos__pb2.DocenteNombreRequest.SerializeToString,
             docentes__alumnos__pb2.DocenteProfile.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetDocenteByEmail(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetDocenteByEmail',
+            docentes__alumnos__pb2.EmailRequest.SerializeToString,
+            docentes__alumnos__pb2.DocenteProfile.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetAlumnoByEmail(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetAlumnoByEmail',
+            docentes__alumnos__pb2.EmailRequest.SerializeToString,
+            docentes__alumnos__pb2.AlumnoProfile.FromString,
             options,
             channel_credentials,
             insecure,
