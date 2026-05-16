@@ -7,9 +7,9 @@ SQLAlchemy
 psycopg2-binary
 alembic
 
-grpcio
-grpcio-tools
-protobuf
+grpcio==1.68.1
+grpcio-tools==1.68.1
+protobuf==5.29.1
 
 pandas
 openpyxl

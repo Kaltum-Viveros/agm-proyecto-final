@@ -6,6 +6,7 @@ from app.core.responses import success_response
 from app.dependencies import get_actividad_service
 from app.schemas.actividad import ActividadCreate, ActividadUpdate
 from app.services.actividad_service import ActividadService
+from app.api.deps import role_required
 
 router = APIRouter(prefix="/actividades", tags=["Actividades"])
 
@@ -14,6 +15,7 @@ router = APIRouter(prefix="/actividades", tags=["Actividades"])
 def crear_actividad(
     payload: ActividadCreate,
     service: ActividadService = Depends(get_actividad_service),
+    _user = Depends(role_required("DOCENTE")),
 ):
     data = service.crear(payload)
 
@@ -54,6 +56,7 @@ def actualizar_actividad(
     actividad_id: UUID,
     payload: ActividadUpdate,
     service: ActividadService = Depends(get_actividad_service),
+    _user = Depends(role_required("DOCENTE")),
 ):
     data = service.actualizar(actividad_id, payload)
 
@@ -67,6 +70,7 @@ def actualizar_actividad(
 def eliminar_actividad(
     actividad_id: UUID,
     service: ActividadService = Depends(get_actividad_service),
+    _user = Depends(role_required("DOCENTE")),
 ):
     service.eliminar(actividad_id)
 

@@ -6,6 +6,7 @@ from app.core.responses import success_response
 from app.dependencies import get_ponderacion_service
 from app.schemas.ponderacion import PonderacionesCreate
 from app.services.ponderacion_service import PonderacionService
+from app.api.deps import get_current_user, role_required
 
 router = APIRouter(prefix="/ponderaciones", tags=["Ponderaciones"])
 
@@ -15,6 +16,7 @@ def crear_ponderaciones(
     materia_id: UUID,
     payload: PonderacionesCreate,
     service: PonderacionService = Depends(get_ponderacion_service),
+    _user = Depends(role_required("DOCENTE")),
 ):
     data = service.crear_o_reemplazar(materia_id, payload)
 
@@ -42,6 +44,7 @@ def actualizar_ponderaciones(
     materia_id: UUID,
     payload: PonderacionesCreate,
     service: PonderacionService = Depends(get_ponderacion_service),
+    _user = Depends(role_required("DOCENTE")),
 ):
     data = service.crear_o_reemplazar(materia_id, payload)
 
@@ -55,6 +58,7 @@ def actualizar_ponderaciones(
 def eliminar_ponderaciones(
     materia_id: UUID,
     service: PonderacionService = Depends(get_ponderacion_service),
+    _user = Depends(role_required("DOCENTE")),
 ):
     service.eliminar_por_materia(materia_id)
 

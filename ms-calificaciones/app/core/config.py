@@ -11,8 +11,16 @@ class Settings(BaseSettings):
     grpc_host: str = "0.0.0.0"
     grpc_port: int = 50054
 
-    # URL del MS-3 para cliente gRPC
-    ms_alumnos_grpc_url: str = "localhost:50053"
+    # MS-Auth (MS-1) — para validar tokens JWT
+    ms_auth_grpc_host: str = "ms-auth"
+    ms_auth_grpc_port: int = 50051
+
+    # MS-Docentes-Alumnos (MS-3) — para verificar inscripciones de alumnos
+    ms_docentes_alumnos_grpc_host: str = "ms-docentes-alumnos"
+    ms_docentes_alumnos_grpc_port: int = 50053
+
+    # Legacy (mantener por compatibilidad interna)
+    ms_alumnos_grpc_url: str = "ms-docentes-alumnos:50053"
 
     database_url: str = "not_configured_yet"
 

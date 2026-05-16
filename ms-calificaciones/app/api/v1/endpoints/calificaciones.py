@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, File, Form, UploadFile, status
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 
 from app.core.responses import success_response
 from app.dependencies import (
@@ -10,6 +10,8 @@ from app.dependencies import (
 from app.schemas.calificacion import CalificacionCreate, CalificacionUpdate
 from app.services.calificacion_service import CalificacionService
 from app.services.importacion_calificaciones_service import ImportacionCalificacionesService
+from app.api.deps import get_current_user, role_required
+from app.grpc.clients.alumnos_client import alumnos_client
 
 router = APIRouter(prefix="/calificaciones", tags=["Calificaciones"])
 
@@ -18,7 +20,20 @@ router = APIRouter(prefix="/calificaciones", tags=["Calificaciones"])
 def crear_calificacion(
     payload: CalificacionCreate,
     service: CalificacionService = Depends(get_calificacion_service),
+    _user = Depends(role_required("DOCENTE")),
 ):
+    # Verificar inscripción vía gRPC a MS-3 si el payload tiene alumno_id y materia_id
+    if hasattr(payload, "alumno_id") and hasattr(payload, "materia_id") and payload.alumno_id and payload.materia_id:
+        inscrito = alumnos_client.is_alumno_en_materia(
+            alumno_id=str(payload.alumno_id),
+            materia_id=str(payload.materia_id),
+        )
+        if not inscrito:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"El alumno {payload.alumno_id} no está inscrito en la materia {payload.materia_id}"
+            )
+
     data = service.crear(payload)
 
     return success_response(
@@ -34,6 +49,7 @@ async def importar_calificaciones(
     service: ImportacionCalificacionesService = Depends(
         get_importacion_calificaciones_service
     ),
+    _user = Depends(role_required("DOCENTE")),
 ):
     data = await service.importar_excel(
         actividad_id=actividad_id,

@@ -7,6 +7,7 @@ from fastapi import HTTPException, UploadFile, status
 
 from app.repositories.actividad_memory_repository import ActividadMemoryRepository
 from app.repositories.calificacion_memory_repository import CalificacionMemoryRepository
+from app.grpc.clients.alumnos_client import alumnos_client
 
 
 class ImportacionCalificacionesService:
@@ -96,7 +97,37 @@ class ImportacionCalificacionesService:
                 if puntos > puntos_maximos:
                     raise ValueError("Puntos no puede ser mayor que puntos máximos")
 
-                alumno_id = self._generar_alumno_id_mock(correo)
+                # --- Perfeccionamiento Profesional: Validación gRPC ---
+                
+                # 1. Resolver alumno_id real por correo en MS-3
+                perfil_alumno = alumnos_client.get_alumno_by_email(correo)
+                
+                if not perfil_alumno:
+                    errores.append({
+                        "fila": numero_fila_excel,
+                        "correo": correo,
+                        "motivo": f"El alumno con correo '{correo}' no está registrado en el sistema (MS-3)."
+                    })
+                    continue
+                
+                alumno_id = UUID(perfil_alumno["alumno_id"])
+                materia_id = actividad["materia_id"]
+
+                # 2. Verificar que el alumno está realmente inscrito en la materia (MS-3)
+                inscrito = alumnos_client.is_alumno_en_materia(
+                    alumno_id=str(alumno_id),
+                    materia_id=str(materia_id)
+                )
+
+                if not inscrito:
+                    errores.append({
+                        "fila": numero_fila_excel,
+                        "correo": correo,
+                        "motivo": f"El alumno {perfil_alumno['nombre_completo']} no está inscrito en esta materia (NRC {actividad.get('nrc', 'N/A')})."
+                    })
+                    continue
+
+                # --- Fin Validación gRPC ---
 
                 calificacion_calculada = (
                     puntos / puntos_maximos
@@ -128,7 +159,7 @@ class ImportacionCalificacionesService:
                         {
                             "id": uuid4(),
                             "actividad_id": actividad_id,
-                            "materia_id": actividad["materia_id"],
+                            "materia_id": materia_id,
                             "alumno_id": alumno_id,
                             "alumno_referencia": correo,
                             "calificacion": calificacion_calculada,
@@ -258,6 +289,3 @@ class ImportacionCalificacionesService:
             return Decimal(str(value).replace(",", ".").strip())
         except (InvalidOperation, AttributeError):
             raise ValueError(f"Valor numérico inválido: {value}")
-
-    def _generar_alumno_id_mock(self, correo: str) -> UUID:
-        return uuid5(NAMESPACE_DNS, correo.lower().strip())
