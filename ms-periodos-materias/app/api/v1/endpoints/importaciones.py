@@ -10,6 +10,7 @@ from app.db.session import get_db
 from app.schemas.importacion_pdf import ImportacionProgramacionResponse
 from app.services.importacion_pdf_service import ImportacionProgramacionService
 from app.utils.pdf_programacion_parser import parse_programacion_academica_pdf
+from app.api.deps import role_required
 
 router = APIRouter()
 
@@ -45,6 +46,7 @@ async def importar_programacion_academica(
     plan_estudio_id: UUID = Form(...),
     archivo: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     await _validar_archivo_pdf(archivo)
 

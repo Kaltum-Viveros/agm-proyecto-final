@@ -9,6 +9,7 @@ from app.schemas.periodo import PeriodoCreate, PeriodoRead, PeriodoUpdate
 from app.services.periodo_service import PeriodoService
 from app.services import materia_consulta_service
 from app.core.pagination import build_paginated_response
+from app.api.deps import role_required
 
 router = APIRouter()
 
@@ -71,6 +72,7 @@ async def get_periodo(
 async def create_periodo(
     payload: PeriodoCreate,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = PeriodoService(db)
     periodo = await service.create_periodo(payload)
@@ -86,6 +88,7 @@ async def update_periodo(
     periodo_id: UUID,
     payload: PeriodoUpdate,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = PeriodoService(db)
     periodo = await service.update_periodo(periodo_id, payload)
@@ -100,6 +103,7 @@ async def update_periodo(
 async def deactivate_periodo(
     periodo_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = PeriodoService(db)
     periodo = await service.deactivate_periodo(periodo_id)

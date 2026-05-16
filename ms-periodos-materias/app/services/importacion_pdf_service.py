@@ -11,8 +11,8 @@ from app.models.materia_plan_estudio import MateriaPlanEstudio
 from app.models.periodo import Periodo
 from app.models.plan_estudio import PlanEstudio
 from app.utils.pdf_programacion_parser import ProgramacionAcademicaRow
-
 from app.core.academic_rules import validar_rango_horas
+from app.grpc.clients.docentes_client import docentes_client
 
 
 class ImportacionProgramacionService:
@@ -190,6 +190,17 @@ class ImportacionProgramacionService:
         materia_catalogo_id: UUID,
         base_row: ProgramacionAcademicaRow,
     ) -> tuple[MateriaOfertada, bool]:
+        # Intentar resolver el docente_id vía gRPC a MS-3 (no bloquea si falla)
+        docente_id_resuelto = None
+        if base_row.profesor:
+            try:
+                docente_id_str = docentes_client.resolver_docente_por_nombre(base_row.profesor)
+                if docente_id_str:
+                    from uuid import UUID as _UUID
+                    docente_id_resuelto = _UUID(docente_id_str)
+            except Exception:
+                pass  # Fallo silencioso: el nombre igual se guarda
+
         statement = select(MateriaOfertada).where(
             MateriaOfertada.periodo_id == periodo_id,
             MateriaOfertada.nrc == base_row.nrc,
@@ -201,7 +212,7 @@ class ImportacionProgramacionService:
 
         if oferta:
             oferta.materia_catalogo_id = materia_catalogo_id
-            oferta.docente_id = None
+            oferta.docente_id = docente_id_resuelto
             oferta.docente_nombre = base_row.profesor
             oferta.estado = "ACTIVA"
 
@@ -214,7 +225,7 @@ class ImportacionProgramacionService:
             materia_catalogo_id=materia_catalogo_id,
             nrc=base_row.nrc,
             seccion=base_row.seccion,
-            docente_id=None,
+            docente_id=docente_id_resuelto,
             docente_nombre=base_row.profesor,
             estado="ACTIVA",
         )

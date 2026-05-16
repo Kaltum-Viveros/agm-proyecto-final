@@ -13,6 +13,7 @@ from app.schemas.materia_ofertada import (
 )
 from app.services.materia_ofertada_service import MateriaOfertadaService
 from app.core.pagination import build_paginated_response
+from app.api.deps import role_required
 
 
 router = APIRouter()
@@ -74,6 +75,7 @@ async def get_materia_ofertada(
 async def create_materia_ofertada(
     payload: MateriaOfertadaCreate,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaOfertadaService(db)
     materia = await service.create_materia_ofertada(payload)
@@ -89,6 +91,7 @@ async def update_materia_ofertada(
     materia_ofertada_id: UUID,
     payload: MateriaOfertadaUpdate,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaOfertadaService(db)
     materia = await service.update_materia_ofertada(materia_ofertada_id, payload)
@@ -103,6 +106,7 @@ async def update_materia_ofertada(
 async def deactivate_materia_ofertada(
     materia_ofertada_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaOfertadaService(db)
     materia = await service.deactivate_materia_ofertada(materia_ofertada_id)

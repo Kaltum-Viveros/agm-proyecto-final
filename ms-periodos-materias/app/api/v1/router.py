@@ -11,13 +11,14 @@ from app.api.v1.endpoints import (
     importaciones,
     materias
 )
+from app.api.deps import get_current_user, role_required
 
 api_router = APIRouter()
 
 # ruta del endpoint de salud 
 api_router.include_router(health.router)
 
-# ruta de los endpoints de periodos, planes de estudio y materias del catálogo
+# ruta de los endpoints de periodos (lectura libre, escritura solo Admin)
 api_router.include_router(
     periodos.router, 
     prefix="/periodos", 
