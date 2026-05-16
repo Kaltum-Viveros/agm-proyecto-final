@@ -4,6 +4,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.grpc_clients.cliente_materias import cliente_materias
 from app.models.enums import EstadoSesion
 from app.models.sesion_asistencia import SesionAsistencia
 from app.repositories.repositorio_sesiones import RepositorioSesiones
@@ -20,8 +21,19 @@ class ServicioSesiones:
         db: AsyncSession, id_materia: int, id_docente: int
     ) -> SesionAsistencia:
         """
-        Valida e inicia una nueva sesión de asistencia de 10 minutos para una materia.
+        Inicia una nueva sesión de asistencia.
         """
+        # --- FASE 11: Integración gRPC con MS-2 (Materias) ---
+        # Verificamos si la materia existe y le pertenece al docente.
+        # Descomenta las siguientes líneas cuando MS-2 esté en ejecución.
+        # es_valido = await cliente_materias.verificar_materia_docente(id_materia, id_docente)
+        # if not es_valido:
+        #     raise HTTPException(
+        #         status_code=status.HTTP_403_FORBIDDEN,
+        #         detail="La materia no existe o no tienes permiso para abrir una sesión aquí."
+        #     )
+        # ------------------------------------------------------
+
         # 1. Validar que la materia no tenga ya una sesión activa
         sesion_existente = await RepositorioSesiones.obtener_sesion_activa_por_materia(
             db=db, id_materia=id_materia

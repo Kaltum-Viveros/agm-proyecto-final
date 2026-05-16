@@ -4,6 +4,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.enums import EstadoAsistencia, EstadoSesion, ResultadoValidacionQr
+from app.grpc_clients.cliente_alumnos import cliente_alumnos
 from app.repositories.repositorio_asistencias import RepositorioAsistencias
 from app.repositories.repositorio_sesiones import RepositorioSesiones
 from app.repositories.repositorio_tokens import RepositorioTokens
@@ -61,6 +62,21 @@ class ServicioAsistencias:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="La sesión de asistencia no está activa o ya expiró.",
             )
+
+        # --- FASE 11: Integración gRPC con MS-3 (Alumnos) ---
+        # Verificamos si el alumno está realmente inscrito en esta materia.
+        # Descomenta las siguientes líneas cuando MS-3 esté en ejecución.
+        # id_materia = sesion.id_materia
+        # esta_inscrito = await cliente_alumnos.verificar_alumno_en_materia(id_alumno, id_materia)
+        # if not esta_inscrito:
+        #     await ServicioAsistencias._registrar_auditoria_qr(
+        #         db, id_sesion, id_alumno, uuid_qr, huella, fecha_emision_qr, fecha_expiracion_qr, ResultadoValidacionQr.RECHAZADO, "No inscrito en la materia"
+        #     )
+        #     raise HTTPException(
+        #         status_code=status.HTTP_403_FORBIDDEN,
+        #         detail="El alumno no está inscrito en esta materia.",
+        #     )
+        # ------------------------------------------------------
 
         # 5. Validar que el alumno no haya pasado lista ya en esta misma sesión
         registro_previo = await RepositorioAsistencias.obtener_registro_por_sesion_y_alumno(db, id_sesion, id_alumno)
