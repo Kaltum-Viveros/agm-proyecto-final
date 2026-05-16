@@ -10,30 +10,32 @@ try:
 except ImportError:
     pass
 
-class MateriasClient:
-    def __init__(self, host: str = "ms-periodos-materias", port: int = 50052):
-        self.host = host
-        self.port = port
-        self.channel = None
-        self.stub = None
+from app.core.config import settings
 
-    def _connect(self):
-        if not self.channel:
-            self.channel = grpc.insecure_channel(f"{self.host}:{self.port}")
+class MateriasClient:
+    def __init__(self):
+        self._channel = None
+        self._stub = None
+
+    def _get_stub(self):
+        if self._stub is None:
+            host = settings.ms_periodos_materias_grpc_host
+            port = settings.ms_periodos_materias_grpc_port
+            self._channel = grpc.insecure_channel(f"{host}:{port}")
             if 'periodos_materias_pb2_grpc' in globals():
-                self.stub = periodos_materias_pb2_grpc.PeriodosMateriasServiceStub(self.channel)
+                self._stub = periodos_materias_pb2_grpc.PeriodosMateriasServiceStub(self._channel)
+        return self._stub
 
     def obtener_materia(self, materia_id: str) -> dict:
         """
         Llama al MS-2 para obtener los datos de una materia.
         """
-        self._connect()
+        stub = self._get_stub()
+        if not stub:
+            return {"nombre": "Materia Prueba (Mock)"}
         try:
-            if not self.stub:
-                return {"nombre": "Materia Prueba (Mock)"}
-
             request = periodos_materias_pb2.GetMateriaByIdRequest(materia_id=str(materia_id))
-            response = self.stub.GetMateriaById(request)
+            response = stub.GetMateriaById(request)
             return {"nombre": response.materia.nombre}
         except Exception as e:
             logging.error(f"Error gRPC al consultar MS-2: {e}")

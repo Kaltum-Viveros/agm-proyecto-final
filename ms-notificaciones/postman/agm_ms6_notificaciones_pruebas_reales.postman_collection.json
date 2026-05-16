@@ -1,0 +1,402 @@
+{
+  "info": {
+    "_postman_id": "8856782e-a8c3-44f8-9764-53e246d79508",
+    "name": "AGM - MS-6 Notificaciones - Pruebas reales",
+    "description": "Colección mínima-realista para MS-6 Notificaciones. Incluye únicamente health y los cuatro endpoints REST externos que el documento base marca para este microservicio: bienvenida, baja, cierre de materia y reset-password. Las integraciones gRPC se prueban indirectamente desde otros microservicios; aquí se valida la superficie REST para smoke test, evidencia de envío de correos y documentación Postman. El token se envía como header Authorization: Bearer {{access_token}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+          "function setVar(name, value) {",
+          "  if (value === undefined || value === null || value === '') return;",
+          "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+          "  pm.collectionVariables.set(name, String(value));",
+          "}",
+          "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+          "function uuidv4() {",
+          "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+          "    const r = Math.random() * 16 | 0;",
+          "    const v = c === 'x' ? r : (r & 0x3 | 0x8);",
+          "    return v.toString(16);",
+          "  });",
+          "}",
+          "setIfMissing('ms_notificaciones_base_url', 'http://localhost:8005');",
+          "if (!getVar('access_token') && getVar('admin_access_token')) setVar('access_token', getVar('admin_access_token'));",
+          "if (!getVar('materia_id') && getVar('materia_ofertada_id')) setVar('materia_id', getVar('materia_ofertada_id'));",
+          "setIfMissing('alumno_id', uuidv4());",
+          "setIfMissing('docente_id', uuidv4());",
+          "setIfMissing('materia_id', uuidv4());",
+          "setIfMissing('password_temporal', 'Temp12345!');",
+          "if (!getVar('usuario_id') && getVar('current_user_id')) setVar('usuario_id', getVar('current_user_id'));",
+          "if (!getVar('usuario_id') && getVar('alumno_user_id')) setVar('usuario_id', getVar('alumno_user_id'));",
+          "setIfMissing('usuario_id', uuidv4());",
+          "if (!getVar('reset_email') && getVar('auth_email')) setVar('reset_email', getVar('auth_email'));",
+          "if (!getVar('reset_email') && getVar('password_reset_email')) setVar('reset_email', getVar('password_reset_email'));",
+          "setIfMissing('reset_email', 'usuario.prueba@correo.buap.mx');",
+          "setIfMissing('reset_token', 'reset-demo-' + Date.now());"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "ms_notificaciones_base_url",
+      "value": "http://localhost:8005",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_ofertada_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "password_temporal",
+      "value": "Temp12345!",
+      "type": "string"
+    },
+    {
+      "key": "usuario_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reset_email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reset_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificacion_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificacion_tipo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificacion_estado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificacion_email",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health",
+      "item": [
+        {
+          "name": "00.1 Health Check",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_notificaciones_base_url}}/",
+            "description": "Verifica que MS-6 esté levantado. No requiere Authorization."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Health responde 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - Correos transaccionales",
+      "description": "Smoke tests REST del MS-6. Todos usan header Authorization: Bearer {{access_token}}.",
+      "item": [
+        {
+          "name": "01.1 Enviar bienvenida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_notificaciones_base_url}}/api/v1/notificaciones/bienvenida",
+            "description": "Envía correo de bienvenida/clave temporal para un alumno. El servicio obtiene datos del alumno vía gRPC contra MS-3.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alumno_id\": \"{{alumno_id}}\",\n  \"materia_id\": \"{{materia_id}}\",\n  \"password_temporal\": \"{{password_temporal}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('notificacion_id', data.id || data.notificacion_id);",
+                  "setVar('notificacion_tipo', data.tipo);",
+                  "setVar('notificacion_estado', data.estado);",
+                  "setVar('notificacion_email', data.email);",
+                  "setVar('bienvenida_notificacion_id', data.id || data.notificacion_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.2 Enviar notificación de baja",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_notificaciones_base_url}}/api/v1/notificaciones/baja",
+            "description": "Notifica al docente que un alumno se dio de baja de una materia. El servicio consulta alumno/docente/materia por gRPC.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"alumno_id\": \"{{alumno_id}}\",\n  \"docente_id\": \"{{docente_id}}\",\n  \"materia_id\": \"{{materia_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('notificacion_id', data.id || data.notificacion_id);",
+                  "setVar('notificacion_tipo', data.tipo);",
+                  "setVar('notificacion_estado', data.estado);",
+                  "setVar('notificacion_email', data.email);",
+                  "setVar('baja_notificacion_id', data.id || data.notificacion_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.3 Enviar cierre de materia",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_notificaciones_base_url}}/api/v1/notificaciones/cierre-materia",
+            "description": "Notifica a los alumnos inscritos que la materia fue cerrada / calificaciones publicadas. El servicio obtiene la materia y alumnos inscritos por gRPC.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materia_id\": \"{{materia_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('notificacion_id', data.id || data.notificacion_id);",
+                  "setVar('notificacion_tipo', data.tipo);",
+                  "setVar('notificacion_estado', data.estado);",
+                  "setVar('notificacion_email', data.email);",
+                  "setVar('cierre_materia_notificacion_id', data.id || data.notificacion_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.4 Enviar reset password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_notificaciones_base_url}}/api/v1/notificaciones/reset-password",
+            "description": "Envía correo con token/enlace de recuperación de contraseña.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario_id\": \"{{usuario_id}}\",\n  \"email\": \"{{reset_email}}\",\n  \"reset_token\": \"{{reset_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('notificacion_id', data.id || data.notificacion_id);",
+                  "setVar('notificacion_tipo', data.tipo);",
+                  "setVar('notificacion_estado', data.estado);",
+                  "setVar('notificacion_email', data.email);",
+                  "setVar('reset_password_notificacion_id', data.id || data.notificacion_id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

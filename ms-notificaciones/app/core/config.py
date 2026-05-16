@@ -23,6 +23,19 @@ class settings(BaseSettings):
     SMTP_USER: str = ""
     SMTP_PASSWORD: str = ""
 
+    # MS-Auth (MS-1)
+    ms_auth_grpc_host: str = "ms-auth"
+    ms_auth_grpc_port: int = 50051
+
+    # MS-Periodos-Materias (MS-2)
+    ms_periodos_materias_grpc_host: str = "ms-periodos-materias"
+    ms_periodos_materias_grpc_port: int = 50052
+
+    # MS-Docentes-Alumnos (MS-3)
+    ms_docentes_alumnos_grpc_host: str = "ms-docentes-alumnos"
+    ms_docentes_alumnos_grpc_port: int = 50053
+
+
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
 @lru_cache()
