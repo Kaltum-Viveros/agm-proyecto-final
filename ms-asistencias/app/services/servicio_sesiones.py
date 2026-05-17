@@ -65,6 +65,19 @@ class ServicioSesiones:
         return nueva_sesion
 
     @staticmethod
+    async def obtener_sesion(db: AsyncSession, id_sesion: int) -> SesionAsistencia:
+        """
+        Obtiene los detalles de una sesión específica.
+        """
+        sesion = await RepositorioSesiones.obtener_sesion_por_id(db, id_sesion)
+        if not sesion:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="La sesión especificada no existe.",
+            )
+        return sesion
+
+    @staticmethod
     async def cerrar_sesion(db: AsyncSession, id_sesion: int) -> dict:
         """
         Cierra una sesión de forma manual (por parte del docente).

@@ -135,3 +135,59 @@ class ServicioAsistencias:
             resultado_validacion=resultado,
             motivo_rechazo=motivo
         )
+
+    @staticmethod
+    async def obtener_estadisticas_sesion(db: AsyncSession, id_sesion: int) -> dict:
+        """
+        Calcula las estadísticas de asistencia de una sesión.
+        """
+        # 1. Validar que la sesión exista
+        sesion = await RepositorioSesiones.obtener_sesion_por_id(db, id_sesion)
+        if not sesion:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="La sesión especificada no existe.",
+            )
+
+        # 2. Obtener conteos básicos
+        stats = await RepositorioAsistencias.obtener_estadisticas_por_sesion(db, id_sesion)
+        
+        # --- FASE 11: Integración gRPC con MS-3 (Alumnos) ---
+        # Idealmente, consultamos MS-3 para saber el total de alumnos inscritos.
+        # Por ahora lo simulamos ya que MS-3 podría no estar activo en local.
+        # total_alumnos = await cliente_alumnos.obtener_total_alumnos_materia(sesion.id_materia)
+        total_alumnos = 40  # MOCK para pruebas locales
+        # ------------------------------------------------------
+        
+        # 3. Calcular ausentes y porcentaje (asumiendo que los que no pasaron lista están ausentes)
+        ausentes_reales = stats["ausentes_registrados"] + max(0, total_alumnos - stats["total_registrados"])
+        total_presentes_retardos = stats["presentes"] + stats["retardos"]
+        
+        porcentaje = 0.0
+        if total_alumnos > 0:
+            porcentaje = round((total_presentes_retardos / total_alumnos) * 100, 2)
+            
+        return {
+            "total_alumnos": total_alumnos,
+            "presentes": stats["presentes"],
+            "retardos": stats["retardos"],
+            "ausentes": ausentes_reales,
+            "porcentaje_asistencia": porcentaje
+        }
+
+    @staticmethod
+    async def obtener_asistencias_hoy_materia(db: AsyncSession, id_materia: int) -> list:
+        """
+        Obtiene los registros de asistencia de todas las sesiones de la materia en el día actual.
+        """
+        # 1. Obtener sesiones de hoy
+        sesiones = await RepositorioSesiones.listar_sesiones_de_hoy_por_materia(db, id_materia)
+        if not sesiones:
+            return []
+            
+        ids_sesiones = [s.id_sesion for s in sesiones]
+        
+        # 2. Obtener asistencias
+        asistencias = await RepositorioAsistencias.listar_asistencias_por_lista_sesiones(db, ids_sesiones)
+        return asistencias
+

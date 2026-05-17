@@ -66,3 +66,35 @@ class RepositorioAsistencias:
         query = select(RegistroAsistencia).where(RegistroAsistencia.id_sesion == id_sesion)
         result = await db.execute(query)
         return result.scalars().all()
+
+    @staticmethod
+    async def listar_asistencias_por_lista_sesiones(db: AsyncSession, ids_sesiones: list[int]) -> Sequence[RegistroAsistencia]:
+        """
+        Devuelve los registros de asistencia para una lista de IDs de sesión.
+        """
+        if not ids_sesiones:
+            return []
+        query = select(RegistroAsistencia).where(RegistroAsistencia.id_sesion.in_(ids_sesiones))
+        result = await db.execute(query)
+        return result.scalars().all()
+
+    @staticmethod
+    async def obtener_estadisticas_por_sesion(db: AsyncSession, id_sesion: int) -> dict:
+        """
+        Obtiene el conteo base de estados de asistencia en una sesión.
+        """
+        query = select(RegistroAsistencia.estado_asistencia).where(RegistroAsistencia.id_sesion == id_sesion)
+        result = await db.execute(query)
+        estados = result.scalars().all()
+        
+        presentes = sum(1 for e in estados if e == EstadoAsistencia.PRESENTE)
+        retardos = sum(1 for e in estados if e == EstadoAsistencia.RETARDO)
+        ausentes = sum(1 for e in estados if e == EstadoAsistencia.AUSENTE)
+        
+        return {
+            "presentes": presentes,
+            "retardos": retardos,
+            "ausentes_registrados": ausentes, # Estos son los que se marcaron manualmente como ausentes
+            "total_registrados": len(estados)
+        }
+

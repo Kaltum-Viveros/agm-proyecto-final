@@ -47,3 +47,21 @@ async def cerrar_sesion(
     resultado = await ServicioSesiones.cerrar_sesion(db=db, id_sesion=id_sesion)
     await db.commit()
     return resultado
+
+
+@router.get(
+    "/{id_sesion}",
+    response_model=SesionResponse,
+    status_code=status.HTTP_200_OK,
+    summary="Obtener los detalles de una sesión",
+)
+async def obtener_sesion(
+    id_sesion: int,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Retorna la información de una sesión específica.
+    """
+    sesion = await ServicioSesiones.obtener_sesion(db=db, id_sesion=id_sesion)
+    return SesionResponse.model_validate(sesion)
+

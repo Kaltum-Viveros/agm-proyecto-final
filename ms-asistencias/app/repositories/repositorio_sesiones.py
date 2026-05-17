@@ -90,3 +90,21 @@ class RepositorioSesiones:
         )
         result = await db.execute(query)
         return result.rowcount > 0
+
+    @staticmethod
+    async def listar_sesiones_de_hoy_por_materia(db: AsyncSession, id_materia: int) -> list[SesionAsistencia]:
+        """
+        Devuelve las sesiones de una materia creadas en el día actual (UTC).
+        """
+        hoy = datetime.utcnow().date()
+        inicio_dia = datetime(hoy.year, hoy.month, hoy.day)
+        fin_dia = datetime(hoy.year, hoy.month, hoy.day, 23, 59, 59, 999999)
+        
+        query = select(SesionAsistencia).where(
+            SesionAsistencia.id_materia == id_materia,
+            SesionAsistencia.fecha_hora_inicio >= inicio_dia,
+            SesionAsistencia.fecha_hora_inicio <= fin_dia
+        )
+        result = await db.execute(query)
+        return list(result.scalars().all())
+
