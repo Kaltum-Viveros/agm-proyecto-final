@@ -3,9 +3,9 @@
 import grpc
 import warnings
 
-from app.generated import docentes_alumnos_pb2 as docentes__alumnos__pb2
+from app.generated import auth_pb2 as auth__pb2
 
-GRPC_GENERATED_VERSION = '1.80.0'
+GRPC_GENERATED_VERSION = '1.68.1'
 GRPC_VERSION = grpc.__version__
 _version_not_supported = False
 
@@ -18,14 +18,14 @@ except ImportError:
 if _version_not_supported:
     raise RuntimeError(
         f'The grpc package installed is at version {GRPC_VERSION},'
-        + ' but the generated code in docentes_alumnos_pb2_grpc.py depends on'
+        + f' but the generated code in auth_pb2_grpc.py depends on'
         + f' grpcio>={GRPC_GENERATED_VERSION}.'
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
 
 
-class DocentesAlumnosServiceStub(object):
+class AuthServiceStub(object):
     """Missing associated documentation comment in .proto file."""
 
     def __init__(self, channel):
@@ -34,95 +34,91 @@ class DocentesAlumnosServiceStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.GetAlumnosByMateria = channel.unary_unary(
-                '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetAlumnosByMateria',
-                request_serializer=docentes__alumnos__pb2.GetAlumnosRequest.SerializeToString,
-                response_deserializer=docentes__alumnos__pb2.AlumnosResponse.FromString,
+        self.ValidateToken = channel.unary_unary(
+                '/agm.auth.v1.AuthService/ValidateToken',
+                request_serializer=auth__pb2.ValidateTokenRequest.SerializeToString,
+                response_deserializer=auth__pb2.ValidateTokenResponse.FromString,
                 _registered_method=True)
-        self.IsAlumnoEnMateria = channel.unary_unary(
-                '/agm.docentes_alumnos.v1.DocentesAlumnosService/IsAlumnoEnMateria',
-                request_serializer=docentes__alumnos__pb2.RelationRequest.SerializeToString,
-                response_deserializer=docentes__alumnos__pb2.BoolResponse.FromString,
+        self.GetUserById = channel.unary_unary(
+                '/agm.auth.v1.AuthService/GetUserById',
+                request_serializer=auth__pb2.GetUserByIdRequest.SerializeToString,
+                response_deserializer=auth__pb2.GetUserByIdResponse.FromString,
                 _registered_method=True)
-        self.GetAlumnoById = channel.unary_unary(
-                '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetAlumnoById',
-                request_serializer=docentes__alumnos__pb2.AlumnoIdRequest.SerializeToString,
-                response_deserializer=docentes__alumnos__pb2.AlumnoProfile.FromString,
+        self.CheckRole = channel.unary_unary(
+                '/agm.auth.v1.AuthService/CheckRole',
+                request_serializer=auth__pb2.CheckRoleRequest.SerializeToString,
+                response_deserializer=auth__pb2.CheckRoleResponse.FromString,
                 _registered_method=True)
-        self.GetDocenteByNombre = channel.unary_unary(
-                '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetDocenteByNombre',
-                request_serializer=docentes__alumnos__pb2.DocenteNombreRequest.SerializeToString,
-                response_deserializer=docentes__alumnos__pb2.DocenteProfile.FromString,
+        self.CreateOrGetUserIdentity = channel.unary_unary(
+                '/agm.auth.v1.AuthService/CreateOrGetUserIdentity',
+                request_serializer=auth__pb2.CreateOrGetUserIdentityRequest.SerializeToString,
+                response_deserializer=auth__pb2.CreateOrGetUserIdentityResponse.FromString,
                 _registered_method=True)
 
 
-class DocentesAlumnosServiceServicer(object):
+class AuthServiceServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def GetAlumnosByMateria(self, request, context):
-        """Para que MS-4 y MS-5 obtengan la lista de alumnos de un grupo
-        """
+    def ValidateToken(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def IsAlumnoEnMateria(self, request, context):
-        """Para validar si un alumno pertenece a una materia específica
-        """
+    def GetUserById(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetAlumnoById(self, request, context):
-        """Obtener perfil detallado
-        """
+    def CheckRole(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetDocenteByNombre(self, request, context):
-        """Para que MS-2 resuelva el docente_id al importar PDFs de programación
-        """
+    def CreateOrGetUserIdentity(self, request, context):
+        """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
 
-def add_DocentesAlumnosServiceServicer_to_server(servicer, server):
+def add_AuthServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'GetAlumnosByMateria': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetAlumnosByMateria,
-                    request_deserializer=docentes__alumnos__pb2.GetAlumnosRequest.FromString,
-                    response_serializer=docentes__alumnos__pb2.AlumnosResponse.SerializeToString,
+            'ValidateToken': grpc.unary_unary_rpc_method_handler(
+                    servicer.ValidateToken,
+                    request_deserializer=auth__pb2.ValidateTokenRequest.FromString,
+                    response_serializer=auth__pb2.ValidateTokenResponse.SerializeToString,
             ),
-            'IsAlumnoEnMateria': grpc.unary_unary_rpc_method_handler(
-                    servicer.IsAlumnoEnMateria,
-                    request_deserializer=docentes__alumnos__pb2.RelationRequest.FromString,
-                    response_serializer=docentes__alumnos__pb2.BoolResponse.SerializeToString,
+            'GetUserById': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetUserById,
+                    request_deserializer=auth__pb2.GetUserByIdRequest.FromString,
+                    response_serializer=auth__pb2.GetUserByIdResponse.SerializeToString,
             ),
-            'GetAlumnoById': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetAlumnoById,
-                    request_deserializer=docentes__alumnos__pb2.AlumnoIdRequest.FromString,
-                    response_serializer=docentes__alumnos__pb2.AlumnoProfile.SerializeToString,
+            'CheckRole': grpc.unary_unary_rpc_method_handler(
+                    servicer.CheckRole,
+                    request_deserializer=auth__pb2.CheckRoleRequest.FromString,
+                    response_serializer=auth__pb2.CheckRoleResponse.SerializeToString,
             ),
-            'GetDocenteByNombre': grpc.unary_unary_rpc_method_handler(
-                    servicer.GetDocenteByNombre,
-                    request_deserializer=docentes__alumnos__pb2.DocenteNombreRequest.FromString,
-                    response_serializer=docentes__alumnos__pb2.DocenteProfile.SerializeToString,
+            'CreateOrGetUserIdentity': grpc.unary_unary_rpc_method_handler(
+                    servicer.CreateOrGetUserIdentity,
+                    request_deserializer=auth__pb2.CreateOrGetUserIdentityRequest.FromString,
+                    response_serializer=auth__pb2.CreateOrGetUserIdentityResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
-            'agm.docentes_alumnos.v1.DocentesAlumnosService', rpc_method_handlers)
+            'agm.auth.v1.AuthService', rpc_method_handlers)
     server.add_generic_rpc_handlers((generic_handler,))
-    server.add_registered_method_handlers('agm.docentes_alumnos.v1.DocentesAlumnosService', rpc_method_handlers)
+    server.add_registered_method_handlers('agm.auth.v1.AuthService', rpc_method_handlers)
 
 
  # This class is part of an EXPERIMENTAL API.
-class DocentesAlumnosService(object):
+class AuthService(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def GetAlumnosByMateria(request,
+    def ValidateToken(request,
             target,
             options=(),
             channel_credentials=None,
@@ -135,9 +131,9 @@ class DocentesAlumnosService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetAlumnosByMateria',
-            docentes__alumnos__pb2.GetAlumnosRequest.SerializeToString,
-            docentes__alumnos__pb2.AlumnosResponse.FromString,
+            '/agm.auth.v1.AuthService/ValidateToken',
+            auth__pb2.ValidateTokenRequest.SerializeToString,
+            auth__pb2.ValidateTokenResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -149,7 +145,7 @@ class DocentesAlumnosService(object):
             _registered_method=True)
 
     @staticmethod
-    def IsAlumnoEnMateria(request,
+    def GetUserById(request,
             target,
             options=(),
             channel_credentials=None,
@@ -162,9 +158,9 @@ class DocentesAlumnosService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/agm.docentes_alumnos.v1.DocentesAlumnosService/IsAlumnoEnMateria',
-            docentes__alumnos__pb2.RelationRequest.SerializeToString,
-            docentes__alumnos__pb2.BoolResponse.FromString,
+            '/agm.auth.v1.AuthService/GetUserById',
+            auth__pb2.GetUserByIdRequest.SerializeToString,
+            auth__pb2.GetUserByIdResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -176,7 +172,7 @@ class DocentesAlumnosService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetAlumnoById(request,
+    def CheckRole(request,
             target,
             options=(),
             channel_credentials=None,
@@ -189,9 +185,9 @@ class DocentesAlumnosService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetAlumnoById',
-            docentes__alumnos__pb2.AlumnoIdRequest.SerializeToString,
-            docentes__alumnos__pb2.AlumnoProfile.FromString,
+            '/agm.auth.v1.AuthService/CheckRole',
+            auth__pb2.CheckRoleRequest.SerializeToString,
+            auth__pb2.CheckRoleResponse.FromString,
             options,
             channel_credentials,
             insecure,
@@ -203,7 +199,7 @@ class DocentesAlumnosService(object):
             _registered_method=True)
 
     @staticmethod
-    def GetDocenteByNombre(request,
+    def CreateOrGetUserIdentity(request,
             target,
             options=(),
             channel_credentials=None,
@@ -216,9 +212,9 @@ class DocentesAlumnosService(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetDocenteByNombre',
-            docentes__alumnos__pb2.DocenteNombreRequest.SerializeToString,
-            docentes__alumnos__pb2.DocenteProfile.FromString,
+            '/agm.auth.v1.AuthService/CreateOrGetUserIdentity',
+            auth__pb2.CreateOrGetUserIdentityRequest.SerializeToString,
+            auth__pb2.CreateOrGetUserIdentityResponse.FromString,
             options,
             channel_credentials,
             insecure,

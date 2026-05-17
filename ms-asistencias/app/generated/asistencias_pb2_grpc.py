@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-from . import asistencias_pb2 as asistencias__pb2
+from app.generated import asistencias_pb2 as asistencias__pb2
 
 GRPC_GENERATED_VERSION = '1.80.0'
 GRPC_VERSION = grpc.__version__
