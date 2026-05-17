@@ -65,17 +65,16 @@ class ServicioAsistencias:
 
         # --- FASE 11: Integración gRPC con MS-3 (Alumnos) ---
         # Verificamos si el alumno está realmente inscrito en esta materia.
-        # Descomenta las siguientes líneas cuando MS-3 esté en ejecución.
-        # id_materia = sesion.id_materia
-        # esta_inscrito = await cliente_alumnos.verificar_alumno_en_materia(id_alumno, id_materia)
-        # if not esta_inscrito:
-        #     await ServicioAsistencias._registrar_auditoria_qr(
-        #         db, id_sesion, id_alumno, uuid_qr, huella, fecha_emision_qr, fecha_expiracion_qr, ResultadoValidacionQr.RECHAZADO, "No inscrito en la materia"
-        #     )
-        #     raise HTTPException(
-        #         status_code=status.HTTP_403_FORBIDDEN,
-        #         detail="El alumno no está inscrito en esta materia.",
-        #     )
+        id_materia = sesion.id_materia
+        esta_inscrito = await cliente_alumnos.verificar_alumno_en_materia(id_alumno, id_materia)
+        if not esta_inscrito:
+            await ServicioAsistencias._registrar_auditoria_qr(
+                db, id_sesion, id_alumno, uuid_qr, huella, fecha_emision_qr, fecha_expiracion_qr, ResultadoValidacionQr.RECHAZADO, "No inscrito en la materia"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="El alumno no está inscrito en esta materia.",
+            )
         # ------------------------------------------------------
 
         # 5. Validar que el alumno no haya pasado lista ya en esta misma sesión
