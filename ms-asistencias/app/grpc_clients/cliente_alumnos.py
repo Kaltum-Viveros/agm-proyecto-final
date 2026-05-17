@@ -31,5 +31,31 @@ class ClienteAlumnos:
                 detail="El servicio de alumnos no está disponible actualmente."
             )
 
+    async def obtener_alumnos_por_materia(self, id_materia: int) -> list:
+        """
+        Consulta al MS-3 (Alumnos) todos los alumnos inscritos en esta materia.
+        """
+        try:
+            request = docentes_alumnos_pb2.GetAlumnosRequest(
+                materia_id=str(id_materia)
+            )
+            response = await self.stub.GetAlumnosByMateria(request)
+            return [
+                {
+                    "id_alumno": int(alumno.alumno_id),
+                    "matricula": alumno.matricula,
+                    "nombre_completo": alumno.nombre_completo
+                }
+                for alumno in response.alumnos
+            ]
+        except grpc.RpcError as e:
+            logging.error(f"Error gRPC al obtener alumnos de MS-3: {e.details() if hasattr(e, 'details') else e}")
+            from fastapi import HTTPException, status
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="El servicio de alumnos no está disponible actualmente."
+            )
+
 
 cliente_alumnos = ClienteAlumnos()
+
