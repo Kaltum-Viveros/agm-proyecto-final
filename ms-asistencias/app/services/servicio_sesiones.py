@@ -79,7 +79,7 @@ class ServicioSesiones:
     @staticmethod
     async def cerrar_sesion(db: AsyncSession, id_sesion: int) -> dict:
         """
-        Cierra una sesión de forma manual (por parte del docente).
+        Cierra una sesión de forma manual (por parte del docente) y registra ausencias.
         """
         # 1. Validar que la sesión exista
         sesion = await RepositorioSesiones.obtener_sesion_por_id(db=db, id_sesion=id_sesion)
@@ -107,6 +107,37 @@ class ServicioSesiones:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Ocurrió un error al intentar cerrar la sesión.",
             )
+
+        # 4. Registrar ausentes automáticamente de la materia (Fase 21 - Opción B)
+        from app.grpc_clients.cliente_alumnos import cliente_alumnos
+        from app.repositories.repositorio_asistencias import RepositorioAsistencias
+        from app.models.enums import EstadoAsistencia, MetodoRegistro
+        import logging
+
+        try:
+            # Obtener los alumnos inscritos en la materia desde MS-3
+            alumnos_inscritos = await cliente_alumnos.obtener_alumnos_por_materia(sesion.id_materia)
+
+            # Obtener las asistencias ya registradas (Presente, Retardo) para esta sesión
+            asistencias_existentes = await RepositorioAsistencias.listar_asistencias_por_sesion(db, id_sesion)
+            ids_alumnos_asistieron = {a.id_alumno for a in asistencias_existentes}
+
+            for alumno in alumnos_inscritos:
+                id_alumno = alumno["id_alumno"]
+                if id_alumno not in ids_alumnos_asistieron:
+                    # Guardamos al alumno ausente
+                    await RepositorioAsistencias.crear_registro_asistencia(
+                        db=db,
+                        id_sesion=id_sesion,
+                        id_alumno=id_alumno,
+                        matricula=alumno["matricula"],
+                        estado_asistencia=EstadoAsistencia.AUSENTE,
+                        metodo_registro=MetodoRegistro.SISTEMA,
+                        observaciones="Registrado automáticamente por el sistema al cerrar la sesión de asistencia."
+                    )
+        except Exception as e:
+            # Capturamos el error pero no cancelamos el cierre de la sesión por resiliencia
+            logging.error(f"Error registrando ausencias automáticas para sesión {id_sesion}: {str(e)}")
 
         return {"mensaje": "Sesión cerrada exitosamente", "id_sesion": id_sesion}
 
