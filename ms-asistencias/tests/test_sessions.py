@@ -57,3 +57,51 @@ def test_iniciar_sesion_ms2_caido(mock_grpc_materia):
     response = client.post("/sesiones/iniciar", json={"id_materia": 7777})
     
     assert response.status_code == 503
+
+
+def test_cerrar_sesion_con_ausentes():
+    """
+    Verifica que al cerrar una sesión activa se consulten los alumnos del grupo en MS-3
+    y se marquen como AUSENTE a los que no asistieron.
+    """
+    from app.repositories.repositorio_sesiones import RepositorioSesiones
+    from app.repositories.repositorio_asistencias import RepositorioAsistencias
+    from app.grpc_clients.cliente_alumnos import cliente_alumnos
+    from app.models.sesion_asistencia import SesionAsistencia
+    from app.models.enums import EstadoSesion, EstadoAsistencia, MetodoRegistro
+    from datetime import datetime, timedelta
+
+    sesion_dummy = SesionAsistencia(
+        id_sesion=120,
+        id_materia=35,
+        estado_sesion=EstadoSesion.ACTIVA,
+        fecha_hora_fin=datetime.utcnow() + timedelta(minutes=5)
+    )
+
+    with patch.object(RepositorioSesiones, 'obtener_sesion_por_id', new_callable=AsyncMock) as mock_get_sesion, \
+         patch.object(RepositorioSesiones, 'cerrar_sesion', new_callable=AsyncMock) as mock_close, \
+         patch.object(cliente_alumnos, 'obtener_alumnos_por_materia', new_callable=AsyncMock) as mock_get_alumnos, \
+         patch.object(RepositorioAsistencias, 'listar_asistencias_por_sesion', new_callable=AsyncMock) as mock_list_asistencias, \
+         patch.object(RepositorioAsistencias, 'crear_registro_asistencia', new_callable=AsyncMock) as mock_create_asistencia:
+
+        mock_get_sesion.return_value = sesion_dummy
+        mock_close.return_value = True
+        mock_get_alumnos.return_value = [
+            {"id_alumno": 100, "matricula": "A100", "nombre_completo": "Juan Perez"}
+        ]
+        # Ningún alumno ha registrado asistencia
+        mock_list_asistencias.return_value = []
+        
+        response = client.delete("/sesiones/120/cerrar")
+        
+        assert response.status_code == 200
+        assert response.json()["mensaje"] == "Sesión cerrada exitosamente"
+        
+        # Confirmamos que se intentó crear el registro de asistencia como AUSENTE para Juan Perez
+        mock_create_asistencia.assert_called_once()
+        args, kwargs = mock_create_asistencia.call_args
+        assert kwargs["id_alumno"] == 100
+        assert kwargs["matricula"] == "A100"
+        assert kwargs["estado_asistencia"] == EstadoAsistencia.AUSENTE
+        assert kwargs["metodo_registro"] == MetodoRegistro.SISTEMA
+
