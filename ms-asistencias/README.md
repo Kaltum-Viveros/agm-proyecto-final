@@ -72,7 +72,12 @@ El microservicio aplica **Arquitectura Limpia** delegando el 100% de la lógica 
    - Comprueba que la sesión esté `ACTIVA` y no haya expirado (`409 Conflict`).
    - Consulta al **MS-3 (Alumnos)** mediante gRPC para verificar que el alumno curse dicha materia. Si no, lanza `403 Forbidden`.
    - Si el MS-3 está caído, responde con `503 Service Unavailable`.
-   - Cifra el código QR usando Fernet e introduce un UUID como nonce para evitar ataques de repetición (Anti-Replay).
+    - Cifra el código QR usando Fernet e introduce un UUID como nonce para evitar ataques de repetición (Anti-Replay).
+3. **Cerrar Sesión (`DELETE /sesiones/{id_sesion}/cerrar`):**
+   - Cierra la sesión activa de asistencia.
+   - Consulta al **MS-3 (Alumnos)** vía gRPC (`GetAlumnosByMateria`) de manera asíncrona para recuperar la lista de alumnos inscritos en la materia correspondiente.
+   - Compara la lista de alumnos inscritos con los registros locales existentes de asistencias ya realizadas (donde el estado sea Presente o Retardo).
+   - Genera automáticamente un registro con estado `AUSENTE` y método de registro `SISTEMA` para todos aquellos alumnos que no hayan asistido.
 
 ## 🔒 Flujo de Seguridad QR (Anti-Replay)
 1. El alumno solicita un QR. El MS-5 genera un payload con `id_alumno`, `id_sesion` y un `uuid` único. Este payload se cifra usando `cryptography.fernet` y se devuelve al alumno.
@@ -92,7 +97,7 @@ docker-compose exec ms-asistencias pytest
 ```
 La suite incluye:
 - `test_health.py`: Verifica el estado y disponibilidad de la API REST.
-- `test_sessions.py`: Pruebas de integración de la lógica de negocio para iniciar sesiones (flujos felices, 403, 503).
+- `test_sessions.py`: Pruebas de integración de la lógica de negocio para iniciar sesiones (flujos felices, 403, 503) y cerrar sesiones (registro automatizado de ausencias).
 - `test_qr.py`: Valida los flujos de generación de código QR (flujo feliz, 404, 409, 403).
 - `test_grpc.py`: Prueba de integración real de gRPC entrante contra el puerto local `50055`.
 
