@@ -4,6 +4,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     APP_NAME: str = "ms-asistencias"
     ENVIRONMENT: str = "local"
+    CORS_ORIGINS: str = "*"
 
     REST_HOST: str = "0.0.0.0"
     REST_PORT: int = 8005
