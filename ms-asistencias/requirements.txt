@@ -12,3 +12,5 @@ cryptography
 pytest
 pytest-asyncio
 httpx
+gunicorn
+

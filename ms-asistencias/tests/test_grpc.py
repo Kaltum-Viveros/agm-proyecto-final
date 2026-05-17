@@ -11,9 +11,16 @@ async def test_get_asistencia_alumno():
     Prueba que el servidor gRPC entrante esté escuchando en el puerto 50055
     y pueda procesar la solicitud GetAsistenciaAlumno.
     """
-    # Como el servidor gRPC está corriendo en segundo plano dentro de Docker en el puerto 50055
-    # Nos conectamos a localhost:50055
-    async with grpc.aio.insecure_channel("localhost:50055") as channel:
+    # Detectar dinámicamente si estamos en el entorno de Docker Compose para apuntar al contenedor gRPC correcto
+    import socket
+    target = "localhost:50055"
+    try:
+        socket.gethostbyname("ms-asistencias-grpc")
+        target = "ms-asistencias-grpc:50055"
+    except socket.gaierror:
+        pass
+
+    async with grpc.aio.insecure_channel(target) as channel:
         stub = asistencias_pb2_grpc.AsistenciasServiceStub(channel)
         
         request = asistencias_pb2.AsistenciaAlumnoRequest(

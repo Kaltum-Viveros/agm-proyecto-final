@@ -178,6 +178,33 @@ services:
     restart: always
     ports:
       - "8005:8005"
+    environment:
+      - ENVIRONMENT=production
+      - DATABASE_URL=postgresql+asyncpg://agm_user:agm_password@asistencias_db:5432/agm_asistencias_db
+      - QR_SECRET_KEY=brS6PRv2RwIBFbwMK-SbjpmWzNmhDS4yAalleGsAdr8=
+      - QR_TTL_SECONDS=20
+      - SESSION_DURATION_MINUTES=10
+      - PRESENT_LIMIT_MINUTES=5
+      - AUTH_GRPC_HOST=ms-auth
+      - AUTH_GRPC_PORT=50051
+      - MATERIAS_GRPC_HOST=ms-periodos-materias
+      - MATERIAS_GRPC_PORT=50052
+      - ALUMNOS_GRPC_HOST=ms-docentes-alumnos
+      - ALUMNOS_GRPC_PORT=50053
+    depends_on:
+      - asistencias_db
+      - ms-auth
+      - ms-periodos-materias
+      - ms-docentes-alumnos
+
+  ms-asistencias-grpc:
+    build:
+      context: ./ms-asistencias
+      dockerfile: Dockerfile
+    container_name: ms-asistencias-grpc
+    restart: always
+    command: python -m app.grpc_server.asistencias_server
+    ports:
       - "50055:50055"
     environment:
       - ENVIRONMENT=production

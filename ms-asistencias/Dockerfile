@@ -29,6 +29,5 @@ COPY . .
 # 50055 -> gRPC
 EXPOSE 8005 50055
 
-# Comando por defecto para iniciar FastAPI y gRPC 
-# (En producción, idealmente se levantan en procesos separados o mediante un script de inicio)
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 8005 & python -m app.grpc_server.asistencias_server"]
+# Comando por defecto para iniciar la API REST usando Gunicorn con workers de Uvicorn
+CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8005", "app.main:app"]
