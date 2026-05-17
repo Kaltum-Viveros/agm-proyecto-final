@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.session import get_db
+from app.core.security import requerir_docente, requerir_usuario
 from app.repositories.repositorio_asistencias import RepositorioAsistencias
 from app.schemas.esquema_asistencias import (
     DetalleAsistencia, 
@@ -24,6 +25,7 @@ router = APIRouter(prefix="/asistencias", tags=["Registros de Asistencia"])
 )
 async def registrar_asistencia(
     request: RegistrarAsistenciaRequest,
+    claims: dict = Depends(requerir_docente),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -46,6 +48,7 @@ async def registrar_asistencia(
 )
 async def listar_historial_sesion(
     id_sesion: int,
+    claims: dict = Depends(requerir_usuario),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -63,6 +66,7 @@ async def listar_historial_sesion(
 )
 async def listar_asistencias_hoy(
     id_materia: int,
+    claims: dict = Depends(requerir_usuario),
     db: AsyncSession = Depends(get_db),
 ):
     """
@@ -80,6 +84,7 @@ async def listar_asistencias_hoy(
 )
 async def obtener_estadisticas_sesion(
     id_sesion: int,
+    claims: dict = Depends(requerir_docente),
     db: AsyncSession = Depends(get_db),
 ):
     """
