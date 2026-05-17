@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Depends, status, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.db.session import get_db
 from app.core.security import requerir_alumno
 from app.schemas.esquema_qr import GenerarQrRequest, GenerarQrResponse
 from app.services.servicio_qr import ServicioQr
@@ -12,26 +14,29 @@ router = APIRouter(prefix="/qr", tags=["Generación de Códigos QR"])
     status_code=status.HTTP_201_CREATED,
     summary="Generar token QR dinámico para alumno",
 )
-def generar_qr(
+async def generar_qr(
     request: GenerarQrRequest,
-    claims: dict = Depends(requerir_alumno)
+    claims: dict = Depends(requerir_alumno),
+    db: AsyncSession = Depends(get_db),
 ):
     """
     Genera un token cifrado con los datos del alumno y la sesión.
-    Este endpoint NO requiere base de datos porque la validación 
-    ocurre cuando el docente escanea el QR.
+    Este endpoint requiere base de datos para validar el estado de la sesión
+    y gRPC para comprobar las inscripciones.
     """
-    id_alumno_claim = claims.get("id_alumno") or claims.get("user_id")
-    if str(request.id_alumno) != str(id_alumno_claim):
+    id_alumno = claims.get("id_alumno") or claims.get("user_id")
+    matricula = claims.get("matricula") or claims.get("correo") or "SIN_MATRICULA"
+
+    if not id_alumno:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tienes permiso para generar un QR a nombre de otro alumno"
+            detail="No se encontró un ID de alumno válido en el token."
         )
-        
-    # TODO: Validar con MS-3 que el alumno está inscrito en la materia/sesión
-    resultado = ServicioQr.generar_token_qr(
+
+    resultado = await ServicioQr.generar_token_qr(
+        db=db,
         id_sesion=request.id_sesion,
-        id_alumno=request.id_alumno,
-        matricula=request.matricula,
+        id_alumno=int(id_alumno),
+        matricula=str(matricula),
     )
     return GenerarQrResponse(**resultado)

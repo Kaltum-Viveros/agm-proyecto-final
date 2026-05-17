@@ -8,8 +8,6 @@ class GenerarQrRequest(BaseModel):
     Datos que el dispositivo del alumno envía para obtener un QR válido.
     """
     id_sesion: int = Field(..., description="ID de la sesión activa de la clase.")
-    id_alumno: int = Field(..., description="ID lógico del alumno.")
-    matricula: str = Field(..., description="Matrícula del alumno.", max_length=20)
 
 
 class GenerarQrResponse(BaseModel):

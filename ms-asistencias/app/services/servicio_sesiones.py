@@ -25,13 +25,12 @@ class ServicioSesiones:
         """
         # --- FASE 11: Integración gRPC con MS-2 (Materias) ---
         # Verificamos si la materia existe y le pertenece al docente.
-        # Descomenta las siguientes líneas cuando MS-2 esté en ejecución.
-        # es_valido = await cliente_materias.verificar_materia_docente(id_materia, id_docente)
-        # if not es_valido:
-        #     raise HTTPException(
-        #         status_code=status.HTTP_403_FORBIDDEN,
-        #         detail="La materia no existe o no tienes permiso para abrir una sesión aquí."
-        #     )
+        es_valido = await cliente_materias.verificar_materia_docente(id_materia, id_docente)
+        if not es_valido:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="El docente no tiene asignada esta materia o la materia no existe."
+            )
         # ------------------------------------------------------
 
         # 1. Validar que la materia no tenga ya una sesión activa
@@ -40,7 +39,7 @@ class ServicioSesiones:
         )
         if sesion_existente:
             raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_409_CONFLICT,
                 detail="Ya existe una sesión activa para esta materia.",
             )
 

@@ -24,8 +24,12 @@ class ClienteAlumnos:
             response = await self.stub.IsAlumnoEnMateria(request)
             return response.exists
         except grpc.RpcError as e:
-            logging.error(f"Error gRPC al conectar con MS-3 (Alumnos): {e.details()}")
-            return False
+            logging.error(f"Error gRPC al conectar con MS-3 (Alumnos): {e.details() if hasattr(e, 'details') else e}")
+            from fastapi import HTTPException, status
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="El servicio de alumnos no está disponible actualmente."
+            )
 
 
 cliente_alumnos = ClienteAlumnos()

@@ -5,8 +5,11 @@ from datetime import datetime, timedelta
 
 from cryptography.fernet import Fernet, InvalidToken
 from fastapi import HTTPException, status
-
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
+from app.repositories.repositorio_sesiones import RepositorioSesiones
+from app.models.enums import EstadoSesion
+from app.grpc_clients.cliente_alumnos import cliente_alumnos
 
 
 class ServicioQr:
@@ -19,12 +22,44 @@ class ServicioQr:
     _fernet = Fernet(settings.QR_SECRET_KEY.encode("utf-8"))
 
     @staticmethod
-    def generar_token_qr(id_sesion: int, id_alumno: int, matricula: str) -> dict:
+    async def generar_token_qr(db: AsyncSession, id_sesion: int, id_alumno: int, matricula: str) -> dict:
         """
         Genera un token QR cifrado con un tiempo de vida corto (ej. 20 segundos).
         Retorna un diccionario con el token cifrado y su fecha límite.
         """
+        # 1. Buscar la sesión local por id_sesion
+        sesion = await RepositorioSesiones.obtener_sesion_por_id(db=db, id_sesion=id_sesion)
+        if not sesion:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="La sesión de asistencia especificada no existe.",
+            )
+
+        # 2. Validar que la sesión esté ACTIVA y no expirada
+        if sesion.estado_sesion != EstadoSesion.ACTIVA:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"La sesión ya no está activa. Estado actual: {sesion.estado_sesion.value}.",
+            )
+
         ahora = datetime.utcnow()
+        if ahora > sesion.fecha_hora_fin:
+            # Marcar como expirada por si acaso
+            await RepositorioSesiones.marcar_sesion_expirada(db=db, id_sesion=id_sesion)
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="La sesión de asistencia ha expirado.",
+            )
+
+        # 3. Validar alumno-materia con MS-3 (Alumnos) a través de gRPC
+        id_materia = sesion.id_materia
+        inscrito = await cliente_alumnos.verificar_alumno_en_materia(id_alumno, id_materia)
+        if not inscrito:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="El alumno no está inscrito en la materia asignada a esta sesión.",
+            )
+
         expiracion = ahora + timedelta(seconds=settings.QR_TTL_SECONDS)
 
         # Generar un identificador único (nonce) para evitar ataques de repetición

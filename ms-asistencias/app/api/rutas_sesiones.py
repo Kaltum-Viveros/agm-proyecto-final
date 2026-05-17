@@ -24,22 +24,19 @@ async def iniciar_sesion(
     Abre una nueva sesión de asistencia para una materia específica.
     La sesión durará 10 minutos automáticamente.
     """
-    # Validar propiedad (no iniciar sesión para otro docente)
-    id_docente_claim = claims.get("id_docente") or claims.get("user_id")
-    if str(request.id_docente) != str(id_docente_claim):
+    # Obtener el ID del docente desde los claims del token
+    id_docente = claims.get("id_docente") or claims.get("user_id")
+    if not id_docente:
         from fastapi import HTTPException
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="No tienes permiso para iniciar una sesión a nombre de otro docente"
+            detail="No se encontró un ID de docente válido en el token."
         )
-        
-    # TODO: Validar con MS-2/MS-3 que este docente pertenece a la materia
-    # (Por ahora, como lo define la Fase 13, la lógica de validación se irá integrando)
 
     nueva_sesion = await ServicioSesiones.iniciar_sesion(
         db=db,
         id_materia=request.id_materia,
-        id_docente=request.id_docente,
+        id_docente=int(id_docente),
     )
     # Convertir el modelo de SQLAlchemy a Pydantic y commitear
     await db.commit()

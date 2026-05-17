@@ -25,9 +25,12 @@ class ClienteMaterias:
                 return True
             return False
         except grpc.RpcError as e:
-            logging.error(f"Error gRPC al conectar con MS-2 (Materias): {e.details()}")
-            # Si el servicio está caído, retornamos False por seguridad
-            return False
+            logging.error(f"Error gRPC al conectar con MS-2 (Materias): {e.details() if hasattr(e, 'details') else e}")
+            from fastapi import HTTPException, status
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="El servicio de materias no está disponible actualmente."
+            )
 
 
 cliente_materias = ClienteMaterias()

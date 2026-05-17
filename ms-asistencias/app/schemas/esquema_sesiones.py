@@ -10,7 +10,6 @@ class IniciarSesionRequest(BaseModel):
     Datos requeridos por el frontend para iniciar una sesión de clase.
     """
     id_materia: int = Field(..., description="ID de la materia para la cual se abre la sesión.")
-    id_docente: int = Field(..., description="ID del docente que imparte la materia.")
 
 
 class SesionResponse(BaseModel):
