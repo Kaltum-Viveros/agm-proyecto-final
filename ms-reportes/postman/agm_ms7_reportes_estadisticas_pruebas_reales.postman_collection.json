@@ -1,7 +1,7 @@
 {
   "info": {
     "_postman_id": "2d8f921d-91b4-4b53-9d41-cc9101c64d85",
-    "name": "MS-7 Reportes y Estadísticas",
+    "name": "AGM - MS-7 Reportes y Estadísticas - Pruebas reales",
     "description": "Colección ajustada para MS-7 Reportes & Estadísticas. Usa ms_reportes_base_url, headers Authorization: Bearer {{access_token}}, variables compartidas con MS-2/MS-3/MS-4/MS-5 y captura metadatos de descarga/estadísticas para encadenar pruebas.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },

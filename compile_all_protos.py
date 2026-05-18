@@ -29,16 +29,17 @@ def patch_grpc_imports(output_dir):
     except ValueError:
         prefix = "app.grpc.generated"
 
+    import re
     for grpc_file in output_dir.glob("*_pb2_grpc.py"):
         content = grpc_file.read_text(encoding="utf-8")
         proto_name = grpc_file.name.replace("_pb2_grpc.py", "")
-        # The generated import is like `import auth_pb2 as auth__pb2`
-        old_import = f"import {proto_name}_pb2 as {proto_name}__pb2"
-        new_import = f"from {prefix} import {proto_name}_pb2 as {proto_name}__pb2"
         
-        if old_import in content:
-            content = content.replace(old_import, new_import)
-            grpc_file.write_text(content, encoding="utf-8")
+        # Regex to match `import proto_name_pb2 as ...`
+        pattern = re.compile(rf"import\s+{proto_name}_pb2\s+as\s+(\w+)")
+        new_content = pattern.sub(rf"from {prefix} import {proto_name}_pb2 as \1", content)
+        
+        if new_content != content:
+            grpc_file.write_text(new_content, encoding="utf-8")
 
 for target_dir in targets:
     if not (target_dir.parent.parent.parent).exists():

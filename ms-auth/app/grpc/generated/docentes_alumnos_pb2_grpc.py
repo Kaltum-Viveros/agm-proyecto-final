@@ -3,7 +3,7 @@
 import grpc
 import warnings
 
-import docentes_alumnos_pb2 as docentes__alumnos__pb2
+from app.grpc.generated import docentes_alumnos_pb2 as docentes__alumnos__pb2
 
 GRPC_GENERATED_VERSION = '1.68.1'
 GRPC_VERSION = grpc.__version__
