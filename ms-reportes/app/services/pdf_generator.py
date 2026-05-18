@@ -69,3 +69,60 @@ def generate_calificaciones_pdf(materia_data: dict, alumnos: list, concentrado_a
     pdf_bytes = buffer.getvalue()
     buffer.close()
     return pdf_bytes
+
+def generate_asistencias_pdf(materia_data: dict, alumnos: list, asistencias_data: dict) -> bytes:
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    elements = []
+    
+    styles = getSampleStyleSheet()
+    
+    elements.append(Paragraph("Reporte de Asistencias", styles['Title']))
+    elements.append(Spacer(1, 12))
+    
+    info_text = f"<b>Materia:</b> {materia_data.get('nombre', 'N/A')} <br/>"
+    info_text += f"<b>NRC:</b> {materia_data.get('nrc', 'N/A')} <br/>"
+    info_text += f"<b>Sección:</b> {materia_data.get('seccion', 'N/A')} <br/>"
+    if materia_data.get('docente_nombre'):
+        info_text += f"<b>Docente:</b> {materia_data.get('docente_nombre')} <br/>"
+    if materia_data.get('periodo'):
+        info_text += f"<b>Periodo:</b> {materia_data['periodo'].get('nombre', 'N/A')} <br/>"
+        
+    elements.append(Paragraph(info_text, styles['Normal']))
+    elements.append(Spacer(1, 24))
+    
+    data = [["Matrícula", "Nombre Alumno", "Presentes", "Retardos", "Faltas", "% Asistencia"]]
+    
+    for al in alumnos:
+        a_data = asistencias_data.get(al.alumno_id, {})
+        presentes = a_data.get("presentes", 0)
+        retardos = a_data.get("retardos", 0)
+        faltas = a_data.get("faltas", 0)
+        porcentaje = a_data.get("porcentaje", 0.0)
+        
+        data.append([
+            al.matricula,
+            al.nombre_completo,
+            str(presentes),
+            str(retardos),
+            str(faltas),
+            f"{porcentaje:.1f}%"
+        ])
+        
+    t = Table(data)
+    t.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+        ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+        ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+        ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ]))
+    
+    elements.append(t)
+    doc.build(elements)
+    
+    pdf_bytes = buffer.getvalue()
+    buffer.close()
+    return pdf_bytes
