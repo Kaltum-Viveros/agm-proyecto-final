@@ -44,6 +44,11 @@ class DocentesAlumnosServiceStub(object):
                 request_serializer=docentes__alumnos__pb2.RelationRequest.SerializeToString,
                 response_deserializer=docentes__alumnos__pb2.BoolResponse.FromString,
                 _registered_method=True)
+        self.GetMateriasByAlumno = channel.unary_unary(
+                '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetMateriasByAlumno',
+                request_serializer=docentes__alumnos__pb2.AlumnoIdRequest.SerializeToString,
+                response_deserializer=docentes__alumnos__pb2.MateriasAlumnoResponse.FromString,
+                _registered_method=True)
         self.GetAlumnoById = channel.unary_unary(
                 '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetAlumnoById',
                 request_serializer=docentes__alumnos__pb2.AlumnoIdRequest.SerializeToString,
@@ -83,6 +88,13 @@ class DocentesAlumnosServiceServicer(object):
 
     def IsAlumnoEnMateria(self, request, context):
         """Para validar si un alumno pertenece a una materia específica
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetMateriasByAlumno(self, request, context):
+        """Obtener las materias en las que está inscrito un alumno (Para historiales)
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -132,6 +144,11 @@ def add_DocentesAlumnosServiceServicer_to_server(servicer, server):
                     servicer.IsAlumnoEnMateria,
                     request_deserializer=docentes__alumnos__pb2.RelationRequest.FromString,
                     response_serializer=docentes__alumnos__pb2.BoolResponse.SerializeToString,
+            ),
+            'GetMateriasByAlumno': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMateriasByAlumno,
+                    request_deserializer=docentes__alumnos__pb2.AlumnoIdRequest.FromString,
+                    response_serializer=docentes__alumnos__pb2.MateriasAlumnoResponse.SerializeToString,
             ),
             'GetAlumnoById': grpc.unary_unary_rpc_method_handler(
                     servicer.GetAlumnoById,
@@ -213,6 +230,33 @@ class DocentesAlumnosService(object):
             '/agm.docentes_alumnos.v1.DocentesAlumnosService/IsAlumnoEnMateria',
             docentes__alumnos__pb2.RelationRequest.SerializeToString,
             docentes__alumnos__pb2.BoolResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetMateriasByAlumno(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/agm.docentes_alumnos.v1.DocentesAlumnosService/GetMateriasByAlumno',
+            docentes__alumnos__pb2.AlumnoIdRequest.SerializeToString,
+            docentes__alumnos__pb2.MateriasAlumnoResponse.FromString,
             options,
             channel_credentials,
             insecure,

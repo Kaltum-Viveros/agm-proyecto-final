@@ -13,6 +13,7 @@ targets = [
     REPO_ROOT / "ms-docentes-alumnos" / "app" / "grpc" / "generated",
     REPO_ROOT / "ms-calificaciones" / "app" / "grpc" / "generated",
     REPO_ROOT / "ms-asistencias" / "app" / "grpc" / "generated",
+    REPO_ROOT / "ms-asistencias" / "app" / "generated",
     REPO_ROOT / "ms-notificaciones" / "app" / "grpc" / "generated",
     REPO_ROOT / "ms-reportes" / "app" / "grpc" / "generated",
 ]
@@ -20,12 +21,20 @@ targets = [
 proto_files = list(PROTO_DIR.glob("*.proto"))
 
 def patch_grpc_imports(output_dir):
+    # Determine import prefix dynamically based on the directory structure
+    parts = output_dir.parts
+    try:
+        app_idx = parts.index("app")
+        prefix = ".".join(parts[app_idx:])
+    except ValueError:
+        prefix = "app.grpc.generated"
+
     for grpc_file in output_dir.glob("*_pb2_grpc.py"):
         content = grpc_file.read_text(encoding="utf-8")
         proto_name = grpc_file.name.replace("_pb2_grpc.py", "")
         # The generated import is like `import auth_pb2 as auth__pb2`
         old_import = f"import {proto_name}_pb2 as {proto_name}__pb2"
-        new_import = f"from app.grpc.generated import {proto_name}_pb2 as {proto_name}__pb2"
+        new_import = f"from {prefix} import {proto_name}_pb2 as {proto_name}__pb2"
         
         if old_import in content:
             content = content.replace(old_import, new_import)

@@ -29,8 +29,8 @@ class TokenQrUsado(Base):
 
     # Referencia lógica al MS-3 Docentes/Alumnos.
     # No es FK real.
-    id_alumno: Mapped[int] = mapped_column(
-        Integer,
+    id_alumno: Mapped[str] = mapped_column(
+        String(36),
         nullable=False,
         index=True,
     )

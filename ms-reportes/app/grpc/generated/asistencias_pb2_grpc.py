@@ -41,6 +41,11 @@ class AsistenciasServiceStub(object):
                 request_serializer=asistencias__pb2.AsistenciaAlumnoRequest.SerializeToString,
                 response_deserializer=asistencias__pb2.AsistenciaAlumnoResponse.FromString,
                 _registered_method=True)
+        self.GetAsistenciasMateria = channel.unary_unary(
+                '/asistencias.AsistenciasService/GetAsistenciasMateria',
+                request_serializer=asistencias__pb2.AsistenciasMateriaRequest.SerializeToString,
+                response_deserializer=asistencias__pb2.AsistenciasMateriaResponse.FromString,
+                _registered_method=True)
         self.GetEstadisticasAsistencia = channel.unary_unary(
                 '/asistencias.AsistenciasService/GetEstadisticasAsistencia',
                 request_serializer=asistencias__pb2.EstadisticasRequest.SerializeToString,
@@ -60,6 +65,13 @@ class AsistenciasServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def GetAsistenciasMateria(self, request, context):
+        """Obtiene las asistencias de todos los alumnos de una materia de golpe (Soluciona N+1)
+        """
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def GetEstadisticasAsistencia(self, request, context):
         """Obtiene el resumen estadístico de asistencia para una materia entera.
         """
@@ -74,6 +86,11 @@ def add_AsistenciasServiceServicer_to_server(servicer, server):
                     servicer.GetAsistenciaAlumno,
                     request_deserializer=asistencias__pb2.AsistenciaAlumnoRequest.FromString,
                     response_serializer=asistencias__pb2.AsistenciaAlumnoResponse.SerializeToString,
+            ),
+            'GetAsistenciasMateria': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetAsistenciasMateria,
+                    request_deserializer=asistencias__pb2.AsistenciasMateriaRequest.FromString,
+                    response_serializer=asistencias__pb2.AsistenciasMateriaResponse.SerializeToString,
             ),
             'GetEstadisticasAsistencia': grpc.unary_unary_rpc_method_handler(
                     servicer.GetEstadisticasAsistencia,
@@ -110,6 +127,33 @@ class AsistenciasService(object):
             '/asistencias.AsistenciasService/GetAsistenciaAlumno',
             asistencias__pb2.AsistenciaAlumnoRequest.SerializeToString,
             asistencias__pb2.AsistenciaAlumnoResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetAsistenciasMateria(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/asistencias.AsistenciasService/GetAsistenciasMateria',
+            asistencias__pb2.AsistenciasMateriaRequest.SerializeToString,
+            asistencias__pb2.AsistenciasMateriaResponse.FromString,
             options,
             channel_credentials,
             insecure,

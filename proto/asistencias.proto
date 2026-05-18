@@ -8,6 +8,9 @@ service AsistenciasService {
   // Obtiene el historial de asistencias de un alumno en una materia específica.
   rpc GetAsistenciaAlumno (AsistenciaAlumnoRequest) returns (AsistenciaAlumnoResponse);
 
+  // Obtiene las asistencias de todos los alumnos de una materia de golpe (Soluciona N+1)
+  rpc GetAsistenciasMateria (AsistenciasMateriaRequest) returns (AsistenciasMateriaResponse);
+
   // Obtiene el resumen estadístico de asistencia para una materia entera.
   rpc GetEstadisticasAsistencia (EstadisticasRequest) returns (EstadisticasResponse);
 }
@@ -16,8 +19,22 @@ service AsistenciasService {
 // Mensajes para GetAsistenciaAlumno
 // ----------------------------------------
 message AsistenciaAlumnoRequest {
-  int32 id_alumno = 1;
-  int32 id_materia = 2;
+  string id_alumno = 1;
+  string id_materia = 2;
+}
+
+message AsistenciasMateriaRequest {
+  string id_materia = 1;
+}
+
+message ResumenAsistenciaAlumno {
+  string id_alumno = 1;
+  int32 total_presentes = 2;
+  int32 total_retardos = 3;
+}
+
+message AsistenciasMateriaResponse {
+  repeated ResumenAsistenciaAlumno asistencias = 1;
 }
 
 message DetalleAsistenciaProto {
@@ -36,7 +53,7 @@ message AsistenciaAlumnoResponse {
 // Mensajes para GetEstadisticasAsistencia
 // ----------------------------------------
 message EstadisticasRequest {
-  int32 id_materia = 1;
+  string id_materia = 1;
 }
 
 message EstadisticasResponse {

@@ -106,9 +106,15 @@ class ReporteService:
         stats_materia = asistencias_client.get_estadisticas_asistencia(materia_id)
         total_sesiones = stats_materia.total_sesiones_impartidas if stats_materia else 0
 
+        asistencias_materia_res = asistencias_client.get_asistencias_materia(materia_id)
+        asistencias_map = {}
+        if asistencias_materia_res:
+            for asis in asistencias_materia_res.asistencias:
+                asistencias_map[asis.id_alumno] = asis
+
         asistencias_data = {}
         for al in alumnos:
-            res = asistencias_client.get_asistencia_alumno(al.alumno_id, materia_id)
+            res = asistencias_map.get(al.alumno_id)
             if res:
                 presentes = res.total_presentes
                 retardos = res.total_retardos
@@ -215,6 +221,37 @@ class ReporteService:
         if not alumno_res:
             raise HTTPException(status_code=404, detail="Alumno no encontrado en MS-3.")
         
+        materias_res = docentes_alumnos_client.get_materias_by_alumno(alumno_id)
+        materias_ids = materias_res.materias_ids if materias_res else []
+
+        from app.grpc.clients import asistencias_client, calificaciones_client
+
+        historial_materias = []
+        for m_id in materias_ids:
+            materia_info = periodos_materias_client.get_materia_by_id(m_id)
+            
+            promedio = calificaciones_client.get_promedio_alumno(alumno_id, m_id)
+            asistencia = asistencias_client.get_asistencia_alumno(alumno_id, m_id)
+            stats_materia = asistencias_client.get_estadisticas_asistencia(m_id)
+            
+            presentes = asistencia.total_presentes if asistencia else 0
+            retardos = asistencia.total_retardos if asistencia else 0
+            total_sesiones = stats_materia.total_sesiones_impartidas if stats_materia else 0
+            
+            porcentaje_asist = 0.0
+            if total_sesiones > 0:
+                porcentaje_asist = ((presentes + retardos) / total_sesiones) * 100.0
+
+            historial_materias.append({
+                "materia_id": m_id,
+                "nrc": materia_info.nrc if materia_info else "N/A",
+                "nombre_materia": materia_info.materia.nombre if materia_info and materia_info.HasField("materia") else "N/A",
+                "promedio": promedio.promedio if promedio else 0.0,
+                "presentes": presentes,
+                "retardos": retardos,
+                "porcentaje_asistencia": porcentaje_asist
+            })
+
         return {
             "success": True,
             "alumno": {
@@ -222,6 +259,6 @@ class ReporteService:
                 "nombre_completo": alumno_res.nombre_completo,
                 "matricula": alumno_res.matricula
             },
-            "estadisticas": None,
-            "message": "Falta el método gRPC 'GetMateriasByAlumno' en MS-3 para completar este historial. Servicio limitado temporalmente."
+            "estadisticas": historial_materias,
+            "message": "Estadísticas del alumno generadas correctamente."
         }

@@ -25,6 +25,8 @@ def test_docentes_alumnos():
     print("--- Probando MS-3 (Docentes y Alumnos) ---")
     res = docentes_alumnos_client.get_alumno_by_id(alumno_id="uuid-fake")
     print(f"Respuesta get_alumno_by_id: {res}")
+    res_m = docentes_alumnos_client.get_materias_by_alumno(alumno_id="uuid-fake")
+    print(f"Respuesta get_materias_by_alumno: {res_m}")
 
 def test_calificaciones():
     print("--- Probando MS-4 (Calificaciones) ---")
@@ -33,8 +35,12 @@ def test_calificaciones():
 
 def test_asistencias():
     print("--- Probando MS-5 (Asistencias) ---")
-    res = asistencias_client.get_estadisticas_asistencia(id_materia=123)
-    print(f"Respuesta get_estadisticas_asistencia: {res}")
+    res = asistencias_client.get_estadisticas_asistencia(id_materia="uuid-fake")
+    print(f"Respuesta get_estadisticas_asistencia type: {type(res)}")
+    print(f"Respuesta get_estadisticas_asistencia: {res.total_sesiones_impartidas if res else 'None'}")
+    res_m = asistencias_client.get_asistencias_materia(id_materia="uuid-fake")
+    print(f"Respuesta get_asistencias_materia type: {type(res_m)}")
+    print(f"Respuesta get_asistencias_materia len: {len(res_m.asistencias) if res_m else 'None'}")
 
 if __name__ == "__main__":
     test_periodos_materias()

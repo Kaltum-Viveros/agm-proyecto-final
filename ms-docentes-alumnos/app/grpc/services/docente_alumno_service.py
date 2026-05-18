@@ -176,3 +176,24 @@ class DocentesAlumnosService(docentes_alumnos_pb2_grpc.DocentesAlumnosServiceSer
             return docentes_alumnos_pb2.DocenteProfile(encontrado=False)
         finally:
             db.close()
+
+    def GetMateriasByAlumno(self, request, context):
+        """Obtiene las materias a las que un alumno está inscrito"""
+        db = SessionLocal()
+        try:
+            inscripciones = db.query(Inscripcion).filter(
+                Inscripcion.alumno_id == request.alumno_id,
+                Inscripcion.activa == True
+            ).all()
+
+            materias_ids = [str(ins.materia_id) for ins in inscripciones]
+
+            return docentes_alumnos_pb2.MateriasAlumnoResponse(
+                materias_ids=materias_ids
+            )
+        except Exception as e:
+            context.set_code(grpc.StatusCode.INTERNAL)
+            context.set_details(str(e))
+            return docentes_alumnos_pb2.MateriasAlumnoResponse()
+        finally:
+            db.close()

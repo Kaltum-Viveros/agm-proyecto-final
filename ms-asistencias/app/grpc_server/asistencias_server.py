@@ -56,6 +56,43 @@ class AsistenciasServicer(asistencias_pb2_grpc.AsistenciasServiceServicer):
                 total_retardos=retardos,
             )
 
+    async def GetAsistenciasMateria(self, request, context):
+        """
+        Devuelve el conteo de asistencias de todos los alumnos de una materia de golpe (Solución N+1).
+        """
+        async with AsyncSessionLocal() as db:
+            query = (
+                select(RegistroAsistencia)
+                .join(SesionAsistencia, RegistroAsistencia.id_sesion == SesionAsistencia.id_sesion)
+                .where(SesionAsistencia.id_materia == request.id_materia)
+            )
+            resultado = await db.execute(query)
+            registros = resultado.scalars().all()
+
+            # Agrupar por id_alumno
+            resumen_alumnos = {}
+            for reg in registros:
+                if reg.id_alumno not in resumen_alumnos:
+                    resumen_alumnos[reg.id_alumno] = {"presentes": 0, "retardos": 0}
+                
+                if reg.estado_asistencia == EstadoAsistencia.PRESENTE:
+                    resumen_alumnos[reg.id_alumno]["presentes"] += 1
+                elif reg.estado_asistencia == EstadoAsistencia.RETARDO:
+                    resumen_alumnos[reg.id_alumno]["retardos"] += 1
+
+            # Formatear a Proto
+            lista_asistencias = []
+            for alumno_id, data in resumen_alumnos.items():
+                lista_asistencias.append(asistencias_pb2.ResumenAsistenciaAlumno(
+                    id_alumno=alumno_id,
+                    total_presentes=data["presentes"],
+                    total_retardos=data["retardos"]
+                ))
+
+            return asistencias_pb2.AsistenciasMateriaResponse(
+                asistencias=lista_asistencias
+            )
+
     async def GetEstadisticasAsistencia(self, request, context):
         """
         Calcula un resumen estadístico de la materia para el Dashboard del docente.

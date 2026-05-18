@@ -18,16 +18,16 @@ class SesionAsistencia(Base):
 
     # Referencia lógica al MS-2 Periodos/Materias.
     # No es FK real porque la materia pertenece a otro microservicio.
-    id_materia: Mapped[int] = mapped_column(
-        Integer,
+    id_materia: Mapped[str] = mapped_column(
+        String(36),
         nullable=False,
         index=True,
     )
 
     # Referencia lógica al MS-3 Docentes/Alumnos.
     # No es FK real porque el docente pertenece a otro microservicio.
-    id_docente: Mapped[int] = mapped_column(
-        Integer,
+    id_docente: Mapped[str] = mapped_column(
+        String(36),
         nullable=False,
         index=True,
     )

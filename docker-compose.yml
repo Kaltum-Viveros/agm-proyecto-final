@@ -310,7 +310,7 @@ services:
       - ALUMNOS_GRPC_PORT=50053
       - CALIFICACIONES_GRPC_HOST=ms-calificaciones
       - CALIFICACIONES_GRPC_PORT=50054
-      - ASISTENCIAS_GRPC_HOST=ms-asistencias
+      - ASISTENCIAS_GRPC_HOST=ms-asistencias-grpc
       - ASISTENCIAS_GRPC_PORT=50055
     depends_on:
       - reportes_db

@@ -1,0 +1,196 @@
+{
+	"info": {
+		"_postman_id": "2d8f921d-91b4-4b53-9d41-cc9101c64d85",
+		"name": "MS-7 Reportes y Estadísticas",
+		"description": "Colección para probar los endpoints REST del microservicio MS-7 (Generación de PDFs, Excel y Estadísticas)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Reportes",
+			"item": [
+				{
+					"name": "Descargar Reporte Calificaciones (PDF)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8007/api/v1/reportes/calificaciones/{{materia_id}}?formato=pdf",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8007",
+							"path": [
+								"api",
+								"v1",
+								"reportes",
+								"calificaciones",
+								"{{materia_id}}"
+							],
+							"query": [
+								{
+									"key": "formato",
+									"value": "pdf"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Descargar Reporte Calificaciones (XLSX)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8007/api/v1/reportes/calificaciones/{{materia_id}}?formato=xlsx",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8007",
+							"path": [
+								"api",
+								"v1",
+								"reportes",
+								"calificaciones",
+								"{{materia_id}}"
+							],
+							"query": [
+								{
+									"key": "formato",
+									"value": "xlsx"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Descargar Reporte Asistencias (PDF)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8007/api/v1/reportes/asistencias/{{materia_id}}?formato=pdf",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8007",
+							"path": [
+								"api",
+								"v1",
+								"reportes",
+								"asistencias",
+								"{{materia_id}}"
+							],
+							"query": [
+								{
+									"key": "formato",
+									"value": "pdf"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Descargar Reporte Asistencias (XLSX)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8007/api/v1/reportes/asistencias/{{materia_id}}?formato=xlsx",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8007",
+							"path": [
+								"api",
+								"v1",
+								"reportes",
+								"asistencias",
+								"{{materia_id}}"
+							],
+							"query": [
+								{
+									"key": "formato",
+									"value": "xlsx"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Estadísticas",
+			"item": [
+				{
+					"name": "Estadísticas Docente",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8007/api/v1/estadisticas/docente/{{docente_id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8007",
+							"path": [
+								"api",
+								"v1",
+								"estadisticas",
+								"docente",
+								"{{docente_id}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Estadísticas Alumno",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:8007/api/v1/estadisticas/alumno/{{alumno_id}}",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8007",
+							"path": [
+								"api",
+								"v1",
+								"estadisticas",
+								"alumno",
+								"{{alumno_id}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "materia_id",
+			"value": "INSERT_MATERIA_UUID"
+		},
+		{
+			"key": "docente_id",
+			"value": "INSERT_DOCENTE_UUID"
+		},
+		{
+			"key": "alumno_id",
+			"value": "INSERT_ALUMNO_UUID"
+		}
+	]
+}

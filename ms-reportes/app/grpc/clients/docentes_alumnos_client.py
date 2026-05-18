@@ -33,4 +33,15 @@ class DocentesAlumnosClient:
                 print(f"[gRPC MS-3] GetAlumnoById error: {e.code()} - {e.details()}")
                 return None
 
+    def get_materias_by_alumno(self, alumno_id: str):
+        with grpc.insecure_channel(f"{self.host}:{self.port}") as channel:
+            stub = self._get_stub(channel)
+            request = docentes_alumnos_pb2.AlumnoIdRequest(alumno_id=alumno_id)
+            try:
+                response = stub.GetMateriasByAlumno(request, timeout=self.timeout)
+                return response
+            except grpc.RpcError as e:
+                print(f"[gRPC MS-3] GetMateriasByAlumno error: {e.code()} - {e.details()}")
+                return None
+
 docentes_alumnos_client = DocentesAlumnosClient()

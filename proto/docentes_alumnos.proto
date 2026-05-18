@@ -8,6 +8,9 @@ service DocentesAlumnosService {
   
   // Para validar si un alumno pertenece a una materia específica
   rpc IsAlumnoEnMateria(RelationRequest) returns (BoolResponse);
+
+  // Obtener las materias en las que está inscrito un alumno (Para historiales)
+  rpc GetMateriasByAlumno(AlumnoIdRequest) returns (MateriasAlumnoResponse);
   
   // Obtener perfil detallado
   rpc GetAlumnoById(AlumnoIdRequest) returns (AlumnoProfile);
@@ -40,6 +43,10 @@ message AlumnoProfile {
 
 message AlumnosResponse {
   repeated AlumnoProfile alumnos = 1;
+}
+
+message MateriasAlumnoResponse {
+  repeated string materias_ids = 1;
 }
 
 message DocenteProfile {

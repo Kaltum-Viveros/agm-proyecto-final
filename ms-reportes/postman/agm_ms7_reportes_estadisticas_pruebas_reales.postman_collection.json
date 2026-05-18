@@ -1,0 +1,548 @@
+{
+  "info": {
+    "_postman_id": "2d8f921d-91b4-4b53-9d41-cc9101c64d85",
+    "name": "MS-7 Reportes y Estadísticas",
+    "description": "Colección ajustada para MS-7 Reportes & Estadísticas. Usa ms_reportes_base_url, headers Authorization: Bearer {{access_token}}, variables compartidas con MS-2/MS-3/MS-4/MS-5 y captura metadatos de descarga/estadísticas para encadenar pruebas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "function getVar(name) {",
+          "  return pm.environment.get(name) || pm.collectionVariables.get(name);",
+          "}",
+          "",
+          "function setVar(name, value) {",
+          "  if (value === undefined || value === null || value === '') return;",
+          "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+          "  pm.collectionVariables.set(name, String(value));",
+          "}",
+          "",
+          "function setIfMissing(name, value) {",
+          "  if (!getVar(name)) setVar(name, value);",
+          "}",
+          "",
+          "setIfMissing('ms_reportes_base_url', 'http://localhost:8007');",
+          "if (!getVar('access_token') && getVar('admin_access_token')) setVar('access_token', getVar('admin_access_token'));",
+          "if (!getVar('materia_id') && getVar('materia_ofertada_id')) setVar('materia_id', getVar('materia_ofertada_id'));",
+          "if (!getVar('materia_id') && getVar('ms2_materia_ofertada_id')) setVar('materia_id', getVar('ms2_materia_ofertada_id'));",
+          "setIfMissing('reporte_formato_pdf', 'pdf');",
+          "setIfMissing('reporte_formato_xlsx', 'xlsx');",
+          "if (!getVar('docente_id')) console.warn('Falta docente_id. Ejecútalo después de MS-3 o llena la variable en el environment.');",
+          "if (!getVar('alumno_id')) console.warn('Falta alumno_id. Ejecútalo después de MS-3 o llena la variable en el environment.');",
+          "if (!getVar('materia_id')) console.warn('Falta materia_id. Ejecútalo después de MS-2/MS-3/MS-4 o llena la variable en el environment.');"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Status HTTP esperado', function () {",
+          "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "ms_reportes_base_url",
+      "value": "http://localhost:8007",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_ofertada_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ms2_materia_ofertada_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_formato_pdf",
+      "value": "pdf",
+      "type": "string"
+    },
+    {
+      "key": "reporte_formato_xlsx",
+      "value": "xlsx",
+      "type": "string"
+    },
+    {
+      "key": "reporte_last_content_type",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_last_content_disposition",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_last_size_bytes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_calificaciones_pdf_content_type",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_calificaciones_pdf_content_disposition",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_calificaciones_pdf_size_bytes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_calificaciones_xlsx_content_type",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_calificaciones_xlsx_content_disposition",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_calificaciones_xlsx_size_bytes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_asistencias_pdf_content_type",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_asistencias_pdf_content_disposition",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_asistencias_pdf_size_bytes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_asistencias_xlsx_content_type",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_asistencias_xlsx_content_disposition",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_asistencias_xlsx_size_bytes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_docente_total_materias",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_docente_total_alumnos",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_docente_promedio_general",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_docente_promedio_asistencia",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_alumno_total_materias",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_alumno_promedio_general",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_alumno_promedio_asistencia",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_alumno_total_asistencias",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_reportes_base_url}}/",
+            "description": "Verifica que MS-7 esté levantado. Si tu implementación usa /api/v1/health, cambia únicamente esta URL.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Health responde 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - Reportes",
+      "description": "Descarga de reportes de calificaciones y asistencias en PDF/XLSX.",
+      "item": [
+        {
+          "name": "Descargar reporte calificaciones PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/api/v1/reportes/calificaciones/{{materia_id}}?formato={{reporte_formato_pdf}}",
+            "description": "Genera/descarga reporte de calificaciones en PDF para materia_id."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reporte descargado correctamente', function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "  pm.expect(pm.response.responseSize).to.be.above(0);",
+                  "});",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "const contentType = pm.response.headers.get('Content-Type');",
+                  "const contentDisposition = pm.response.headers.get('Content-Disposition');",
+                  "setVar('reporte_last_content_type', contentType);",
+                  "setVar('reporte_last_content_disposition', contentDisposition);",
+                  "setVar('reporte_last_size_bytes', pm.response.responseSize);",
+                  "setVar('reporte_calificaciones_pdf_content_type', contentType);",
+                  "setVar('reporte_calificaciones_pdf_content_disposition', contentDisposition);",
+                  "setVar('reporte_calificaciones_pdf_size_bytes', pm.response.responseSize);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar reporte calificaciones XLSX",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/api/v1/reportes/calificaciones/{{materia_id}}?formato={{reporte_formato_xlsx}}",
+            "description": "Genera/descarga reporte de calificaciones en XLSX para materia_id."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reporte descargado correctamente', function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "  pm.expect(pm.response.responseSize).to.be.above(0);",
+                  "});",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "const contentType = pm.response.headers.get('Content-Type');",
+                  "const contentDisposition = pm.response.headers.get('Content-Disposition');",
+                  "setVar('reporte_last_content_type', contentType);",
+                  "setVar('reporte_last_content_disposition', contentDisposition);",
+                  "setVar('reporte_last_size_bytes', pm.response.responseSize);",
+                  "setVar('reporte_calificaciones_xlsx_content_type', contentType);",
+                  "setVar('reporte_calificaciones_xlsx_content_disposition', contentDisposition);",
+                  "setVar('reporte_calificaciones_xlsx_size_bytes', pm.response.responseSize);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar reporte asistencias PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/api/v1/reportes/asistencias/{{materia_id}}?formato={{reporte_formato_pdf}}",
+            "description": "Genera/descarga reporte de asistencias en PDF para materia_id."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reporte descargado correctamente', function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "  pm.expect(pm.response.responseSize).to.be.above(0);",
+                  "});",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "const contentType = pm.response.headers.get('Content-Type');",
+                  "const contentDisposition = pm.response.headers.get('Content-Disposition');",
+                  "setVar('reporte_last_content_type', contentType);",
+                  "setVar('reporte_last_content_disposition', contentDisposition);",
+                  "setVar('reporte_last_size_bytes', pm.response.responseSize);",
+                  "setVar('reporte_asistencias_pdf_content_type', contentType);",
+                  "setVar('reporte_asistencias_pdf_content_disposition', contentDisposition);",
+                  "setVar('reporte_asistencias_pdf_size_bytes', pm.response.responseSize);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Descargar reporte asistencias XLSX",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/api/v1/reportes/asistencias/{{materia_id}}?formato={{reporte_formato_xlsx}}",
+            "description": "Genera/descarga reporte de asistencias en XLSX para materia_id."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reporte descargado correctamente', function () {",
+                  "  pm.expect(pm.response.code).to.eql(200);",
+                  "  pm.expect(pm.response.responseSize).to.be.above(0);",
+                  "});",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "const contentType = pm.response.headers.get('Content-Type');",
+                  "const contentDisposition = pm.response.headers.get('Content-Disposition');",
+                  "setVar('reporte_last_content_type', contentType);",
+                  "setVar('reporte_last_content_disposition', contentDisposition);",
+                  "setVar('reporte_last_size_bytes', pm.response.responseSize);",
+                  "setVar('reporte_asistencias_xlsx_content_type', contentType);",
+                  "setVar('reporte_asistencias_xlsx_content_disposition', contentDisposition);",
+                  "setVar('reporte_asistencias_xlsx_size_bytes', pm.response.responseSize);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Estadísticas",
+      "description": "Consultas de estadísticas por docente y por alumno.",
+      "item": [
+        {
+          "name": "Estadísticas docente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/api/v1/estadisticas/docente/{{docente_id}}",
+            "description": "Consulta estadísticas históricas/agregadas de un docente."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Estadísticas docente responden 200', function () { pm.response.to.have.status(200); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('estadisticas_docente_total_materias', data.total_materias || data.materias_total || data.materias);",
+                  "setVar('estadisticas_docente_total_alumnos', data.total_alumnos || data.alumnos_total || data.alumnos);",
+                  "setVar('estadisticas_docente_promedio_general', data.promedio_general || data.promedio || data.promedio_calificaciones);",
+                  "setVar('estadisticas_docente_promedio_asistencia', data.promedio_asistencia || data.porcentaje_asistencia || data.asistencia_promedio);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Estadísticas alumno",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/api/v1/estadisticas/alumno/{{alumno_id}}",
+            "description": "Consulta estadísticas históricas/agregadas de un alumno."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Estadísticas alumno responden 200', function () { pm.response.to.have.status(200); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('estadisticas_alumno_total_materias', data.total_materias || data.materias_total || data.materias);",
+                  "setVar('estadisticas_alumno_promedio_general', data.promedio_general || data.promedio || data.promedio_calificaciones);",
+                  "setVar('estadisticas_alumno_promedio_asistencia', data.promedio_asistencia || data.porcentaje_asistencia || data.asistencia_promedio);",
+                  "setVar('estadisticas_alumno_total_asistencias', data.total_asistencias || data.asistencias_total || data.asistencias);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
