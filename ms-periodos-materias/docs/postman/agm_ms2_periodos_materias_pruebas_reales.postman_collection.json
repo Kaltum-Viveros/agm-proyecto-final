@@ -1,0 +1,1832 @@
+{
+  "info": {
+    "name": "AGM - MS-2 Periodos & Materias - Pruebas reales",
+    "description": "Colección MS-2 basada en la colección probada del desarrollador. Mantiene sus carpetas y endpoints, pero agrega variables dinámicas, captura automática de IDs, paginación variable y header Authorization: Bearer {{access_token}} en las solicitudes protegidas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "40622f60-cd53-4455-8670-a7eccbf6908f"
+  },
+  "variable": [
+    {
+      "key": "ms_periodos_materias_base_url",
+      "value": "http://localhost:8002/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "base_url",
+      "value": "http://localhost:8002/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ms2_page",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "ms2_limit",
+      "value": "10",
+      "type": "string"
+    },
+    {
+      "key": "periodo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_activo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_nombre_actualizado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_fecha_inicio",
+      "value": "2030-01-01",
+      "type": "string"
+    },
+    {
+      "key": "periodo_fecha_fin",
+      "value": "2030-06-30",
+      "type": "string"
+    },
+    {
+      "key": "periodo_fecha_fin_actualizada",
+      "value": "2030-07-15",
+      "type": "string"
+    },
+    {
+      "key": "plan_estudio_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "plan_estudio_clave",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "plan_estudio_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_catalogo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_clave",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_plan_estudio_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_semestre",
+      "value": "6",
+      "type": "string"
+    },
+    {
+      "key": "materia_ofertada_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_nrc",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_seccion",
+      "value": "001",
+      "type": "string"
+    },
+    {
+      "key": "materia_horario_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_dia",
+      "value": "L",
+      "type": "string"
+    },
+    {
+      "key": "materia_hora_inicio",
+      "value": "17:00:00",
+      "type": "string"
+    },
+    {
+      "key": "materia_hora_fin",
+      "value": "18:59:00",
+      "type": "string"
+    },
+    {
+      "key": "materia_salon",
+      "value": "1CCO4/307",
+      "type": "string"
+    },
+    {
+      "key": "docente_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_nombre",
+      "value": "Docente externo MS-3",
+      "type": "string"
+    },
+    {
+      "key": "docente_nombre_actualizado",
+      "value": "Docente actualizado",
+      "type": "string"
+    },
+    {
+      "key": "importacion_filas_extraidas",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/health",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function uuidv4() {",
+                  "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+                  "    const r = Math.random() * 16 | 0;",
+                  "    const v = c === 'x' ? r : (r & 0x3 | 0x8);",
+                  "    return v.toString(16);",
+                  "  });",
+                  "}",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "const suffix = Date.now().toString().slice(-8);",
+                  "const nrc = String(10000 + Math.floor(Math.random() * 89999));",
+                  "setVar('ms2_run_suffix', suffix);",
+                  "setVar('periodo_nombre', `Primavera 2026 ${suffix}`);",
+                  "setVar('periodo_nombre_actualizado', `Otoño 2026 ${suffix}`);",
+                  "setVar('plan_estudio_clave', `ITI-${suffix}`);",
+                  "setVar('plan_estudio_nombre', `Ingeniería en Tecnologías de la Información ${suffix}`);",
+                  "setVar('materia_clave', `ITIS-${suffix}`.slice(0, 30));",
+                  "setVar('materia_nombre', `Programación Orientada a Objetos ${suffix}`);",
+                  "setVar('materia_nrc', nrc);",
+                  "setVar('materia_seccion', '001');",
+                  "setVar('materia_dia', 'L');",
+                  "setVar('materia_hora_inicio', '17:00:00');",
+                  "setVar('materia_hora_fin', '18:59:00');",
+                  "setVar('materia_salon', '1CCO4/307');",
+                  "setVar('docente_nombre', 'Docente externo MS-3');",
+                  "setVar('docente_nombre_actualizado', 'Docente actualizado');",
+                  "['periodo_id','periodo_activo_id','plan_estudio_id','materia_catalogo_id','materia_plan_estudio_id','materia_ofertada_id','materia_horario_id'].forEach(function (name) {",
+                  "  try { pm.environment.unset(name); } catch (e) {}",
+                  "  pm.collectionVariables.unset(name);",
+                  "});",
+                  "if (!getVar('docente_id')) setVar('docente_id', uuidv4());"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Health responde 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Database Health Check",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/health/db",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('DB health responde 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - Periodos",
+      "item": [
+        {
+          "name": "Listar periodos",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/periodos?page={{ms2_page}}&limit={{ms2_limit}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setIfMissing('periodo_id', item && (item.periodo_id || item.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear periodo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{periodo_nombre}}\",\n  \"fecha_inicio\": \"{{periodo_fecha_inicio}}\",\n  \"fecha_fin\": \"{{periodo_fecha_fin}}\",\n  \"activo\": false\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{ms_periodos_materias_base_url}}/periodos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('periodo_id', data.periodo_id || data.id || (item && (item.periodo_id || item.id)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener periodo activo",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/periodos/activo",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('periodo_activo_id', data.periodo_id || data.id || (item && (item.periodo_id || item.id)));",
+                  "setIfMissing('periodo_id', data.periodo_id || data.id || (item && (item.periodo_id || item.id)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Activar periodo",
+          "request": {
+            "method": "PATCH",
+            "url": "{{ms_periodos_materias_base_url}}/periodos/{{periodo_id}}/activar",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('periodo_id', data.periodo_id || data.id || (item && (item.periodo_id || item.id)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener periodo por id",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/periodos/{{periodo_id}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('periodo_id', data.periodo_id || data.id || (item && (item.periodo_id || item.id)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar periodo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"{{periodo_nombre_actualizado}}\",\n  \"fecha_fin\": \"{{periodo_fecha_fin_actualizada}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{ms_periodos_materias_base_url}}/periodos/{{periodo_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('periodo_id', data.periodo_id || data.id || (item && (item.periodo_id || item.id)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Desactivar periodo",
+          "request": {
+            "method": "DELETE",
+            "url": "{{ms_periodos_materias_base_url}}/periodos/{{periodo_id}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('periodo_id', data.periodo_id || data.id || (item && (item.periodo_id || item.id)));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Planes de estudio",
+      "item": [
+        {
+          "name": "Listar planes",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/planes-estudio?page={{ms2_page}}&limit={{ms2_limit}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setIfMissing('plan_estudio_id', item && (item.plan_estudio_id || item.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clave\": \"{{plan_estudio_clave}}\",\n  \"nombre\": \"{{plan_estudio_nombre}}\",\n  \"activo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{ms_periodos_materias_base_url}}/planes-estudio"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('plan_estudio_id', data.plan_estudio_id || data.id || (item && (item.plan_estudio_id || item.id)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener plan por id",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/planes-estudio/{{plan_estudio_id}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('plan_estudio_id', data.plan_estudio_id || data.id || (item && (item.plan_estudio_id || item.id)));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Materias catálogo",
+      "item": [
+        {
+          "name": "Listar materias catálogo",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/materias-catalogo?page={{ms2_page}}&limit={{ms2_limit}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setIfMissing('materia_catalogo_id', item && (item.materia_catalogo_id || item.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear materia catálogo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"clave\": \"{{materia_clave}}\",\n  \"nombre\": \"{{materia_nombre}}\",\n  \"activo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{ms_periodos_materias_base_url}}/materias-catalogo"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('materia_catalogo_id', data.materia_catalogo_id || data.id || (item && (item.materia_catalogo_id || item.id)));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener materia catálogo por id",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/materias-catalogo/{{materia_catalogo_id}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('materia_catalogo_id', data.materia_catalogo_id || data.id || (item && (item.materia_catalogo_id || item.id)));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Materias - Planes de estudio",
+      "item": [
+        {
+          "name": "Listar relaciones materia-plan",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/materias-planes-estudio?page={{ms2_page}}&limit={{ms2_limit}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setIfMissing('materia_plan_estudio_id', item && (item.materia_plan_estudio_id || item.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear relación materia-plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materia_catalogo_id\": \"{{materia_catalogo_id}}\",\n  \"plan_estudio_id\": \"{{plan_estudio_id}}\",\n  \"semestre\": {{materia_semestre}},\n  \"activo\": true\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{ms_periodos_materias_base_url}}/materias-planes-estudio"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('materia_plan_estudio_id', data.materia_plan_estudio_id || data.id || (item && (item.materia_plan_estudio_id || item.id)));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Materias ofertadas",
+      "item": [
+        {
+          "name": "Listar materias ofertadas",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas?page={{ms2_page}}&limit={{ms2_limit}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setIfMissing('materia_ofertada_id', item && (item.materia_ofertada_id || item.id));",
+                  "setIfMissing('materia_nrc', item && item.nrc);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear materia ofertada",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"periodo_id\": \"{{periodo_id}}\",\n  \"materia_catalogo_id\": \"{{materia_catalogo_id}}\",\n  \"nrc\": \"{{materia_nrc}}\",\n  \"seccion\": \"{{materia_seccion}}\",\n  \"docente_id\": \"{{docente_id}}\",\n  \"docente_nombre\": \"{{docente_nombre}}\",\n  \"estado\": \"ACTIVA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('materia_ofertada_id', data.materia_ofertada_id || data.id || (item && (item.materia_ofertada_id || item.id)));",
+                  "setIfMissing('materia_nrc', data.nrc || (item && item.nrc));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Activar materia ofertada",
+          "request": {
+            "method": "PATCH",
+            "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas/{{materia_ofertada_id}}/activar",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('materia_ofertada_id', data.materia_ofertada_id || data.id || (item && (item.materia_ofertada_id || item.id)));",
+                  "setIfMissing('materia_nrc', data.nrc || (item && item.nrc));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cerrar materia ofertada",
+          "request": {
+            "method": "PATCH",
+            "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas/{{materia_ofertada_id}}/cerrar",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "description": "Operación de estado terminal; ejecútala solo cuando ya no necesites modificar la materia en otros flujos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('materia_ofertada_id', data.materia_ofertada_id || data.id || (item && (item.materia_ofertada_id || item.id)));",
+                  "setIfMissing('materia_nrc', data.nrc || (item && item.nrc));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cancelar materia ofertada",
+          "request": {
+            "method": "PATCH",
+            "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas/{{materia_ofertada_id}}/cancelar",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "description": "Operación de estado terminal; ejecútala solo cuando ya no necesites modificar la materia en otros flujos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('materia_ofertada_id', data.materia_ofertada_id || data.id || (item && (item.materia_ofertada_id || item.id)));",
+                  "setIfMissing('materia_nrc', data.nrc || (item && item.nrc));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Asignar docente",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"docente_id\": \"{{docente_id}}\",\n  \"docente_nombre\": \"{{docente_nombre_actualizado}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas/{{materia_ofertada_id}}/asignar-docente"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('materia_ofertada_id', data.materia_ofertada_id || data.id || (item && (item.materia_ofertada_id || item.id)));",
+                  "setIfMissing('materia_nrc', data.nrc || (item && item.nrc));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 - Horarios",
+      "item": [
+        {
+          "name": "Listar horarios",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/materia-horarios?page={{ms2_page}}&limit={{ms2_limit}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setIfMissing('materia_horario_id', item && (item.materia_horario_id || item.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear horario",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materia_ofertada_id\": \"{{materia_ofertada_id}}\",\n  \"dia\": \"{{materia_dia}}\",\n  \"hora_inicio\": \"{{materia_hora_inicio}}\",\n  \"hora_fin\": \"{{materia_hora_fin}}\",\n  \"salon\": \"{{materia_salon}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": "{{ms_periodos_materias_base_url}}/materia-horarios"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('materia_horario_id', data.materia_horario_id || data.id || (item && (item.materia_horario_id || item.id)));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07 - Materias académicas",
+      "item": [
+        {
+          "name": "Listar materias académicas",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/materias?page={{ms2_page}}&limit={{ms2_limit}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setIfMissing('materia_ofertada_id', item && (item.materia_ofertada_id || item.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Materias por periodo",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/materias/periodo/{{periodo_id}}?page={{ms2_page}}&limit={{ms2_limit}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setIfMissing('materia_ofertada_id', item && (item.materia_ofertada_id || item.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Materias por docente",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/materias/docente/{{docente_id}}?page={{ms2_page}}&limit={{ms2_limit}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setIfMissing('materia_ofertada_id', item && (item.materia_ofertada_id || item.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Materias del periodo activo",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/materias/periodo-activo?page={{ms2_page}}&limit={{ms2_limit}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('periodo_activo_id', data.periodo_id || data.id || (item && (item.periodo_id || item.id)));",
+                  "setIfMissing('periodo_id', data.periodo_id || data.id || (item && (item.periodo_id || item.id)));",
+                  "setIfMissing('materia_ofertada_id', item && (item.materia_ofertada_id || item.id));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Materia académica por id",
+          "request": {
+            "method": "GET",
+            "url": "{{ms_periodos_materias_base_url}}/materias/{{materia_ofertada_id}}",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setIfMissing('materia_ofertada_id', item && (item.materia_ofertada_id || item.id));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "08 - Importación PDF",
+      "item": [
+        {
+          "name": "Importar programación académica",
+          "request": {
+            "method": "POST",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "periodo_id",
+                  "value": "{{periodo_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "plan_estudio_id",
+                  "value": "{{plan_estudio_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "archivo",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            },
+            "url": "{{ms_periodos_materias_base_url}}/importaciones/programacion-academica",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}"
+              }
+            ]
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstItem(json) {",
+                  "  const root = dataRoot(json);",
+                  "  if (Array.isArray(root)) return root[0];",
+                  "  if (root && Array.isArray(root.items)) return root.items[0];",
+                  "  if (root && Array.isArray(root.results)) return root.results[0];",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data[0];",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items[0];",
+                  "  return root;",
+                  "}",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = dataRoot(json);",
+                  "const item = firstItem(json);",
+                  "setVar('importacion_filas_extraidas', data.filas_extraidas || data.total_filas || data.procesadas || data.importadas);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "function uuidv4() {",
+          "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+          "    const r = Math.random() * 16 | 0;",
+          "    const v = c === 'x' ? r : (r & 0x3 | 0x8);",
+          "    return v.toString(16);",
+          "  });",
+          "}",
+          "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+          "function setVar(name, value) {",
+          "  if (value === undefined || value === null || value === '') return;",
+          "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+          "  pm.collectionVariables.set(name, String(value));",
+          "}",
+          "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+          "setIfMissing('ms_periodos_materias_base_url', 'http://localhost:8002/api/v1');",
+          "setIfMissing('base_url', getVar('ms_periodos_materias_base_url') || 'http://localhost:8002/api/v1');",
+          "if (!getVar('access_token') && getVar('admin_access_token')) setVar('access_token', getVar('admin_access_token'));",
+          "setIfMissing('ms2_page', '1');",
+          "setIfMissing('ms2_limit', '10');",
+          "setIfMissing('periodo_fecha_inicio', '2030-01-01');",
+          "setIfMissing('periodo_fecha_fin', '2030-06-30');",
+          "setIfMissing('periodo_fecha_fin_actualizada', '2030-07-15');",
+          "setIfMissing('materia_semestre', '6');",
+          "setIfMissing('materia_seccion', '001');",
+          "setIfMissing('materia_dia', 'L');",
+          "setIfMissing('materia_hora_inicio', '17:00:00');",
+          "setIfMissing('materia_hora_fin', '18:59:00');",
+          "setIfMissing('materia_salon', '1CCO4/307');",
+          "setIfMissing('docente_nombre', 'Docente externo MS-3');",
+          "setIfMissing('docente_nombre_actualizado', 'Docente actualizado');"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Status HTTP esperado', function () {",
+          "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+          "});",
+          "let json = {};",
+          "try { json = pm.response.json(); } catch (e) { json = {}; }",
+          "if (Object.prototype.hasOwnProperty.call(json, 'success')) {",
+          "  pm.test('Respuesta success=true', function () { pm.expect(json.success).to.eql(true); });",
+          "}"
+        ]
+      }
+    }
+  ]
+}

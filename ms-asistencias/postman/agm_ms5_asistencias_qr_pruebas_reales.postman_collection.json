@@ -1,0 +1,580 @@
+{
+  "info": {
+    "_postman_id": "ccd9cd88-789c-45a7-b0d5-e946e772a803",
+    "name": "AGM - MS-5 Asistencias QR - Pruebas reales",
+    "description": "Colección ajustada para MS-5 Asistencias QR. Mantiene el flujo de la colección base: health, inicio/detalle/cierre de sesión, generación de QR por alumno, registro de asistencia por docente, historial, asistencias del día y estadísticas. Usa variables del environment AGM y guarda automáticamente id_sesion/token_cifrado/resultados para encadenar pruebas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "function getVar(name) {",
+          "  return pm.environment.get(name) || pm.collectionVariables.get(name);",
+          "}",
+          "",
+          "function setVar(name, value) {",
+          "  if (value === undefined || value === null || value === '') return;",
+          "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+          "  pm.collectionVariables.set(name, String(value));",
+          "}",
+          "",
+          "function setIfMissing(name, value) {",
+          "  if (!getVar(name)) setVar(name, value);",
+          "}",
+          "",
+          "function isPlaceholder(value) {",
+          "  if (!value) return true;",
+          "  return String(value).includes('INGRESA') || String(value).includes('AQUI') || String(value).includes('Pega_aqui');",
+          "}",
+          "",
+          "setIfMissing('ms_asistencias_base_url', 'http://localhost:8005');",
+          "",
+          "// Compatibilidad con la colección original del MS-5.",
+          "if (!getVar('docente_access_token') && !isPlaceholder(getVar('bearerTokenDocente'))) {",
+          "  setVar('docente_access_token', getVar('bearerTokenDocente'));",
+          "}",
+          "if (!getVar('alumno_access_token') && !isPlaceholder(getVar('bearerTokenAlumno'))) {",
+          "  setVar('alumno_access_token', getVar('bearerTokenAlumno'));",
+          "}",
+          "",
+          "// Fallback práctico: si estás autenticado como docente en access_token, úsalo para endpoints de docente.",
+          "if (!getVar('docente_access_token') && getVar('access_token')) {",
+          "  setVar('docente_access_token', getVar('access_token'));",
+          "}",
+          "",
+          "// Si MS-2/MS-3 ya dejaron una materia en el environment, úsala como id_materia.",
+          "if (!getVar('id_materia') && getVar('materia_id')) {",
+          "  setVar('id_materia', getVar('materia_id'));",
+          "}",
+          "if (!getVar('id_materia') && getVar('materia_ofertada_id')) {",
+          "  setVar('id_materia', getVar('materia_ofertada_id'));",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Status HTTP esperado', function () {",
+          "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "ms_asistencias_base_url",
+      "value": "http://localhost:8005",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bearerTokenDocente",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "bearerTokenAlumno",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "id_materia",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "id_sesion",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sesion_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_cifrado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "qr_token_cifrado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_estado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_historial_total",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_presentes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_retardos",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_ausentes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_porcentaje",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - General",
+      "item": [
+        {
+          "name": "Health Check / Estado de Salud",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_asistencias_base_url}}/",
+            "description": "Verifica el estado operacional básico y disponibilidad del microservicio."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Health responde 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - Sesiones",
+      "description": "Flujo docente: abrir una sesión de asistencia y consultar sus detalles. El cierre queda al final para no cortar el flujo QR.",
+      "item": [
+        {
+          "name": "Iniciar sesión de asistencia",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/sesiones/iniciar",
+            "description": "Abre una nueva sesión de asistencia activa para una materia específica. Requiere token de DOCENTE.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_materia\": \"{{id_materia}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Sesión iniciada', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('id_sesion', data.id_sesion || data.sesion_id || data.id || data.session_id);",
+                  "setVar('sesion_id', data.id_sesion || data.sesion_id || data.id || data.session_id);",
+                  "setVar('id_materia', data.id_materia || data.materia_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener detalles de sesión",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/sesiones/{{id_sesion}}",
+            "description": "Retorna la información y metadatos de la sesión de asistencia."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('id_sesion', data.id_sesion || data.sesion_id || data.id || data.session_id);",
+                  "setVar('sesion_estado', data.estado || data.status);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Generación QR",
+      "description": "Flujo alumno: generar el token cifrado que representaría el QR dinámico.",
+      "item": [
+        {
+          "name": "Generar token QR para alumno",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/qr/generar",
+            "description": "Genera el payload/token cifrado del QR dinámico del alumno. Requiere token de ALUMNO.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_sesion\": \"{{id_sesion}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('QR generado', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "const token = data.token_cifrado || data.qr_token || data.token || data.codigo_qr || data.qr || data.payload;",
+                  "setVar('token_cifrado', token);",
+                  "setVar('qr_token_cifrado', token);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Registros de asistencia",
+      "description": "Flujo docente: registrar el QR escaneado, consultar historial y estadísticas.",
+      "item": [
+        {
+          "name": "Registrar asistencia (escanear QR)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/asistencias/registrar",
+            "description": "El docente procesa el token QR cifrado escaneado al dispositivo del alumno.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token_cifrado\": \"{{token_cifrado}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Asistencia registrada', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('asistencia_id', data.asistencia_id || data.id);",
+                  "setVar('asistencia_estado', data.estado || data.status);",
+                  "setVar('asistencia_alumno_id', data.alumno_id || data.id_alumno);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener historial de sesión",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/asistencias/{{id_sesion}}/historial",
+            "description": "Retorna el historial completo de alumnos que registraron asistencia en una sesión."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "let items = [];",
+                  "if (Array.isArray(data)) items = data;",
+                  "else if (Array.isArray(data.items)) items = data.items;",
+                  "else if (Array.isArray(data.asistencias)) items = data.asistencias;",
+                  "else if (Array.isArray(data.registros)) items = data.registros;",
+                  "setVar('asistencia_historial_total', items.length);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar asistencias de la materia hoy",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/asistencias/{{id_materia}}/hoy",
+            "description": "Devuelve la lista de asistencias capturadas hoy para la materia indicada."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "let items = [];",
+                  "if (Array.isArray(data)) items = data;",
+                  "else if (Array.isArray(data.items)) items = data.items;",
+                  "else if (Array.isArray(data.asistencias)) items = data.asistencias;",
+                  "else if (Array.isArray(data.registros)) items = data.registros;",
+                  "setVar('asistencia_historial_total', items.length);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener estadísticas de sesión",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/asistencias/sesion/{{id_sesion}}/estadisticas",
+            "description": "Calcula presentes, retardos, ausentes y porcentaje global de la sesión."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('asistencia_presentes', data.presentes);",
+                  "setVar('asistencia_retardos', data.retardos);",
+                  "setVar('asistencia_ausentes', data.ausentes);",
+                  "setVar('asistencia_porcentaje', data.porcentaje || data.porcentaje_asistencia);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Cierre",
+      "description": "Operación terminal. Ejecutar hasta el final porque cierra la sesión y puede asentar ausentes.",
+      "item": [
+        {
+          "name": "Cerrar sesión manualmente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/sesiones/{{id_sesion}}/cerrar",
+            "description": "Cierra la sesión de forma manual. Dejar al final del flujo."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Sesión cerrada', function () { pm.expect(pm.response.code).to.be.oneOf([200, 202, 204]); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('sesion_estado', data.estado || data.status || 'CERRADA');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

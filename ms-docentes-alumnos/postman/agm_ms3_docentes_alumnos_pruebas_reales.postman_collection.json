@@ -174,6 +174,41 @@
       "key": "alumno_baja_materia_id",
       "value": "",
       "type": "string"
+    },
+    {
+      "key": "docente_nombre_actualizado",
+      "value": "{{docente_nombre}} Actualizado",
+      "type": "string"
+    },
+    {
+      "key": "docente_cubiculo_actualizado",
+      "value": "CCO3-206",
+      "type": "string"
+    },
+    {
+      "key": "docente_horario_atencion_actualizado",
+      "value": "Martes 12:00-14:00",
+      "type": "string"
+    },
+    {
+      "key": "docente_estatus_laboral",
+      "value": "true",
+      "type": "string"
+    },
+    {
+      "key": "alumno_nombre_actualizado",
+      "value": "{{alumno_nombre}} Actualizado",
+      "type": "string"
+    },
+    {
+      "key": "alumno_estatus_academico",
+      "value": "true",
+      "type": "string"
+    },
+    {
+      "key": "alumno_tipo_formacion_actualizado",
+      "value": "Licenciatura",
+      "type": "string"
     }
   ],
   "item": [
@@ -181,7 +216,7 @@
       "name": "00 - Health",
       "item": [
         {
-          "name": "00.1 Health Check",
+          "name": "Health Check",
           "request": {
             "method": "GET",
             "header": [],
@@ -209,7 +244,7 @@
       "description": "Flujo real del administrador: importar el directorio institucional de docentes desde PDF y consultar el catálogo.",
       "item": [
         {
-          "name": "01.1 Importar docentes PDF",
+          "name": "Importar docentes PDF",
           "request": {
             "method": "POST",
             "header": [
@@ -263,7 +298,7 @@
           ]
         },
         {
-          "name": "01.2 Listar docentes",
+          "name": "Listar docentes",
           "request": {
             "method": "GET",
             "header": [
@@ -318,7 +353,7 @@
       "description": "Flujo real del docente/admin: importar alumnos por archivo de lista y verificar alumnos/inscripciones generadas.",
       "item": [
         {
-          "name": "02.1 Importar alumnos por archivo",
+          "name": "Importar alumnos por archivo",
           "request": {
             "method": "POST",
             "header": [
@@ -372,7 +407,7 @@
           ]
         },
         {
-          "name": "02.2 Listar alumnos",
+          "name": "Listar alumnos",
           "request": {
             "method": "GET",
             "header": [
@@ -422,7 +457,7 @@
           ]
         },
         {
-          "name": "02.3 Listar inscripciones",
+          "name": "Listar inscripciones",
           "request": {
             "method": "GET",
             "header": [
@@ -480,7 +515,7 @@
       "description": "Solo endpoints faltantes del MS-3 que el documento marca explícitamente como REST externos: GET /alumnos/materia/:materiaId y DELETE /alumnos/:id/baja. No incluye CRUD físico ni altas manuales.",
       "item": [
         {
-          "name": "03.1 Obtener alumnos de una materia",
+          "name": "Obtener alumnos de una materia",
           "request": {
             "method": "GET",
             "header": [
@@ -530,7 +565,7 @@
           ]
         },
         {
-          "name": "03.2 Baja de alumno en materia",
+          "name": "Baja de alumno en materia",
           "request": {
             "method": "DELETE",
             "header": [
@@ -560,6 +595,198 @@
                   "}",
                   "setVar('alumno_baja_id', pm.environment.get('alumno_id') || pm.collectionVariables.get('alumno_id'));",
                   "setVar('alumno_baja_materia_id', pm.environment.get('materia_ofertada_id') || pm.collectionVariables.get('materia_ofertada_id'));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Edición puntual de docentes y alumnos",
+      "description": "Requests agregados sin eliminar ni mover los existentes: consulta por ID y actualización de docente/alumno.",
+      "item": [
+        {
+          "name": "Obtener docente por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/docentes/{{docente_id}}",
+            "description": "Consulta un docente específico por ID. Usa docente_id capturado desde la importación/listado o cargado en el environment."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('docente_id', data.docente_id || data.id);",
+                  "setVar('docente_user_id', data.user_id);",
+                  "setVar('docente_correo', data.correo || data.email);",
+                  "setVar('docente_nombre', data.nombre_completo || data.nombre);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar docente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/docentes/{{docente_id}}",
+            "description": "Actualiza campos editables del docente. Ejecutar después de tener docente_id válido.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_completo\": \"{{docente_nombre_actualizado}}\",\n  \"cubiculo\": \"{{docente_cubiculo_actualizado}}\",\n  \"horario_atencion\": \"{{docente_horario_atencion_actualizado}}\",\n  \"estatus_laboral\": {{docente_estatus_laboral}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('docente_id', data.docente_id || data.id);",
+                  "setVar('docente_user_id', data.user_id);",
+                  "setVar('docente_correo', data.correo || data.email);",
+                  "setVar('docente_nombre', data.nombre_completo || data.nombre);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener alumno por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/alumnos/{{alumno_id}}",
+            "description": "Consulta un alumno específico por ID. Usa alumno_id capturado desde importación/listado/alumnos por materia o cargado en el environment."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('alumno_id', data.alumno_id || data.id);",
+                  "setVar('alumno_user_id', data.user_id);",
+                  "setVar('alumno_correo', data.correo || data.email);",
+                  "setVar('alumno_matricula', data.matricula);",
+                  "setVar('alumno_nombre', data.nombre_completo || data.nombre);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar alumno",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token generado por MS-1 Auth"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/alumnos/{{alumno_id}}",
+            "description": "Actualiza campos editables del alumno. Ejecutar después de tener alumno_id válido.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_completo\": \"{{alumno_nombre_actualizado}}\",\n  \"estatus_academico\": {{alumno_estatus_academico}},\n  \"tipo_formacion\": \"{{alumno_tipo_formacion_actualizado}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "setVar('alumno_id', data.alumno_id || data.id);",
+                  "setVar('alumno_user_id', data.user_id);",
+                  "setVar('alumno_correo', data.correo || data.email);",
+                  "setVar('alumno_matricula', data.matricula);",
+                  "setVar('alumno_nombre', data.nombre_completo || data.nombre);"
                 ]
               }
             }

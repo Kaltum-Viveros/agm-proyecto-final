@@ -125,7 +125,7 @@
       "name": "00 - Health",
       "item": [
         {
-          "name": "00.1 Health Check",
+          "name": "Health Check",
           "request": {
             "method": "GET",
             "header": [
@@ -157,7 +157,7 @@
       "description": "Smoke tests REST del MS-6. Todos usan header Authorization: Bearer {{access_token}}.",
       "item": [
         {
-          "name": "01.1 Enviar bienvenida",
+          "name": "Enviar bienvenida",
           "request": {
             "method": "POST",
             "header": [
@@ -217,7 +217,7 @@
           ]
         },
         {
-          "name": "01.2 Enviar notificación de baja",
+          "name": "Enviar notificación de baja",
           "request": {
             "method": "POST",
             "header": [
@@ -277,7 +277,7 @@
           ]
         },
         {
-          "name": "01.3 Enviar cierre de materia",
+          "name": "Enviar cierre de materia",
           "request": {
             "method": "POST",
             "header": [
@@ -337,7 +337,7 @@
           ]
         },
         {
-          "name": "01.4 Enviar reset password",
+          "name": "Enviar reset password",
           "request": {
             "method": "POST",
             "header": [
