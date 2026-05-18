@@ -42,7 +42,7 @@ def generate_calificaciones_pdf(materia_data: dict, alumnos: list, concentrado_a
         c_data = concentrado_dict.get(al.alumno_id, {})
         prom_real = c_data.get('real', 0.0)
         prom_redon = c_data.get('redondeado', 0)
-        estado = "Aprobado" if prom_redon >= 70 else "Reprobado"
+        estado = "Aprobado" if prom_redon >= 6 else "Reprobado"
         
         data.append([
             al.matricula,

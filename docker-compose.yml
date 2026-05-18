@@ -150,6 +150,7 @@ services:
       - GRPC_PORT=50054
       - DATABASE_URL=postgresql://calificaciones_user:calificaciones_pass@calificaciones_db:5432/agm_calificaciones_db
       - MS_ALUMNOS_GRPC_URL=ms-docentes-alumnos:50053
+      - STORAGE_MODE=database
     depends_on:
       - calificaciones_db
       - ms-docentes-alumnos

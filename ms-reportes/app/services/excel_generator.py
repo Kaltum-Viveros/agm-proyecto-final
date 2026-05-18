@@ -49,7 +49,7 @@ def generate_calificaciones_excel(materia_data: dict, alumnos: list, concentrado
         c_data = concentrado_dict.get(al.alumno_id, {})
         prom_real = c_data.get('real', 0.0)
         prom_redon = c_data.get('redondeado', 0)
-        estado = "Aprobado" if prom_redon >= 70 else "Reprobado"
+        estado = "Aprobado" if prom_redon >= 6 else "Reprobado"
         
         ws.cell(row=row_num, column=1, value=al.matricula)
         ws.cell(row=row_num, column=2, value=al.nombre_completo)

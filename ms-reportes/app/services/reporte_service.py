@@ -76,6 +76,7 @@ class ReporteService:
             "size_bytes": len(file_bytes),
             "estado": "GENERADO"
         }
+        await self.repository.create(registro)
         return file_bytes, filename, content_type
 
     async def generar_reporte_asistencias(self, materia_id: str, formato: str):
@@ -246,7 +247,7 @@ class ReporteService:
                 "materia_id": m_id,
                 "nrc": materia_info.nrc if materia_info else "N/A",
                 "nombre_materia": materia_info.materia.nombre if materia_info and materia_info.HasField("materia") else "N/A",
-                "promedio": promedio.promedio if promedio else 0.0,
+                "promedio": promedio.promedio_real if promedio else 0.0,
                 "presentes": presentes,
                 "retardos": retardos,
                 "porcentaje_asistencia": porcentaje_asist
