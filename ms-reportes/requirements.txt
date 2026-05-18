@@ -1,6 +1,10 @@
 fastapi[standard]
 uvicorn[standard]
 pydantic-settings
-python-dotenv
-SQLAlchemy
-psycopg2-binary
+SQLAlchemy[asyncio]
+asyncpg
+alembic
+grpcio
+grpcio-tools
+protobuf
+gunicorn

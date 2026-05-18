@@ -1,20 +1,26 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
 from sqlalchemy import text
-from app.core.database import get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.config import settings
+from app.db.session import get_db
 
 router = APIRouter()
 
+
 @router.get("/")
-def health_check(db: Session = Depends(get_db)):
+async def health_check(db: AsyncSession = Depends(get_db)):
+    """Verifica que el servicio y la base de datos estén operativos."""
     try:
-        db.execute(text("SELECT 1"))
+        await db.execute(text("SELECT 1"))
         db_status = "ok"
-    except Exception as e:
-        db_status = str(e)
-        
+    except Exception as exc:
+        db_status = str(exc)
+
     return {
-        "service": "ms-reportes",
+        "service": settings.SERVICE_NAME,
+        "version": "1.0.0",
+        "environment": settings.ENVIRONMENT,
         "status": "ok",
-        "database": db_status
+        "database": db_status,
     }
