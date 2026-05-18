@@ -21,20 +21,22 @@ class Settings(BaseSettings):
     AUTH_GRPC_PORT: int = 50051
 
     # MS-Periodos-Materias (MS-2)
-    MATERIAS_GRPC_HOST: str = "ms-periodos-materias"
-    MATERIAS_GRPC_PORT: int = 50052
+    PERIODOS_MATERIAS_GRPC_HOST: str = "ms-periodos-materias"
+    PERIODOS_MATERIAS_GRPC_PORT: int = 50052
 
     # MS-Docentes-Alumnos (MS-3)
-    ALUMNOS_GRPC_HOST: str = "ms-docentes-alumnos"
-    ALUMNOS_GRPC_PORT: int = 50053
+    DOCENTES_ALUMNOS_GRPC_HOST: str = "ms-docentes-alumnos"
+    DOCENTES_ALUMNOS_GRPC_PORT: int = 50053
 
     # MS-Calificaciones (MS-4)
     CALIFICACIONES_GRPC_HOST: str = "ms-calificaciones"
     CALIFICACIONES_GRPC_PORT: int = 50054
 
     # MS-Asistencias (MS-5)
-    ASISTENCIAS_GRPC_HOST: str = "ms-asistencias"
+    ASISTENCIAS_GRPC_HOST: str = "ms-asistencias-grpc"
     ASISTENCIAS_GRPC_PORT: int = 50055
+
+    GRPC_TIMEOUT_SECONDS: int = 5
 
     model_config = SettingsConfigDict(
         env_file=".env",
