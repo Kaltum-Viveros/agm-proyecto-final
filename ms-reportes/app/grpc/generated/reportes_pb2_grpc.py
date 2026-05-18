@@ -3,6 +3,7 @@
 import grpc
 import warnings
 
+from app.grpc.generated import reportes_pb2 as reportes__pb2
 
 GRPC_GENERATED_VERSION = '1.68.1'
 GRPC_VERSION = grpc.__version__
@@ -22,3 +23,118 @@ if _version_not_supported:
         + f' Please upgrade your grpc module to grpcio>={GRPC_GENERATED_VERSION}'
         + f' or downgrade your generated code using grpcio-tools<={GRPC_VERSION}.'
     )
+
+
+class ReportesServiceStub(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def __init__(self, channel):
+        """Constructor.
+
+        Args:
+            channel: A grpc.Channel.
+        """
+        self.GenerateReport = channel.unary_unary(
+                '/reportes.ReportesService/GenerateReport',
+                request_serializer=reportes__pb2.GenerateReportRequest.SerializeToString,
+                response_deserializer=reportes__pb2.FileBytesResponse.FromString,
+                _registered_method=True)
+        self.GetHistorialDocente = channel.unary_unary(
+                '/reportes.ReportesService/GetHistorialDocente',
+                request_serializer=reportes__pb2.GetHistorialDocenteRequest.SerializeToString,
+                response_deserializer=reportes__pb2.HistorialDocenteResponse.FromString,
+                _registered_method=True)
+
+
+class ReportesServiceServicer(object):
+    """Missing associated documentation comment in .proto file."""
+
+    def GenerateReport(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetHistorialDocente(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+
+def add_ReportesServiceServicer_to_server(servicer, server):
+    rpc_method_handlers = {
+            'GenerateReport': grpc.unary_unary_rpc_method_handler(
+                    servicer.GenerateReport,
+                    request_deserializer=reportes__pb2.GenerateReportRequest.FromString,
+                    response_serializer=reportes__pb2.FileBytesResponse.SerializeToString,
+            ),
+            'GetHistorialDocente': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetHistorialDocente,
+                    request_deserializer=reportes__pb2.GetHistorialDocenteRequest.FromString,
+                    response_serializer=reportes__pb2.HistorialDocenteResponse.SerializeToString,
+            ),
+    }
+    generic_handler = grpc.method_handlers_generic_handler(
+            'reportes.ReportesService', rpc_method_handlers)
+    server.add_generic_rpc_handlers((generic_handler,))
+    server.add_registered_method_handlers('reportes.ReportesService', rpc_method_handlers)
+
+
+ # This class is part of an EXPERIMENTAL API.
+class ReportesService(object):
+    """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def GenerateReport(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/reportes.ReportesService/GenerateReport',
+            reportes__pb2.GenerateReportRequest.SerializeToString,
+            reportes__pb2.FileBytesResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def GetHistorialDocente(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/reportes.ReportesService/GetHistorialDocente',
+            reportes__pb2.GetHistorialDocenteRequest.SerializeToString,
+            reportes__pb2.HistorialDocenteResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)

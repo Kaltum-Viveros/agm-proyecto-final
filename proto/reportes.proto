@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+package reportes;
+
+service ReportesService {
+    rpc GenerateReport (GenerateReportRequest) returns (FileBytesResponse);
+    rpc GetHistorialDocente (GetHistorialDocenteRequest) returns (HistorialDocenteResponse);
+}
+
+message GenerateReportRequest {
+    string tipo = 1;
+    string formato = 2;
+    string materia_id = 3;
+    optional string docente_id = 4;
+    optional string periodo_id = 5;
+}
+
+message FileBytesResponse {
+    bool success = 1;
+    string filename = 2;
+    string content_type = 3;
+    bytes file = 4;
+    string message = 5;
+}
+
+message GetHistorialDocenteRequest {
+    string docente_id = 1;
+}
+
+message StatsMateriaPeriodo {
+    string periodo_id = 1;
+    string periodo_nombre = 2;
+    string materia_id = 3;
+    string materia_nombre = 4;
+    string nrc = 5;
+    double promedio_grupal = 6;
+    int32 aprobados = 7;
+    int32 reprobados = 8;
+    double porcentaje_asistencia = 9;
+}
+
+message StatsPeriodo {
+    string periodo_id = 1;
+    string periodo_nombre = 2;
+    repeated StatsMateriaPeriodo materias = 3;
+}
+
+message HistorialDocenteResponse {
+    bool success = 1;
+    repeated StatsPeriodo periodos = 2;
+    string message = 3;
+}

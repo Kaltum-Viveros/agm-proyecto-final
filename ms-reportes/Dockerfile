@@ -21,4 +21,4 @@ COPY . .
 # 50057 -> gRPC
 EXPOSE 8007 50057
 
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8007", "app.main:app"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8007"]

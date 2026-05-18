@@ -24,11 +24,25 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0ereportes.proto')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x0ereportes.proto\x12\x08reportes\"\x9a\x01\n\x15GenerateReportRequest\x12\x0c\n\x04tipo\x18\x01 \x01(\t\x12\x0f\n\x07\x66ormato\x18\x02 \x01(\t\x12\x12\n\nmateria_id\x18\x03 \x01(\t\x12\x17\n\ndocente_id\x18\x04 \x01(\tH\x00\x88\x01\x01\x12\x17\n\nperiodo_id\x18\x05 \x01(\tH\x01\x88\x01\x01\x42\r\n\x0b_docente_idB\r\n\x0b_periodo_id\"k\n\x11\x46ileBytesResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\x14\n\x0c\x63ontent_type\x18\x03 \x01(\t\x12\x0c\n\x04\x66ile\x18\x04 \x01(\x0c\x12\x0f\n\x07message\x18\x05 \x01(\t\"0\n\x1aGetHistorialDocenteRequest\x12\x12\n\ndocente_id\x18\x01 \x01(\t\"\xd9\x01\n\x13StatsMateriaPeriodo\x12\x12\n\nperiodo_id\x18\x01 \x01(\t\x12\x16\n\x0eperiodo_nombre\x18\x02 \x01(\t\x12\x12\n\nmateria_id\x18\x03 \x01(\t\x12\x16\n\x0emateria_nombre\x18\x04 \x01(\t\x12\x0b\n\x03nrc\x18\x05 \x01(\t\x12\x17\n\x0fpromedio_grupal\x18\x06 \x01(\x01\x12\x11\n\taprobados\x18\x07 \x01(\x05\x12\x12\n\nreprobados\x18\x08 \x01(\x05\x12\x1d\n\x15porcentaje_asistencia\x18\t \x01(\x01\"k\n\x0cStatsPeriodo\x12\x12\n\nperiodo_id\x18\x01 \x01(\t\x12\x16\n\x0eperiodo_nombre\x18\x02 \x01(\t\x12/\n\x08materias\x18\x03 \x03(\x0b\x32\x1d.reportes.StatsMateriaPeriodo\"f\n\x18HistorialDocenteResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\x12(\n\x08periodos\x18\x02 \x03(\x0b\x32\x16.reportes.StatsPeriodo\x12\x0f\n\x07message\x18\x03 \x01(\t2\xc2\x01\n\x0fReportesService\x12N\n\x0eGenerateReport\x12\x1f.reportes.GenerateReportRequest\x1a\x1b.reportes.FileBytesResponse\x12_\n\x13GetHistorialDocente\x12$.reportes.GetHistorialDocenteRequest\x1a\".reportes.HistorialDocenteResponseb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'reportes_pb2', _globals)
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
+  _globals['_GENERATEREPORTREQUEST']._serialized_start=29
+  _globals['_GENERATEREPORTREQUEST']._serialized_end=183
+  _globals['_FILEBYTESRESPONSE']._serialized_start=185
+  _globals['_FILEBYTESRESPONSE']._serialized_end=292
+  _globals['_GETHISTORIALDOCENTEREQUEST']._serialized_start=294
+  _globals['_GETHISTORIALDOCENTEREQUEST']._serialized_end=342
+  _globals['_STATSMATERIAPERIODO']._serialized_start=345
+  _globals['_STATSMATERIAPERIODO']._serialized_end=562
+  _globals['_STATSPERIODO']._serialized_start=564
+  _globals['_STATSPERIODO']._serialized_end=671
+  _globals['_HISTORIALDOCENTERESPONSE']._serialized_start=673
+  _globals['_HISTORIALDOCENTERESPONSE']._serialized_end=775
+  _globals['_REPORTESSERVICE']._serialized_start=778
+  _globals['_REPORTESSERVICE']._serialized_end=972
 # @@protoc_insertion_point(module_scope)
