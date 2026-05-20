@@ -304,7 +304,7 @@
       "description": "Verifica disponibilidad de los microservicios usados en el flujo del alumno.",
       "item": [
         {
-          "name": "MS-1 Auth Health",
+          "name": "MS-1: Auth Health",
           "request": {
             "method": "GET",
             "header": [],
@@ -328,7 +328,7 @@
           ]
         },
         {
-          "name": "MS-2 Periodos/Materias Health",
+          "name": "MS-2: Periodos/Materias Health",
           "request": {
             "method": "GET",
             "header": [],
@@ -352,7 +352,7 @@
           ]
         },
         {
-          "name": "MS-3 Docentes/Alumnos Health",
+          "name": "MS-3: Docentes/Alumnos Health",
           "request": {
             "method": "GET",
             "header": [],
@@ -376,7 +376,7 @@
           ]
         },
         {
-          "name": "MS-4 Calificaciones Health",
+          "name": "MS-4: Calificaciones Health",
           "request": {
             "method": "GET",
             "header": [],
@@ -400,7 +400,7 @@
           ]
         },
         {
-          "name": "MS-5 Asistencias QR Health",
+          "name": "MS-5: Asistencias QR Health",
           "request": {
             "method": "GET",
             "header": [],
@@ -424,7 +424,7 @@
           ]
         },
         {
-          "name": "MS-6 Notificaciones Health",
+          "name": "MS-6: Notificaciones Health",
           "request": {
             "method": "GET",
             "header": [],
@@ -448,7 +448,7 @@
           ]
         },
         {
-          "name": "MS-7 Reportes/Estadísticas Health",
+          "name": "MS-7: Reportes/Estadísticas Health",
           "request": {
             "method": "GET",
             "header": [],
@@ -478,7 +478,7 @@
       "description": "Autenticación del alumno: login, validación de token y refresh.",
       "item": [
         {
-          "name": "01.1 Login alumno",
+          "name": "MS-1: Login alumno",
           "request": {
             "method": "POST",
             "header": [
@@ -542,7 +542,7 @@
           ]
         },
         {
-          "name": "01.2 Validar sesión /auth/me",
+          "name": "MS-1: Validar sesión /auth/me",
           "request": {
             "method": "GET",
             "header": [
@@ -594,7 +594,7 @@
           ]
         },
         {
-          "name": "01.3 Refresh token alumno",
+          "name": "MS-1: Refresh token alumno",
           "request": {
             "method": "POST",
             "header": [
@@ -659,7 +659,7 @@
       "description": "Perfil del alumno, periodo activo y materias actuales con NRC/docente/sección.",
       "item": [
         {
-          "name": "02.1 Obtener periodo activo",
+          "name": "MS-2: Obtener periodo activo",
           "request": {
             "method": "GET",
             "header": [
@@ -706,7 +706,7 @@
           ]
         },
         {
-          "name": "02.2 Buscar mi registro de alumno",
+          "name": "MS-3: Buscar mi registro de alumno",
           "request": {
             "method": "GET",
             "header": [
@@ -769,7 +769,7 @@
           ]
         },
         {
-          "name": "02.3 Obtener mi perfil de alumno",
+          "name": "MS-3: Obtener mi perfil de alumno",
           "request": {
             "method": "GET",
             "header": [
@@ -820,7 +820,7 @@
           ]
         },
         {
-          "name": "02.4 Listar mis inscripciones / materias",
+          "name": "MS-3: Listar mis inscripciones / materias",
           "request": {
             "method": "GET",
             "header": [
@@ -884,7 +884,7 @@
           ]
         },
         {
-          "name": "02.5 Obtener detalle de mi materia",
+          "name": "MS-2: Obtener detalle de mi materia",
           "request": {
             "method": "GET",
             "header": [
@@ -944,7 +944,7 @@
       "description": "Detalle de actividades, calificaciones parciales y promedio ponderado actual del alumno.",
       "item": [
         {
-          "name": "03.1 Obtener actividades de la materia",
+          "name": "MS-4: Obtener actividades de la materia",
           "request": {
             "method": "GET",
             "header": [
@@ -995,7 +995,7 @@
           ]
         },
         {
-          "name": "03.2 Obtener detalle de actividad",
+          "name": "MS-4: Obtener detalle de actividad",
           "request": {
             "method": "GET",
             "header": [
@@ -1042,7 +1042,7 @@
           ]
         },
         {
-          "name": "03.3 Obtener mis calificaciones por materia",
+          "name": "MS-4: Obtener mis calificaciones por materia",
           "request": {
             "method": "GET",
             "header": [
@@ -1095,7 +1095,7 @@
           ]
         },
         {
-          "name": "03.4 Obtener concentrado de mi materia - modo actual",
+          "name": "MS-4: Obtener concentrado de mi materia - modo actual",
           "request": {
             "method": "GET",
             "header": [
@@ -1157,7 +1157,7 @@
       "description": "Generación del QR dinámico del alumno y consulta de asistencia/estadísticas disponibles.",
       "item": [
         {
-          "name": "04.1 Generar QR dinámico",
+          "name": "MS-5: Generar QR dinámico",
           "request": {
             "method": "POST",
             "header": [
@@ -1221,7 +1221,7 @@
           ]
         },
         {
-          "name": "04.2 Regenerar QR dinámico",
+          "name": "MS-5: Regenerar QR dinámico",
           "request": {
             "method": "POST",
             "header": [
@@ -1285,7 +1285,7 @@
           ]
         },
         {
-          "name": "04.3 Consultar asistencias de hoy en mi materia",
+          "name": "MS-5: Consultar asistencias de hoy en mi materia",
           "request": {
             "method": "GET",
             "header": [
@@ -1339,7 +1339,7 @@
           ]
         },
         {
-          "name": "04.4 Consultar historial/estadísticas de asistencia de mi materia",
+          "name": "MS-5: Consultar historial/estadísticas de asistencia de mi materia",
           "request": {
             "method": "GET",
             "header": [
@@ -1393,7 +1393,7 @@
       "description": "Estadísticas individuales de asistencias y rendimiento.",
       "item": [
         {
-          "name": "05.1 Estadísticas alumno",
+          "name": "MS-7: Estadísticas alumno",
           "request": {
             "method": "GET",
             "header": [
@@ -1448,7 +1448,7 @@
       "description": "Flujo terminal del alumno. El PDF indica que la baja es irreversible, solo se permite una vez y debe notificar al docente.",
       "item": [
         {
-          "name": "06.1 Baja de mi materia",
+          "name": "MS-3: Baja de mi materia",
           "request": {
             "method": "DELETE",
             "header": [
@@ -1492,7 +1492,7 @@
           ]
         },
         {
-          "name": "06.2 Verificar alumnos activos de la materia",
+          "name": "MS-3: Verificar alumnos activos de la materia",
           "request": {
             "method": "GET",
             "header": [
@@ -1548,7 +1548,7 @@
       "description": "Flujo transversal del sistema. Úsalo solo si quieres evidenciar recuperación de contraseña para alumno; cambia realmente la contraseña.",
       "item": [
         {
-          "name": "07.1 Forgot password alumno",
+          "name": "MS-1: Forgot password alumno",
           "request": {
             "method": "POST",
             "header": [
@@ -1597,7 +1597,7 @@
           ]
         },
         {
-          "name": "07.2 Reset password alumno",
+          "name": "MS-1: Reset password alumno",
           "request": {
             "method": "POST",
             "header": [
@@ -1651,7 +1651,7 @@
       "description": "Ejecutar al final de la demo del alumno.",
       "item": [
         {
-          "name": "99.1 Logout alumno",
+          "name": "MS-1: Logout alumno",
           "request": {
             "method": "POST",
             "header": [

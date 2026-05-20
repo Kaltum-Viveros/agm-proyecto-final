@@ -348,7 +348,7 @@
       "description": "Health checks de los microservicios usados por el flujo ADMIN.",
       "item": [
         {
-          "name": "MS-1 Auth - Health",
+          "name": "MS-1: Auth - Health",
           "request": {
             "method": "GET",
             "header": [],
@@ -386,7 +386,7 @@
           ]
         },
         {
-          "name": "MS-2 Periodos/Materias - Health",
+          "name": "MS-2: Periodos/Materias - Health",
           "request": {
             "method": "GET",
             "header": [],
@@ -442,7 +442,7 @@
           ]
         },
         {
-          "name": "MS-2 Periodos/Materias - DB Health",
+          "name": "MS-2: Periodos/Materias - DB Health",
           "request": {
             "method": "GET",
             "header": [],
@@ -451,7 +451,7 @@
           }
         },
         {
-          "name": "MS-3 Docentes/Alumnos - Health",
+          "name": "MS-3: Docentes/Alumnos - Health",
           "request": {
             "method": "GET",
             "header": [],
@@ -529,7 +529,7 @@
       "description": "Login del administrador. El login guarda admin_access_token y access_token para encadenar el resto del flujo.",
       "item": [
         {
-          "name": "Login ADMIN",
+          "name": "MS-1: Login ADMIN",
           "request": {
             "method": "POST",
             "header": [
@@ -607,7 +607,7 @@
           ]
         },
         {
-          "name": "Validar sesión ADMIN",
+          "name": "MS-1: Validar sesión ADMIN",
           "request": {
             "method": "GET",
             "header": [
@@ -664,7 +664,7 @@
           ]
         },
         {
-          "name": "Renovar sesión ADMIN",
+          "name": "MS-1: Renovar sesión ADMIN",
           "request": {
             "method": "POST",
             "header": [
@@ -744,7 +744,7 @@
           "name": "01 - Periodos",
           "item": [
             {
-              "name": "01.1 Listar periodos",
+              "name": "MS-2: Listar periodos",
               "request": {
                 "method": "GET",
                 "header": [
@@ -783,7 +783,7 @@
               ]
             },
             {
-              "name": "01.2 Crear periodo",
+              "name": "MS-2: Crear periodo",
               "request": {
                 "method": "POST",
                 "header": [
@@ -833,7 +833,7 @@
               ]
             },
             {
-              "name": "01.3 Activar periodo",
+              "name": "MS-2: Activar periodo",
               "request": {
                 "method": "PATCH",
                 "header": [
@@ -871,7 +871,7 @@
               ]
             },
             {
-              "name": "01.4 Obtener periodo activo",
+              "name": "MS-2: Obtener periodo activo",
               "request": {
                 "method": "GET",
                 "header": [
@@ -907,7 +907,7 @@
               ]
             },
             {
-              "name": "01.5 Obtener periodo por id",
+              "name": "MS-2: Obtener periodo por id",
               "request": {
                 "method": "GET",
                 "header": [
@@ -943,7 +943,7 @@
               ]
             },
             {
-              "name": "01.6 Actualizar periodo",
+              "name": "MS-2: Actualizar periodo",
               "request": {
                 "method": "PATCH",
                 "header": [
@@ -997,7 +997,7 @@
           "name": "02 - Planes de estudio",
           "item": [
             {
-              "name": "02.1 Listar planes de estudio",
+              "name": "MS-2: Listar planes de estudio",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1036,7 +1036,7 @@
               ]
             },
             {
-              "name": "02.2 Crear plan de estudio",
+              "name": "MS-2: Crear plan de estudio",
               "request": {
                 "method": "POST",
                 "header": [
@@ -1085,7 +1085,7 @@
               ]
             },
             {
-              "name": "02.3 Obtener plan de estudio por id",
+              "name": "MS-2: Obtener plan de estudio por id",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1121,7 +1121,7 @@
               ]
             },
             {
-              "name": "02.4 Actualizar plan de estudio",
+              "name": "MS-2: Actualizar plan de estudio",
               "request": {
                 "method": "PATCH",
                 "header": [
@@ -1175,7 +1175,7 @@
           "name": "03 - Materias catálogo",
           "item": [
             {
-              "name": "03.1 Listar materias catálogo",
+              "name": "MS-2: Listar materias catálogo",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1214,7 +1214,7 @@
               ]
             },
             {
-              "name": "03.2 Crear materia catálogo",
+              "name": "MS-2: Crear materia catálogo",
               "request": {
                 "method": "POST",
                 "header": [
@@ -1263,7 +1263,7 @@
               ]
             },
             {
-              "name": "03.3 Buscar materia catálogo por clave",
+              "name": "MS-2: Buscar materia catálogo por clave",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1302,7 +1302,7 @@
               ]
             },
             {
-              "name": "03.4 Obtener materia catálogo por id",
+              "name": "MS-2: Obtener materia catálogo por id",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1338,7 +1338,7 @@
               ]
             },
             {
-              "name": "03.5 Actualizar materia catálogo",
+              "name": "MS-2: Actualizar materia catálogo",
               "request": {
                 "method": "PATCH",
                 "header": [
@@ -1392,7 +1392,7 @@
           "name": "04 - Materias - Planes de estudio",
           "item": [
             {
-              "name": "04.1 Listar relaciones materia-plan",
+              "name": "MS-2: Listar relaciones materia-plan",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1431,7 +1431,7 @@
               ]
             },
             {
-              "name": "04.2 Listar relaciones por plan",
+              "name": "MS-2: Listar relaciones por plan",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1470,7 +1470,7 @@
               ]
             },
             {
-              "name": "04.3 Crear relación materia-plan",
+              "name": "MS-2: Crear relación materia-plan",
               "request": {
                 "method": "POST",
                 "header": [
@@ -1520,7 +1520,7 @@
               ]
             },
             {
-              "name": "04.4 Obtener relación materia-plan por id",
+              "name": "MS-2: Obtener relación materia-plan por id",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1556,7 +1556,7 @@
               ]
             },
             {
-              "name": "04.5 Actualizar relación materia-plan",
+              "name": "MS-2: Actualizar relación materia-plan",
               "request": {
                 "method": "PATCH",
                 "header": [
@@ -1610,7 +1610,7 @@
           "name": "05 - Materias ofertadas",
           "item": [
             {
-              "name": "05.1 Listar materias ofertadas",
+              "name": "MS-2: Listar materias ofertadas",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1649,7 +1649,7 @@
               ]
             },
             {
-              "name": "05.2 Crear materia ofertada",
+              "name": "MS-2: Crear materia ofertada",
               "request": {
                 "method": "POST",
                 "header": [
@@ -1699,7 +1699,7 @@
               ]
             },
             {
-              "name": "05.3 Buscar materia ofertada por NRC",
+              "name": "MS-2: Buscar materia ofertada por NRC",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1738,7 +1738,7 @@
               ]
             },
             {
-              "name": "05.4 Obtener materia ofertada por id",
+              "name": "MS-2: Obtener materia ofertada por id",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1774,7 +1774,7 @@
               ]
             },
             {
-              "name": "05.5 Actualizar materia ofertada",
+              "name": "MS-2: Actualizar materia ofertada",
               "request": {
                 "method": "PATCH",
                 "header": [
@@ -1823,7 +1823,7 @@
               ]
             },
             {
-              "name": "05.6 Asignar docente a materia ofertada",
+              "name": "MS-2: Asignar docente a materia ofertada",
               "request": {
                 "method": "PATCH",
                 "header": [
@@ -1877,7 +1877,7 @@
           "name": "06 - Horarios de materia",
           "item": [
             {
-              "name": "06.1 Listar horarios",
+              "name": "MS-2: Listar horarios",
               "request": {
                 "method": "GET",
                 "header": [
@@ -1916,7 +1916,7 @@
               ]
             },
             {
-              "name": "06.2 Crear horario",
+              "name": "MS-2: Crear horario",
               "request": {
                 "method": "POST",
                 "header": [
@@ -1965,7 +1965,7 @@
               ]
             },
             {
-              "name": "06.3 Listar horarios por materia ofertada",
+              "name": "MS-2: Listar horarios por materia ofertada",
               "request": {
                 "method": "GET",
                 "header": [
@@ -2004,7 +2004,7 @@
               ]
             },
             {
-              "name": "06.4 Obtener horario por id",
+              "name": "MS-2: Obtener horario por id",
               "request": {
                 "method": "GET",
                 "header": [
@@ -2040,7 +2040,7 @@
               ]
             },
             {
-              "name": "06.5 Actualizar horario",
+              "name": "MS-2: Actualizar horario",
               "request": {
                 "method": "PATCH",
                 "header": [
@@ -2094,7 +2094,7 @@
           "name": "07 - Importaciones PDF",
           "item": [
             {
-              "name": "07.1 Importar programación académica",
+              "name": "MS-2: Importar programación académica",
               "request": {
                 "method": "POST",
                 "header": [
@@ -2160,7 +2160,7 @@
           "name": "08 - Materias académicas / consultas finales",
           "item": [
             {
-              "name": "08.1 Listar materias académicas",
+              "name": "MS-2: Listar materias académicas",
               "request": {
                 "method": "GET",
                 "header": [
@@ -2199,7 +2199,7 @@
               ]
             },
             {
-              "name": "08.2 Listar materias académicas con filtros",
+              "name": "MS-2: Listar materias académicas con filtros",
               "request": {
                 "method": "GET",
                 "header": [
@@ -2238,7 +2238,7 @@
               ]
             },
             {
-              "name": "08.3 Listar materias del periodo activo",
+              "name": "MS-2: Listar materias del periodo activo",
               "request": {
                 "method": "GET",
                 "header": [
@@ -2277,7 +2277,7 @@
               ]
             },
             {
-              "name": "08.4 Listar materias por periodo",
+              "name": "MS-2: Listar materias por periodo",
               "request": {
                 "method": "GET",
                 "header": [
@@ -2316,7 +2316,7 @@
               ]
             },
             {
-              "name": "08.5 Listar materias por docente",
+              "name": "MS-2: Listar materias por docente",
               "request": {
                 "method": "GET",
                 "header": [
@@ -2355,7 +2355,7 @@
               ]
             },
             {
-              "name": "08.6 Obtener materia académica por id",
+              "name": "MS-2: Obtener materia académica por id",
               "request": {
                 "method": "GET",
                 "header": [
@@ -2397,7 +2397,7 @@
           "name": "99 - Estados terminales y limpieza",
           "item": [
             {
-              "name": "99.1 Activar materia ofertada",
+              "name": "MS-2: Activar materia ofertada",
               "request": {
                 "method": "PATCH",
                 "header": [
@@ -2434,7 +2434,7 @@
               ]
             },
             {
-              "name": "99.2 Cerrar materia ofertada",
+              "name": "MS-2: Cerrar materia ofertada",
               "request": {
                 "method": "PATCH",
                 "header": [
@@ -2471,7 +2471,7 @@
               ]
             },
             {
-              "name": "99.3 Cancelar materia ofertada",
+              "name": "MS-2: Cancelar materia ofertada",
               "request": {
                 "method": "PATCH",
                 "header": [
@@ -2508,7 +2508,7 @@
               ]
             },
             {
-              "name": "99.4 Eliminar horario",
+              "name": "MS-2: Eliminar horario",
               "request": {
                 "method": "DELETE",
                 "header": [
@@ -2524,7 +2524,7 @@
               }
             },
             {
-              "name": "99.5 Desactivar materia ofertada",
+              "name": "MS-2: Desactivar materia ofertada",
               "request": {
                 "method": "DELETE",
                 "header": [
@@ -2561,7 +2561,7 @@
               ]
             },
             {
-              "name": "99.6 Desactivar relación materia-plan",
+              "name": "MS-2: Desactivar relación materia-plan",
               "request": {
                 "method": "DELETE",
                 "header": [
@@ -2598,7 +2598,7 @@
               ]
             },
             {
-              "name": "99.7 Desactivar materia catálogo",
+              "name": "MS-2: Desactivar materia catálogo",
               "request": {
                 "method": "DELETE",
                 "header": [
@@ -2635,7 +2635,7 @@
               ]
             },
             {
-              "name": "99.8 Desactivar plan de estudio",
+              "name": "MS-2: Desactivar plan de estudio",
               "request": {
                 "method": "DELETE",
                 "header": [
@@ -2672,7 +2672,7 @@
               ]
             },
             {
-              "name": "99.9 Desactivar periodo",
+              "name": "MS-2: Desactivar periodo",
               "request": {
                 "method": "DELETE",
                 "header": [
@@ -2718,7 +2718,7 @@
       "description": "Flujo del Administrador sobre docentes: importar directorio institucional desde PDF, visualizar/listar el catálogo y validar edición puntual del docente.",
       "item": [
         {
-          "name": "Importar docentes PDF",
+          "name": "MS-3: Importar docentes PDF",
           "request": {
             "method": "POST",
             "header": [
@@ -2762,7 +2762,7 @@
           ]
         },
         {
-          "name": "Listar docentes",
+          "name": "MS-3: Listar docentes",
           "request": {
             "method": "GET",
             "header": [
@@ -2803,7 +2803,7 @@
           ]
         },
         {
-          "name": "Obtener docente por ID",
+          "name": "MS-3: Obtener docente por ID",
           "request": {
             "method": "GET",
             "header": [
@@ -2838,7 +2838,7 @@
           ]
         },
         {
-          "name": "Actualizar docente",
+          "name": "MS-3: Actualizar docente",
           "request": {
             "method": "PUT",
             "header": [
@@ -2893,7 +2893,7 @@
       "description": "Opcional para evidenciar restablecimiento de credenciales. Reutiliza el flujo real de Auth.",
       "item": [
         {
-          "name": "Solicitar recuperación de contraseña",
+          "name": "MS-1: Solicitar recuperación de contraseña",
           "event": [
             {
               "listen": "prerequest",
@@ -2963,7 +2963,7 @@
           }
         },
         {
-          "name": "Confirmar recuperación de contraseña",
+          "name": "MS-1: Confirmar recuperación de contraseña",
           "event": [
             {
               "listen": "prerequest",
@@ -3043,7 +3043,7 @@
       "description": "Ejecutar al final de la demostración del administrador.",
       "item": [
         {
-          "name": "Logout ADMIN",
+          "name": "MS-1: Logout ADMIN",
           "request": {
             "method": "POST",
             "header": [

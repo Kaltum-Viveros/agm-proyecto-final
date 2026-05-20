@@ -25,7 +25,7 @@ async def list_materias_planes_estudio(
     db: AsyncSession = Depends(get_db),
 ):
     service = MateriaPlanEstudioService(db)
-    relaciones, total = await service.list_materias_planes_estudio(
+    relaciones, total = await service.list_materias_plan_estudio(
         plan_estudio_id=plan_estudio_id,
         materia_catalogo_id=materia_catalogo_id,
         page=page,

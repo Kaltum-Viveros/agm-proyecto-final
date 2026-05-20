@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
+from uuid import UUID
 from app.schemas.inscripcion import InscripcionCreate, InscripcionOut
 from app.repositories.inscripcion_repository import inscripcion_repository
 from app.repositories.docente_repository import docente_repository
@@ -14,7 +15,7 @@ router = APIRouter()
 def crear_inscripcion(
     ins_in: InscripcionCreate, 
     db: Session = Depends(get_db),
-    current_user: dict = Depends(role_required("Administrador"))
+    current_user: dict = Depends(role_required("Administrador", "Docente"))
 ):
     # 1. Validar que el docente exista
     if not docente_repository.get(db, id=ins_in.docente_id):
@@ -32,7 +33,9 @@ def crear_inscripcion(
 
 @router.get("/", response_model=List[InscripcionOut])
 def listar_inscripciones(
+    alumno_id: Optional[UUID] = None,
+    docente_id: Optional[UUID] = None,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(role_required("Administrador"))
+    current_user: dict = Depends(role_required("Administrador", "Docente", "Alumno"))
 ):
-    return inscripcion_repository.get_multi(db)
+    return inscripcion_repository.get_filtrado(db, alumno_id=alumno_id, docente_id=docente_id)

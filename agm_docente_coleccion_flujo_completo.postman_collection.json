@@ -610,7 +610,7 @@
       "description": "Validación rápida de disponibilidad de los microservicios usados por el flujo DOCENTE.",
       "item": [
         {
-          "name": "MS-1 Auth /health",
+          "name": "MS-1: Auth /health",
           "request": {
             "method": "GET",
             "header": [
@@ -640,7 +640,7 @@
           ]
         },
         {
-          "name": "MS-2 Periodos & Materias /health",
+          "name": "MS-2: Periodos & Materias /health",
           "request": {
             "method": "GET",
             "header": [
@@ -670,7 +670,7 @@
           ]
         },
         {
-          "name": "MS-3 Docentes & Alumnos /",
+          "name": "MS-3: Docentes & Alumnos /",
           "request": {
             "method": "GET",
             "header": [
@@ -700,7 +700,7 @@
           ]
         },
         {
-          "name": "MS-4 Calificaciones /health",
+          "name": "MS-4: Calificaciones /health",
           "request": {
             "method": "GET",
             "header": [
@@ -730,7 +730,7 @@
           ]
         },
         {
-          "name": "MS-5 Asistencias QR /",
+          "name": "MS-5: Asistencias QR /",
           "request": {
             "method": "GET",
             "header": [
@@ -760,7 +760,7 @@
           ]
         },
         {
-          "name": "MS-6 Notificaciones /",
+          "name": "MS-6: Notificaciones /",
           "request": {
             "method": "GET",
             "header": [
@@ -790,7 +790,7 @@
           ]
         },
         {
-          "name": "MS-7 Reportes /",
+          "name": "MS-7: Reportes /",
           "request": {
             "method": "GET",
             "header": [
@@ -826,7 +826,7 @@
       "description": "Autenticación JWT del docente. El login guarda docente_access_token y access_token para encadenar el resto del flujo.",
       "item": [
         {
-          "name": "Login DOCENTE",
+          "name": "MS-1: Login DOCENTE",
           "request": {
             "method": "POST",
             "header": [
@@ -884,7 +884,7 @@
           ]
         },
         {
-          "name": "Validar sesión /auth/me",
+          "name": "MS-1: Validar sesión /auth/me",
           "request": {
             "method": "GET",
             "header": [
@@ -945,7 +945,7 @@
           ]
         },
         {
-          "name": "Refresh token DOCENTE",
+          "name": "MS-1: Refresh token DOCENTE",
           "request": {
             "method": "POST",
             "header": [
@@ -995,7 +995,7 @@
       "description": "Vista docente: periodo activo, materias asignadas, estadísticas y resumen de asistencia.",
       "item": [
         {
-          "name": "Obtener periodo activo",
+          "name": "MS-2: Obtener periodo activo",
           "request": {
             "method": "GET",
             "header": [
@@ -1054,7 +1054,7 @@
           ]
         },
         {
-          "name": "Listar materias asignadas al docente",
+          "name": "MS-2: Listar materias asignadas al docente",
           "request": {
             "method": "GET",
             "header": [
@@ -1118,7 +1118,7 @@
           ]
         },
         {
-          "name": "Materias del periodo activo",
+          "name": "MS-2: Materias del periodo activo",
           "request": {
             "method": "GET",
             "header": [
@@ -1180,7 +1180,7 @@
           ]
         },
         {
-          "name": "Detalle de materia académica",
+          "name": "MS-2: Detalle de materia académica",
           "request": {
             "method": "GET",
             "header": [
@@ -1241,7 +1241,7 @@
           ]
         },
         {
-          "name": "Dashboard/estadísticas docente",
+          "name": "MS-7: Dashboard/estadísticas docente",
           "request": {
             "method": "GET",
             "header": [
@@ -1302,7 +1302,7 @@
           ]
         },
         {
-          "name": "Asistencias de la materia hoy",
+          "name": "MS-5: Asistencias de la materia hoy",
           "request": {
             "method": "GET",
             "header": [
@@ -1370,7 +1370,7 @@
       "description": "Importación de alumnos por archivo y consulta del concentrado de alumnos inscritos en la materia.",
       "item": [
         {
-          "name": "Importar alumnos Excel/CSV",
+          "name": "MS-3: Importar alumnos Excel/CSV",
           "request": {
             "method": "POST",
             "header": [
@@ -1431,7 +1431,7 @@
           ]
         },
         {
-          "name": "Listar alumnos",
+          "name": "MS-3: Listar alumnos",
           "request": {
             "method": "GET",
             "header": [
@@ -1496,7 +1496,7 @@
           ]
         },
         {
-          "name": "Listar inscripciones",
+          "name": "MS-3: Listar inscripciones",
           "request": {
             "method": "GET",
             "header": [
@@ -1561,7 +1561,7 @@
           ]
         },
         {
-          "name": "Obtener alumnos de una materia",
+          "name": "MS-3: Obtener alumnos de una materia",
           "request": {
             "method": "GET",
             "header": [
@@ -1632,7 +1632,7 @@
       "description": "Configuración de criterios de evaluación por materia. La suma debe ser 100%.",
       "item": [
         {
-          "name": "Crear ponderaciones 100%",
+          "name": "MS-4: Crear ponderaciones 100%",
           "request": {
             "method": "POST",
             "header": [
@@ -1707,7 +1707,7 @@
           ]
         },
         {
-          "name": "Obtener ponderaciones",
+          "name": "MS-4: Obtener ponderaciones",
           "request": {
             "method": "GET",
             "header": [
@@ -1768,7 +1768,7 @@
           ]
         },
         {
-          "name": "Actualizar ponderaciones antes de actividades",
+          "name": "MS-4: Actualizar ponderaciones antes de actividades",
           "request": {
             "method": "PUT",
             "header": [
@@ -1848,7 +1848,7 @@
       "description": "Creación de actividades, calificaciones individuales, importación masiva y concentrado.",
       "item": [
         {
-          "name": "Crear actividad",
+          "name": "MS-4: Crear actividad",
           "request": {
             "method": "POST",
             "header": [
@@ -1922,7 +1922,7 @@
           ]
         },
         {
-          "name": "Obtener actividades por materia",
+          "name": "MS-4: Obtener actividades por materia",
           "request": {
             "method": "GET",
             "header": [
@@ -1984,7 +1984,7 @@
           ]
         },
         {
-          "name": "Actualizar actividad",
+          "name": "MS-4: Actualizar actividad",
           "request": {
             "method": "PUT",
             "header": [
@@ -2058,7 +2058,7 @@
           ]
         },
         {
-          "name": "Crear calificación individual",
+          "name": "MS-4: Crear calificación individual",
           "request": {
             "method": "POST",
             "header": [
@@ -2133,7 +2133,7 @@
           ]
         },
         {
-          "name": "Actualizar calificación",
+          "name": "MS-4: Actualizar calificación",
           "request": {
             "method": "PUT",
             "header": [
@@ -2208,7 +2208,7 @@
           ]
         },
         {
-          "name": "Importar calificaciones Excel/CSV",
+          "name": "MS-4: Importar calificaciones Excel/CSV",
           "request": {
             "method": "POST",
             "header": [
@@ -2275,7 +2275,7 @@
           ]
         },
         {
-          "name": "Obtener concentrado - modo actual",
+          "name": "MS-4: Obtener concentrado - modo actual",
           "request": {
             "method": "GET",
             "header": [
@@ -2334,7 +2334,7 @@
           ]
         },
         {
-          "name": "Obtener concentrado - modo final",
+          "name": "MS-4: Obtener concentrado - modo final",
           "request": {
             "method": "GET",
             "header": [
@@ -2399,7 +2399,7 @@
       "description": "Flujo docente para abrir sesión, escanear token QR, consultar asistencia y cerrar sesión.",
       "item": [
         {
-          "name": "Iniciar sesión de asistencia",
+          "name": "MS-5: Iniciar sesión de asistencia",
           "request": {
             "method": "POST",
             "header": [
@@ -2473,7 +2473,7 @@
           ]
         },
         {
-          "name": "Obtener detalles de sesión",
+          "name": "MS-5: Obtener detalles de sesión",
           "request": {
             "method": "GET",
             "header": [
@@ -2532,7 +2532,7 @@
           ]
         },
         {
-          "name": "Registrar asistencia escaneando QR",
+          "name": "MS-5: Registrar asistencia escaneando QR",
           "request": {
             "method": "POST",
             "header": [
@@ -2606,7 +2606,7 @@
           ]
         },
         {
-          "name": "Obtener historial de sesión",
+          "name": "MS-5: Obtener historial de sesión",
           "request": {
             "method": "GET",
             "header": [
@@ -2668,7 +2668,7 @@
           ]
         },
         {
-          "name": "Listar asistencias de la materia hoy",
+          "name": "MS-5: Listar asistencias de la materia hoy",
           "request": {
             "method": "GET",
             "header": [
@@ -2730,7 +2730,7 @@
           ]
         },
         {
-          "name": "Obtener estadísticas de sesión",
+          "name": "MS-5: Obtener estadísticas de sesión",
           "request": {
             "method": "GET",
             "header": [
@@ -2791,7 +2791,7 @@
           ]
         },
         {
-          "name": "Cerrar sesión manualmente",
+          "name": "MS-5: Cerrar sesión manualmente",
           "request": {
             "method": "DELETE",
             "header": [
@@ -2855,7 +2855,7 @@
       "description": "Cierre académico de materia/concentrado y evidencia de notificación por correo.",
       "item": [
         {
-          "name": "Cierre final de concentrado",
+          "name": "MS-4: Cierre final de concentrado",
           "request": {
             "method": "POST",
             "header": [
@@ -2929,7 +2929,7 @@
           ]
         },
         {
-          "name": "Cerrar materia ofertada",
+          "name": "MS-2: Cerrar materia ofertada",
           "request": {
             "method": "PATCH",
             "header": [
@@ -2989,7 +2989,7 @@
           ]
         },
         {
-          "name": "Enviar notificación de cierre de materia",
+          "name": "MS-6: Enviar notificación de cierre de materia",
           "request": {
             "method": "POST",
             "header": [
@@ -3071,7 +3071,7 @@
       "description": "Exportación de calificaciones/asistencias y estadísticas históricas del docente.",
       "item": [
         {
-          "name": "Exportar calificaciones PDF",
+          "name": "MS-7: Exportar calificaciones PDF",
           "request": {
             "method": "GET",
             "header": [
@@ -3113,7 +3113,7 @@
           ]
         },
         {
-          "name": "Exportar calificaciones XLSX",
+          "name": "MS-7: Exportar calificaciones XLSX",
           "request": {
             "method": "GET",
             "header": [
@@ -3155,7 +3155,7 @@
           ]
         },
         {
-          "name": "Exportar asistencias PDF",
+          "name": "MS-7: Exportar asistencias PDF",
           "request": {
             "method": "GET",
             "header": [
@@ -3197,7 +3197,7 @@
           ]
         },
         {
-          "name": "Exportar asistencias XLSX",
+          "name": "MS-7: Exportar asistencias XLSX",
           "request": {
             "method": "GET",
             "header": [
@@ -3239,7 +3239,7 @@
           ]
         },
         {
-          "name": "Historial / estadísticas docente",
+          "name": "MS-7: Historial / estadísticas docente",
           "request": {
             "method": "GET",
             "header": [
@@ -3306,7 +3306,7 @@
       "description": "Funcionalidad transversal de Auth. Úsala solo si quieres evidenciar recuperación de contraseña del docente.",
       "item": [
         {
-          "name": "Forgot password DOCENTE",
+          "name": "MS-1: Forgot password DOCENTE",
           "request": {
             "method": "POST",
             "header": [
@@ -3367,7 +3367,7 @@
           ]
         },
         {
-          "name": "Reset password DOCENTE",
+          "name": "MS-1: Reset password DOCENTE",
           "request": {
             "method": "POST",
             "header": [
@@ -3414,7 +3414,7 @@
       "description": "Ejecutar al final para invalidar la sesión docente.",
       "item": [
         {
-          "name": "Logout DOCENTE",
+          "name": "MS-1: Logout DOCENTE",
           "request": {
             "method": "POST",
             "header": [

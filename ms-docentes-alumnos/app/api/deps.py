@@ -15,18 +15,21 @@ async def get_current_user(authorization: str = Header(...)):
         raise HTTPException(status_code=401, detail="Sesión no válida")
     return res.claims
 
-def role_required(role_name: str):
-    """Filtra el acceso por rol"""
+def role_required(*role_names: str):
+    """Filtra el acceso por roles permitidos"""
     async def checker(user = Depends(get_current_user)):
         # Normalizamos a mayúsculas para que coincida con los Enums de MS-Auth (ADMIN, DOCENTE, ALUMNO)
         actual_role = user.role.upper()
-        required_role = role_name.upper()
-        
-        # Mapeo de "ADMINISTRADOR" a "ADMIN" si es necesario
-        if required_role == "ADMINISTRADOR": required_role = "ADMIN"
         if actual_role == "ADMINISTRADOR": actual_role = "ADMIN"
+        
+        allowed_roles = []
+        for name in role_names:
+            normalized = name.upper()
+            if normalized == "ADMINISTRADOR": normalized = "ADMIN"
+            allowed_roles.append(normalized)
 
-        if actual_role != required_role:
-            raise HTTPException(status_code=403, detail=f"Permisos insuficientes. Tu rol es {actual_role}, se requiere {required_role}")
+        if actual_role not in allowed_roles:
+            roles_str = ", ".join(allowed_roles)
+            raise HTTPException(status_code=403, detail=f"Permisos insuficientes. Tu rol es {actual_role}, se requiere uno de: {roles_str}")
         return user
     return checker

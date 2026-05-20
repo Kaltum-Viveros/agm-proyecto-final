@@ -25,4 +25,12 @@ class InscripcionRepository(BaseRepository[Inscripcion]):
             Inscripcion.activa == True
         ).first()
 
+    def get_filtrado(self, db: Session, *, alumno_id: UUID = None, docente_id: UUID = None):
+        query = db.query(Inscripcion)
+        if alumno_id is not None:
+            query = query.filter(Inscripcion.alumno_id == alumno_id)
+        if docente_id is not None:
+            query = query.filter(Inscripcion.docente_id == docente_id)
+        return query.all()
+
 inscripcion_repository = InscripcionRepository(Inscripcion)

@@ -27,7 +27,7 @@ class ResetPasswordRequest(BaseModel):
 
 class NotificacionResponse(BaseModel):
     id: int
-    usuario_id: int
+    usuario_id: str
     email: str
     tipo: str
     asunto: str

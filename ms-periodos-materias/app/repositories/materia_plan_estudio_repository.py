@@ -19,7 +19,7 @@ class MateriaPlanEstudioRepository:
         limit: int = 10,
     ):
         stmt = select(MateriaPlanEstudio).order_by(
-            MateriaPlanEstudio.semestre.asc()
+            MateriaPlanEstudio.materia_plan_estudio_id.asc()
         )
 
         if plan_estudio_id is not None:
