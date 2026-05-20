@@ -28,6 +28,31 @@ async def obtener_claims_usuario(credentials: HTTPAuthorizationCredentials = Dep
             detail="El usuario está inactivo",
         )
         
+    # --- Resolver IDs específicos de MS-3 (Docentes y Alumnos) ---
+    email = claims.get("email")
+    role = claims.get("role", "").upper()
+    
+    if email:
+        import logging
+        from app.grpc_clients.cliente_alumnos import cliente_alumnos
+        if role in ("DOCENTE", "ADMIN"):
+            try:
+                docente_info = await cliente_alumnos.obtener_docente_por_email(email)
+                if docente_info:
+                    claims["id_docente"] = docente_info["docente_id"]
+                    claims["nombre_completo"] = docente_info["nombre_completo"]
+            except Exception as e:
+                logging.error(f"Error fetching docente profile from MS-3: {e}")
+        if role in ("ALUMNO", "ADMIN"):
+            try:
+                alumno_info = await cliente_alumnos.obtener_alumno_por_email(email)
+                if alumno_info:
+                    claims["id_alumno"] = alumno_info["alumno_id"]
+                    claims["nombre_completo"] = alumno_info["nombre_completo"]
+                    claims["matricula"] = alumno_info["matricula"]
+            except Exception as e:
+                logging.error(f"Error fetching alumno profile from MS-3: {e}")
+        
     return claims
 
 def requerir_rol(roles_permitidos: list[str]):

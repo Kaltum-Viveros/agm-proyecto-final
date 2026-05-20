@@ -1,0 +1,3115 @@
+{
+  "info": {
+    "_postman_id": "27a7e738-56f9-4ce9-8fee-36551bae3152",
+    "name": "AGM - Colección ADMIN - Flujo completo",
+    "description": "Colección por rol para demostrar el flujo completo del Administrador conforme al PDF: autenticación, gestión de periodos, importación de materias, importación/catálogo de docentes y configuración académica. Usa Authorization: Bearer {{admin_access_token}} en recursos protegidos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+          "function setVar(name, value) { if (value === undefined || value === null || value === '') return; try { pm.environment.set(name, String(value)); } catch(e) {} pm.collectionVariables.set(name, String(value)); }",
+          "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+          "setIfMissing('ms_auth_base_url', 'http://localhost:8001');",
+          "setIfMissing('ms_periodos_materias_base_url', 'http://localhost:8002/api/v1');",
+          "setIfMissing('ms_docentes_alumnos_base_url', 'http://localhost:8003');",
+          "setIfMissing('ms2_page', '1');",
+          "setIfMissing('ms2_limit', '10');",
+          "setIfMissing('ms3_skip', '0');",
+          "setIfMissing('ms3_limit', '100');",
+          "if (!getVar('admin_access_token') && getVar('access_token') && (getVar('current_user_role') || '').toLowerCase().includes('admin')) { setVar('admin_access_token', getVar('access_token')); }"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Status HTTP esperado', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]); });"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "ms_auth_base_url",
+      "value": "http://localhost:8001",
+      "type": "string"
+    },
+    {
+      "key": "ms_periodos_materias_base_url",
+      "value": "http://localhost:8002/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "ms_docentes_alumnos_base_url",
+      "value": "http://localhost:8003",
+      "type": "string"
+    },
+    {
+      "key": "auth_email",
+      "value": "admin@agm.com",
+      "type": "string"
+    },
+    {
+      "key": "auth_password",
+      "value": "Admin12345",
+      "type": "string"
+    },
+    {
+      "key": "auth_new_password",
+      "value": "Admin12345Reset",
+      "type": "string"
+    },
+    {
+      "key": "password_reset_email",
+      "value": "admin@agm.com",
+      "type": "string"
+    },
+    {
+      "key": "password_reset_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "current_user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "current_user_email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "current_user_role",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "current_user_name",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ms2_page",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "ms2_limit",
+      "value": "10",
+      "type": "string"
+    },
+    {
+      "key": "ms2_run_suffix",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_activo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_nombre_actualizado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_fecha_inicio",
+      "value": "2030-01-01",
+      "type": "string"
+    },
+    {
+      "key": "periodo_fecha_fin",
+      "value": "2030-06-30",
+      "type": "string"
+    },
+    {
+      "key": "periodo_fecha_fin_actualizada",
+      "value": "2030-07-15",
+      "type": "string"
+    },
+    {
+      "key": "plan_estudio_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "plan_estudio_clave",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "plan_estudio_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "plan_estudio_nombre_actualizado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_catalogo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_clave",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_clave_actualizada",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_nombre_actualizado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_plan_estudio_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_plan_activa",
+      "value": "true",
+      "type": "string"
+    },
+    {
+      "key": "materia_semestre",
+      "value": "6",
+      "type": "string"
+    },
+    {
+      "key": "materia_ofertada_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ms2_materia_ofertada_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_nrc",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_seccion",
+      "value": "001",
+      "type": "string"
+    },
+    {
+      "key": "materia_seccion_actualizada",
+      "value": "002",
+      "type": "string"
+    },
+    {
+      "key": "materia_estado",
+      "value": "ACTIVA",
+      "type": "string"
+    },
+    {
+      "key": "materia_horario_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_dia",
+      "value": "L",
+      "type": "string"
+    },
+    {
+      "key": "materia_hora_inicio",
+      "value": "17:00:00",
+      "type": "string"
+    },
+    {
+      "key": "materia_hora_fin",
+      "value": "18:59:00",
+      "type": "string"
+    },
+    {
+      "key": "materia_hora_fin_actualizada",
+      "value": "19:59:00",
+      "type": "string"
+    },
+    {
+      "key": "materia_salon",
+      "value": "1CCO4/307",
+      "type": "string"
+    },
+    {
+      "key": "materia_salon_actualizado",
+      "value": "1CCO4/308",
+      "type": "string"
+    },
+    {
+      "key": "docente_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_nombre_actualizado",
+      "value": "Docente actualizado",
+      "type": "string"
+    },
+    {
+      "key": "docente_correo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_cubiculo_actualizado",
+      "value": "CCO3-206",
+      "type": "string"
+    },
+    {
+      "key": "docente_horario_atencion_actualizado",
+      "value": "Martes 12:00-14:00",
+      "type": "string"
+    },
+    {
+      "key": "docente_estatus_laboral",
+      "value": "true",
+      "type": "string"
+    },
+    {
+      "key": "docentes_importados",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "importacion_filas_extraidas",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health checks",
+      "description": "Health checks de los microservicios usados por el flujo ADMIN.",
+      "item": [
+        {
+          "name": "MS-1 Auth - Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{ms_auth_base_url}}/health",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Verifica disponibilidad básica de MS Auth."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Respuesta estándar exitosa', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json).to.have.property('data');",
+                  "    pm.expect(json.data).to.have.property('service', 'ms-auth');",
+                  "    pm.expect(json.data).to.have.property('status', 'ok');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-2 Periodos/Materias - Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/health",
+            "description": "Verifica que el microservicio MS-2 esté levantado."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function uuidv4() {",
+                  "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+                  "    const r = Math.random() * 16 | 0;",
+                  "    const v = c === 'x' ? r : (r & 0x3 | 0x8);",
+                  "    return v.toString(16);",
+                  "  });",
+                  "}",
+                  "",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "",
+                  "const suffix = Date.now().toString().slice(-8);",
+                  "const nrc = String(10000 + Math.floor(Math.random() * 89999));",
+                  "",
+                  "setVar('ms2_run_suffix', suffix);",
+                  "setVar('periodo_nombre', `Periodo Postman ${suffix}`);",
+                  "setVar('periodo_nombre_actualizado', `Periodo Postman ${suffix} Actualizado`);",
+                  "setVar('plan_estudio_nombre', `Plan AGM Postman ${suffix}`);",
+                  "setVar('plan_estudio_nombre_actualizado', `Plan AGM Postman ${suffix} Actualizado`);",
+                  "setVar('materia_clave', `SW${suffix}`.slice(0, 30));",
+                  "setVar('materia_clave_actualizada', `SW${suffix}A`.slice(0, 30));",
+                  "setVar('materia_nombre', `Servicios Web Postman ${suffix}`);",
+                  "setVar('materia_nombre_actualizado', `Servicios Web Postman ${suffix} Actualizada`);",
+                  "setVar('materia_nrc', nrc);",
+                  "",
+                  "// Limpia ids para que el flujo tome los recursos recién creados.",
+                  "['periodo_id','periodo_activo_id','plan_estudio_id','materia_catalogo_id','materia_plan_estudio_id','materia_ofertada_id','materia_horario_id'].forEach(function (name) {",
+                  "  try { pm.environment.unset(name); } catch (e) {}",
+                  "  pm.collectionVariables.unset(name);",
+                  "});",
+                  "",
+                  "if (!(pm.environment.get('docente_id') || pm.collectionVariables.get('docente_id'))) {",
+                  "  setVar('docente_id', uuidv4());",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-2 Periodos/Materias - DB Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/health/db",
+            "description": "Verifica que MS-2 tenga conexión con su base de datos."
+          }
+        },
+        {
+          "name": "MS-3 Docentes/Alumnos - Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_docentes_alumnos_base_url}}/",
+            "description": "Health del microservicio. También prepara variables únicas para correr el flujo base sin choques de datos."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function uuidv4() {",
+                  "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+                  "    const r = Math.random() * 16 | 0;",
+                  "    const v = c === 'x' ? r : (r & 0x3 | 0x8);",
+                  "    return v.toString(16);",
+                  "  });",
+                  "}",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "",
+                  "const suffix = Date.now().toString().slice(-8);",
+                  "const matricula = String(202600000 + Math.floor(Math.random() * 99999));",
+                  "const nrc = String(10000 + Math.floor(Math.random() * 89999));",
+                  "",
+                  "setVar('ms3_run_suffix', suffix);",
+                  "setVar('docente_user_id', uuidv4());",
+                  "setVar('alumno_user_id', uuidv4());",
+                  "setVar('docente_nombre', `Docente MS3 Postman ${suffix}`);",
+                  "setVar('docente_correo', `docente.ms3.${suffix}@correo.buap.mx`);",
+                  "setVar('docente_cubiculo', 'CCO3-205');",
+                  "setVar('docente_horario_atencion', 'Lunes 10:00-12:00');",
+                  "setVar('alumno_nombre', `Alumno MS3 Postman ${suffix}`);",
+                  "setVar('alumno_matricula', matricula);",
+                  "setVar('alumno_correo', `${matricula}@alumno.buap.mx`);",
+                  "setVar('alumno_tipo_formacion', 'Licenciatura');",
+                  "",
+                  "// Fallback para probar MS-3 aislado. Si ya corriste MS-2 y existen ids reales, no los pisa.",
+                  "setIfMissing('materia_ofertada_id', uuidv4());",
+                  "setIfMissing('periodo_id', uuidv4());",
+                  "setIfMissing('materia_nrc', nrc);",
+                  "setIfMissing('materia_seccion', '001');",
+                  "",
+                  "// Limpia ids propios de este flujo para capturar los recursos recién creados.",
+                  "['docente_id','alumno_id','inscripcion_id'].forEach(function (name) {",
+                  "  try { pm.environment.unset(name); } catch (e) {}",
+                  "  pm.collectionVariables.unset(name);",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - MS-1 Auth: autenticación ADMIN",
+      "description": "Login del administrador. El login guarda admin_access_token y access_token para encadenar el resto del flujo.",
+      "item": [
+        {
+          "name": "Login ADMIN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{auth_email}}\",\n  \"contrasena\": \"{{auth_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ms_auth_base_url}}/auth/login",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Inicia sesión y guarda access_token, refresh_token y datos del usuario en el environment."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Login exitoso y estructura válida', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json.data).to.have.property('access_token').that.is.a('string').and.is.not.empty;",
+                  "    pm.expect(json.data).to.have.property('refresh_token').that.is.a('string').and.is.not.empty;",
+                  "    pm.expect(json.data).to.have.property('token_type', 'Bearer');",
+                  "    pm.expect(json.data).to.have.property('expires_in').that.is.a('number');",
+                  "    pm.expect(json.data).to.have.property('user');",
+                  "    pm.expect(json.data.user).to.have.property('user_id').that.is.a('string');",
+                  "    pm.expect(json.data.user).to.have.property('email').that.is.a('string');",
+                  "    pm.expect(json.data.user).to.have.property('rol').that.is.a('string');",
+                  "    pm.expect(json.data.user).to.have.property('activo', true);",
+                  "});",
+                  "",
+                  "pm.test('Guardar variables de sesión', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.environment.set('access_token', data.access_token);",
+                  "    pm.environment.set('refresh_token', data.refresh_token);",
+                  "    pm.environment.set('current_user_id', data.user.user_id);",
+                  "    pm.environment.set('current_user_email', data.user.email);",
+                  "    pm.environment.set('current_user_role', data.user.rol);",
+                  "    pm.environment.set('current_user_name', data.user.nombre_completo);",
+                  "    pm.environment.set('access_token_expires_in', String(data.expires_in));",
+                  "    pm.environment.set('refresh_expires_at', data.refresh_expires_at);",
+                  "    pm.environment.set('auth_logged_out', 'false');",
+                  "});",
+                  "",
+                  "pm.test('Guardar token como admin_access_token', function () {",
+                  "  const data = pm.response.json().data;",
+                  "  pm.environment.set('admin_access_token', data.access_token);",
+                  "  pm.collectionVariables.set('admin_access_token', data.access_token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validar sesión ADMIN",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+              }
+            ],
+            "url": {
+              "raw": "{{ms_auth_base_url}}/auth/me",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
+            },
+            "description": "Valida que el access_token represente a un usuario activo."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Usuario autenticado correcto', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json.data).to.have.property('user_id').that.is.a('string');",
+                  "    pm.expect(json.data).to.have.property('email').that.is.a('string');",
+                  "    pm.expect(json.data).to.have.property('rol').that.is.a('string');",
+                  "    pm.expect(json.data).to.have.property('activo', true);",
+                  "",
+                  "    const expectedUserId = pm.environment.get('current_user_id');",
+                  "    if (expectedUserId) {",
+                  "        pm.expect(json.data.user_id).to.eql(expectedUserId);",
+                  "    }",
+                  "",
+                  "    const expectedEmail = pm.environment.get('current_user_email') || pm.environment.get('auth_email');",
+                  "    if (expectedEmail) {",
+                  "        pm.expect(json.data.email.toLowerCase()).to.eql(expectedEmail.toLowerCase());",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Renovar sesión ADMIN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ms_auth_base_url}}/auth/refresh-token",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "refresh-token"
+              ]
+            },
+            "description": "Renueva la sesión y sobrescribe access_token/refresh_token con los nuevos valores."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Refresh exitoso y tokens nuevos', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json.data).to.have.property('access_token').that.is.a('string').and.is.not.empty;",
+                  "    pm.expect(json.data).to.have.property('refresh_token').that.is.a('string').and.is.not.empty;",
+                  "    pm.expect(json.data).to.have.property('token_type', 'Bearer');",
+                  "});",
+                  "",
+                  "pm.test('Actualizar variables de sesión', function () {",
+                  "    const data = pm.response.json().data;",
+                  "    pm.environment.set('access_token', data.access_token);",
+                  "    pm.environment.set('refresh_token', data.refresh_token);",
+                  "    pm.environment.set('current_user_id', data.user.user_id);",
+                  "    pm.environment.set('current_user_email', data.user.email);",
+                  "    pm.environment.set('current_user_role', data.user.rol);",
+                  "    pm.environment.set('current_user_name', data.user.nombre_completo);",
+                  "    pm.environment.set('access_token_expires_in', String(data.expires_in));",
+                  "    pm.environment.set('refresh_expires_at', data.refresh_expires_at);",
+                  "});",
+                  "",
+                  "pm.test('Actualizar admin_access_token', function () {",
+                  "  const data = pm.response.json().data;",
+                  "  pm.environment.set('admin_access_token', data.access_token);",
+                  "  pm.collectionVariables.set('admin_access_token', data.access_token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - MS-2 Periodos y Materias: configuración académica",
+      "description": "Flujo de Administrador: gestión completa de periodos, catálogo/planes/materias ofertadas cuando aplique, consultas finales e importación PDF de programación académica.",
+      "item": [
+        {
+          "name": "01 - Periodos",
+          "item": [
+            {
+              "name": "01.1 Listar periodos",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/periodos?page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('periodo_id', items[0]['periodo_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "01.2 Crear periodo",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/periodos",
+                "description": "Crea un periodo académico inactivo. Después se activa explícitamente para probar la regla de periodo único activo.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"{{periodo_nombre}}\",\n  \"fecha_inicio\": \"{{periodo_fecha_inicio}}\",\n  \"fecha_fin\": \"{{periodo_fecha_fin}}\",\n  \"activo\": false\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('periodo_id', data && data['periodo_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "01.3 Activar periodo",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/periodos/{{periodo_id}}/activar",
+                "description": "Activa el periodo creado. Si ya existe otro periodo activo, el backend responde conflicto según la regla de negocio."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('periodo_id', data && data['periodo_id']);",
+                      "setVar('periodo_activo_id', data && data['periodo_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "01.4 Obtener periodo activo",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/periodos/activo"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('periodo_activo_id', data && data['periodo_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "01.5 Obtener periodo por id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/periodos/{{periodo_id}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('periodo_id', data && data['periodo_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "01.6 Actualizar periodo",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/periodos/{{periodo_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"{{periodo_nombre_actualizado}}\",\n  \"fecha_fin\": \"{{periodo_fecha_fin_actualizada}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('periodo_id', data && data['periodo_id']);"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "02 - Planes de estudio",
+          "item": [
+            {
+              "name": "02.1 Listar planes de estudio",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/planes-estudio?page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('plan_estudio_id', items[0]['plan_estudio_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "02.2 Crear plan de estudio",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/planes-estudio",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"{{plan_estudio_nombre}}\",\n  \"activo\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('plan_estudio_id', data && data['plan_estudio_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "02.3 Obtener plan de estudio por id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/planes-estudio/{{plan_estudio_id}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('plan_estudio_id', data && data['plan_estudio_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "02.4 Actualizar plan de estudio",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/planes-estudio/{{plan_estudio_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"{{plan_estudio_nombre_actualizado}}\",\n  \"activo\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('plan_estudio_id', data && data['plan_estudio_id']);"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "03 - Materias catálogo",
+          "item": [
+            {
+              "name": "03.1 Listar materias catálogo",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-catalogo?page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('materia_catalogo_id', items[0]['materia_catalogo_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "03.2 Crear materia catálogo",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-catalogo",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"clave\": \"{{materia_clave}}\",\n  \"nombre\": \"{{materia_nombre}}\",\n  \"activo\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_catalogo_id', data && data['materia_catalogo_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "03.3 Buscar materia catálogo por clave",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-catalogo?clave={{materia_clave}}&page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('materia_catalogo_id', items[0]['materia_catalogo_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "03.4 Obtener materia catálogo por id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-catalogo/{{materia_catalogo_id}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_catalogo_id', data && data['materia_catalogo_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "03.5 Actualizar materia catálogo",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-catalogo/{{materia_catalogo_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"nombre\": \"{{materia_nombre_actualizado}}\",\n  \"activo\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_catalogo_id', data && data['materia_catalogo_id']);"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "04 - Materias - Planes de estudio",
+          "item": [
+            {
+              "name": "04.1 Listar relaciones materia-plan",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-planes-estudio?page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('materia_plan_estudio_id', items[0]['materia_plan_estudio_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "04.2 Listar relaciones por plan",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-planes-estudio?plan_estudio_id={{plan_estudio_id}}&page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('materia_plan_estudio_id', items[0]['materia_plan_estudio_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "04.3 Crear relación materia-plan",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-planes-estudio",
+                "description": "Relaciona una materia del catálogo con un plan de estudios. Este vínculo es necesario para que la importación y la oferta académica queden modeladas correctamente.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"materia_catalogo_id\": \"{{materia_catalogo_id}}\",\n  \"plan_estudio_id\": \"{{plan_estudio_id}}\",\n  \"activa\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_plan_estudio_id', data && data['materia_plan_estudio_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "04.4 Obtener relación materia-plan por id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-planes-estudio/{{materia_plan_estudio_id}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_plan_estudio_id', data && data['materia_plan_estudio_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "04.5 Actualizar relación materia-plan",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-planes-estudio/{{materia_plan_estudio_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"activa\": true\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_plan_estudio_id', data && data['materia_plan_estudio_id']);"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "05 - Materias ofertadas",
+          "item": [
+            {
+              "name": "05.1 Listar materias ofertadas",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas?page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('materia_ofertada_id', items[0]['materia_ofertada_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "05.2 Crear materia ofertada",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas",
+                "description": "Crea la oferta real de una materia para un periodo/NRC. Requiere un periodo y materia catálogo previamente creados.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"periodo_id\": \"{{periodo_id}}\",\n  \"materia_catalogo_id\": \"{{materia_catalogo_id}}\",\n  \"nrc\": \"{{materia_nrc}}\",\n  \"seccion\": \"{{materia_seccion}}\",\n  \"docente_id\": \"{{docente_id}}\",\n  \"docente_nombre\": \"{{docente_nombre}}\",\n  \"estado\": \"ACTIVA\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_ofertada_id', data && data['materia_ofertada_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "05.3 Buscar materia ofertada por NRC",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas?nrc={{materia_nrc}}&page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('materia_ofertada_id', items[0]['materia_ofertada_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "05.4 Obtener materia ofertada por id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas/{{materia_ofertada_id}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_ofertada_id', data && data['materia_ofertada_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "05.5 Actualizar materia ofertada",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas/{{materia_ofertada_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"seccion\": \"{{materia_seccion_actualizada}}\",\n  \"docente_nombre\": \"{{docente_nombre_actualizado}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_ofertada_id', data && data['materia_ofertada_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "05.6 Asignar docente a materia ofertada",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas/{{materia_ofertada_id}}/asignar-docente",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"docente_id\": \"{{docente_id}}\",\n  \"docente_nombre\": \"{{docente_nombre_actualizado}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_ofertada_id', data && data['materia_ofertada_id']);"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "06 - Horarios de materia",
+          "item": [
+            {
+              "name": "06.1 Listar horarios",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materia-horarios?page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('materia_horario_id', items[0]['materia_horario_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "06.2 Crear horario",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materia-horarios",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"materia_ofertada_id\": \"{{materia_ofertada_id}}\",\n  \"dia\": \"{{materia_dia}}\",\n  \"hora_inicio\": \"{{materia_hora_inicio}}\",\n  \"hora_fin\": \"{{materia_hora_fin}}\",\n  \"salon\": \"{{materia_salon}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_horario_id', data && data['materia_horario_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "06.3 Listar horarios por materia ofertada",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materia-horarios?materia_ofertada_id={{materia_ofertada_id}}&page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('materia_horario_id', items[0]['materia_horario_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "06.4 Obtener horario por id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materia-horarios/{{materia_horario_id}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_horario_id', data && data['materia_horario_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "06.5 Actualizar horario",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  },
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materia-horarios/{{materia_horario_id}}",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"hora_fin\": \"{{materia_hora_fin_actualizada}}\",\n  \"salon\": \"{{materia_salon_actualizado}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_horario_id', data && data['materia_horario_id']);"
+                    ]
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "07 - Importaciones PDF",
+          "item": [
+            {
+              "name": "07.1 Importar programación académica",
+              "request": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/importaciones/programacion-academica",
+                "description": "Adjunta manualmente el PDF oficial de programación académica en el campo archivo. Postman no puede portar archivos dentro del JSON exportado; periodo_id y plan_estudio_id sí quedan ligados a variables.",
+                "body": {
+                  "mode": "formdata",
+                  "formdata": [
+                    {
+                      "key": "periodo_id",
+                      "value": "{{periodo_id}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "plan_estudio_id",
+                      "value": "{{plan_estudio_id}}",
+                      "type": "text"
+                    },
+                    {
+                      "key": "archivo",
+                      "type": "file",
+                      "src": []
+                    }
+                  ]
+                }
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "pm.test('Importación procesó filas del PDF', function () {",
+                      "  pm.expect(data).to.have.property('filas_extraidas');",
+                      "  pm.expect(data.filas_extraidas).to.be.above(0);",
+                      "});"
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "description": "Endpoint real de importación. Úsalo manualmente después de crear periodo y plan de estudios, adjuntando el PDF desde Postman."
+        },
+        {
+          "name": "08 - Materias académicas / consultas finales",
+          "item": [
+            {
+              "name": "08.1 Listar materias académicas",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias?page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('materia_ofertada_id', items[0]['materia_ofertada_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "08.2 Listar materias académicas con filtros",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias?periodo={{periodo_id}}&docente_id={{docente_id}}&estado=ACTIVA&nrc={{materia_nrc}}&page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('materia_ofertada_id', items[0]['materia_ofertada_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "08.3 Listar materias del periodo activo",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias/periodo-activo?page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('materia_ofertada_id', items[0]['materia_ofertada_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "08.4 Listar materias por periodo",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias/periodo/{{periodo_id}}?page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('materia_ofertada_id', items[0]['materia_ofertada_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "08.5 Listar materias por docente",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias/docente/{{docente_id}}?page={{ms2_page}}&limit={{ms2_limit}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "const items = data && data.items ? data.items : [];",
+                      "if (items.length > 0) {",
+                      "  setIfMissing('materia_ofertada_id', items[0]['materia_ofertada_id']);",
+                      "}"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "08.6 Obtener materia académica por id",
+              "request": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias/{{materia_ofertada_id}}"
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_ofertada_id', data && data['materia_ofertada_id']);"
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "description": "Estas son las consultas que otros flujos usarían para ver oferta académica por periodo, docente y materia."
+        },
+        {
+          "name": "99 - Estados terminales y limpieza",
+          "item": [
+            {
+              "name": "99.1 Activar materia ofertada",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas/{{materia_ofertada_id}}/activar",
+                "description": "Re-activa la materia si antes quedó INACTIVA/CERRADA/CANCELADA."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_ofertada_id', data && data['materia_ofertada_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "99.2 Cerrar materia ofertada",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas/{{materia_ofertada_id}}/cerrar",
+                "description": "Operación de estado real. Déjala para el final porque puede bloquear cambios posteriores en otros flujos."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_ofertada_id', data && data['materia_ofertada_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "99.3 Cancelar materia ofertada",
+              "request": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas/{{materia_ofertada_id}}/cancelar",
+                "description": "Operación de estado real. Déjala para el final porque cambia el estado de la oferta."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_ofertada_id', data && data['materia_ofertada_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "99.4 Eliminar horario",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materia-horarios/{{materia_horario_id}}",
+                "description": "El horario sí se elimina, a diferencia de otros DELETE del MS-2 que desactivan lógicamente."
+              }
+            },
+            {
+              "name": "99.5 Desactivar materia ofertada",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas/{{materia_ofertada_id}}",
+                "description": "Soft delete: cambia el estado de la materia ofertada a INACTIVA."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_ofertada_id', data && data['materia_ofertada_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "99.6 Desactivar relación materia-plan",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-planes-estudio/{{materia_plan_estudio_id}}",
+                "description": "Soft delete: marca la relación como no activa."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_plan_estudio_id', data && data['materia_plan_estudio_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "99.7 Desactivar materia catálogo",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/materias-catalogo/{{materia_catalogo_id}}",
+                "description": "Soft delete: marca la materia de catálogo como inactiva."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('materia_catalogo_id', data && data['materia_catalogo_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "99.8 Desactivar plan de estudio",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/planes-estudio/{{plan_estudio_id}}",
+                "description": "Soft delete: marca el plan como inactivo."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('plan_estudio_id', data && data['plan_estudio_id']);"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "name": "99.9 Desactivar periodo",
+              "request": {
+                "method": "DELETE",
+                "header": [
+                  {
+                    "key": "Authorization",
+                    "value": "Bearer {{admin_access_token}}",
+                    "type": "text",
+                    "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+                  }
+                ],
+                "url": "{{ms_periodos_materias_base_url}}/periodos/{{periodo_id}}",
+                "description": "Soft delete: marca el periodo como inactivo. Úsalo al final para no romper las consultas del flujo."
+              },
+              "event": [
+                {
+                  "listen": "test",
+                  "script": {
+                    "type": "text/javascript",
+                    "exec": [
+                      "let json = {};",
+                      "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                      "const data = json.data || json;",
+                      "function setVar(name, value) {",
+                      "  if (value === undefined || value === null || value === '') return;",
+                      "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                      "  pm.collectionVariables.set(name, String(value));",
+                      "}",
+                      "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                      "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                      "setVar('periodo_id', data && data['periodo_id']);"
+                    ]
+                  }
+                }
+              ]
+            }
+          ],
+          "description": "Incluye operaciones reales pero destructivas o de estado terminal. No las corras antes de las consultas principales si quieres conservar el flujo activo."
+        }
+      ]
+    },
+    {
+      "name": "03 - MS-3 Docentes: importación y catálogo",
+      "description": "Flujo del Administrador sobre docentes: importar directorio institucional desde PDF, visualizar/listar el catálogo y validar edición puntual del docente.",
+      "item": [
+        {
+          "name": "Importar docentes PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/importar/docentes",
+            "description": "Importación real del directorio institucional de docentes. En Postman selecciona manualmente el PDF en el campo file.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Selecciona aquí el PDF de docentes/directorio institucional."
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "if (json.creados !== undefined) {",
+                  "  try { pm.environment.set('docentes_importados', String(json.creados)); } catch (e) {}",
+                  "  pm.collectionVariables.set('docentes_importados', String(json.creados));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar docentes",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/docentes/?skip={{ms3_skip}}&limit={{ms3_limit}}",
+            "description": "Lista docentes registrados. Sirve para validar consulta/paginación básica y capturar un docente_id si no existe."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "let data = [];",
+                  "try { data = pm.response.json(); } catch (e) { data = []; }",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "if (Array.isArray(data) && data.length > 0 && !getVar('docente_id')) {",
+                  "  setVar('docente_id', data[0].docente_id);",
+                  "  setVar('docente_user_id', data[0].user_id);",
+                  "  setVar('docente_correo', data[0].correo);",
+                  "  setVar('docente_nombre', data[0].nombre_completo);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener docente por ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/docentes/{{docente_id}}",
+            "description": "Consulta un docente específico por ID. Usa docente_id capturado desde el listado o cargado en el environment."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let json = {}; try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) { if (value === undefined || value === null || value === '') return; try { pm.environment.set(name, String(value)); } catch(e) {} pm.collectionVariables.set(name, String(value)); }",
+                  "setVar('docente_id', data.docente_id || data.id);",
+                  "setVar('docente_user_id', data.user_id);",
+                  "setVar('docente_correo', data.correo || data.email);",
+                  "setVar('docente_nombre', data.nombre_completo || data.nombre);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar docente",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/docentes/{{docente_id}}",
+            "description": "Actualiza campos editables del docente. Ejecutar después de tener docente_id válido.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_completo\": \"{{docente_nombre_actualizado}}\",\n  \"cubiculo\": \"{{docente_cubiculo_actualizado}}\",\n  \"horario_atencion\": \"{{docente_horario_atencion_actualizado}}\",\n  \"estatus_laboral\": {{docente_estatus_laboral}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let json = {}; try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) { if (value === undefined || value === null || value === '') return; try { pm.environment.set(name, String(value)); } catch(e) {} pm.collectionVariables.set(name, String(value)); }",
+                  "setVar('docente_id', data.docente_id || data.id);",
+                  "setVar('docente_user_id', data.user_id);",
+                  "setVar('docente_correo', data.correo || data.email);",
+                  "setVar('docente_nombre', data.nombre_completo || data.nombre);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - MS-1 Auth: restablecimiento de contraseña (opcional)",
+      "description": "Opcional para evidenciar restablecimiento de credenciales. Reutiliza el flujo real de Auth.",
+      "item": [
+        {
+          "name": "Solicitar recuperación de contraseña",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const resetEmail = pm.environment.get('password_reset_email') || pm.environment.get('auth_email');",
+                  "if (resetEmail) {",
+                  "    pm.environment.set('password_reset_email', resetEmail);",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Solicitud de recuperación procesada', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json.data).to.have.property('reset_requested', true);",
+                  "});",
+                  "",
+                  "pm.test('Guardar reset token si el ambiente lo devuelve', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.data && json.data.reset_token) {",
+                  "        pm.environment.set('password_reset_token', json.data.reset_token);",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{password_reset_email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ms_auth_base_url}}/auth/forgot-password",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "forgot-password"
+              ]
+            },
+            "description": "Solicita recuperación para password_reset_email. Si password_reset_email no existe, usa auth_email."
+          }
+        },
+        {
+          "name": "Confirmar recuperación de contraseña",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "if (!pm.environment.get('password_reset_token')) {",
+                  "    console.warn('Falta password_reset_token. Ejecuta forgot-password en development o pega el token recibido por correo/logs.');",
+                  "}",
+                  "if (!pm.environment.get('auth_new_password')) {",
+                  "    console.warn('Falta auth_new_password en el environment.');",
+                  "}"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Contraseña actualizada', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json.data).to.have.property('password_updated', true);",
+                  "});",
+                  "",
+                  "pm.test('Sincronizar password si se reseteó el usuario de login', function () {",
+                  "    const resetEmail = (pm.environment.get('password_reset_email') || '').toLowerCase();",
+                  "    const loginEmail = (pm.environment.get('auth_email') || '').toLowerCase();",
+                  "    if (resetEmail && loginEmail && resetEmail === loginEmail && pm.environment.get('auth_new_password')) {",
+                  "        pm.environment.set('auth_password', pm.environment.get('auth_new_password'));",
+                  "    }",
+                  "    pm.environment.unset('password_reset_token');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reset_token\": \"{{password_reset_token}}\",\n  \"nueva_contrasena\": \"{{auth_new_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ms_auth_base_url}}/auth/reset-password",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "reset-password"
+              ]
+            },
+            "description": "Cambia realmente la contraseña. Después de ejecutarlo, si password_reset_email == auth_email, la colección actualiza auth_password con auth_new_password."
+          }
+        }
+      ]
+    },
+    {
+      "name": "99 - Cierre de sesión",
+      "description": "Ejecutar al final de la demostración del administrador.",
+      "item": [
+        {
+          "name": "Logout ADMIN",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de ADMIN generado por MS-1 Auth"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{ms_auth_base_url}}/auth/logout",
+              "host": [
+                "{{ms_auth_base_url}}"
+              ],
+              "path": [
+                "auth",
+                "logout"
+              ]
+            },
+            "description": "Cierra sesión y revoca el access_token actual. Debe ejecutarse después de terminar las pruebas protegidas."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Logout exitoso', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('success', true);",
+                  "    pm.expect(json.data).to.have.property('logged_out', true);",
+                  "    pm.expect(json.data).to.have.property('access_token_revoked', true);",
+                  "});",
+                  "",
+                  "pm.test('Limpiar tokens revocados del environment', function () {",
+                  "    pm.environment.unset('access_token');",
+                  "    pm.environment.unset('refresh_token');",
+                  "    pm.environment.set('auth_logged_out', 'true');",
+                  "});",
+                  "",
+                  "try { pm.environment.unset('admin_access_token'); } catch(e) {}",
+                  "pm.collectionVariables.unset('admin_access_token');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

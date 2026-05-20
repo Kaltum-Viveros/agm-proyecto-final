@@ -36,7 +36,7 @@ async def iniciar_sesion(
     nueva_sesion = await ServicioSesiones.iniciar_sesion(
         db=db,
         id_materia=request.id_materia,
-        id_docente=int(id_docente),
+        id_docente=str(id_docente),
     )
     # Convertir el modelo de SQLAlchemy a Pydantic y commitear
     await db.commit()

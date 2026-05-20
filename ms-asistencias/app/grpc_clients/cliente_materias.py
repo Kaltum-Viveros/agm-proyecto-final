@@ -9,10 +9,25 @@ from app.generated import periodos_materias_pb2, periodos_materias_pb2_grpc
 class ClienteMaterias:
     def __init__(self):
         self.target = f"{settings.MATERIAS_GRPC_HOST}:{settings.MATERIAS_GRPC_PORT}"
-        self.channel = grpc.aio.insecure_channel(self.target)
-        self.stub = periodos_materias_pb2_grpc.PeriodosMateriasServiceStub(self.channel)
+        self._channel = None
+        self._stub = None
+        self._loop = None
 
-    async def verificar_materia_docente(self, id_materia: int, id_docente: int) -> bool:
+    @property
+    def stub(self):
+        import asyncio
+        try:
+            current_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            current_loop = None
+
+        if self._channel is None or self._loop != current_loop:
+            self._loop = current_loop
+            self._channel = grpc.aio.insecure_channel(self.target)
+            self._stub = periodos_materias_pb2_grpc.PeriodosMateriasServiceStub(self._channel)
+        return self._stub
+
+    async def verificar_materia_docente(self, id_materia: str, id_docente: str) -> bool:
         """
         Consulta al MS-2 si la materia existe y si realmente es impartida por este docente.
         """

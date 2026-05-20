@@ -10,7 +10,7 @@ client = TestClient(app)
 
 # Mockear la dependencia del JWT
 def mock_requerir_docente_valido():
-    return {"id_docente": 1, "role": "DOCENTE", "user_id": 1}
+    return {"id_docente": "1", "role": "DOCENTE", "user_id": "1"}
 
 app.dependency_overrides[requerir_docente] = mock_requerir_docente_valido
 
@@ -29,10 +29,10 @@ def test_iniciar_sesion_flujo_feliz(mock_grpc_materia):
     
     # Asegurarnos de limpiar cualquier sesión activa previa (simulado o apuntando a BD de prueba)
     # Por ahora simplemente probamos la ruta y esperamos 201 o 409 si ejecutamos local
-    response = client.post("/sesiones/iniciar", json={"id_materia": 9999})
+    response = client.post("/sesiones/iniciar", json={"id_materia": "9999"})
     
     assert response.status_code in [201, 409] # 201 Creado o 409 si ya había en test local
-    mock_grpc_materia.assert_called_once_with(9999, 1)
+    mock_grpc_materia.assert_called_once_with("9999", "1")
 
 
 def test_iniciar_sesion_forbidden(mock_grpc_materia):
@@ -41,7 +41,7 @@ def test_iniciar_sesion_forbidden(mock_grpc_materia):
     """
     mock_grpc_materia.return_value = False
     
-    response = client.post("/sesiones/iniciar", json={"id_materia": 8888})
+    response = client.post("/sesiones/iniciar", json={"id_materia": "8888"})
     
     assert response.status_code == 403
     assert "El docente no tiene asignada esta materia" in response.json()["detail"]
@@ -54,7 +54,7 @@ def test_iniciar_sesion_ms2_caido(mock_grpc_materia):
     from fastapi import HTTPException
     mock_grpc_materia.side_effect = HTTPException(status_code=503, detail="MS-2 no disponible")
     
-    response = client.post("/sesiones/iniciar", json={"id_materia": 7777})
+    response = client.post("/sesiones/iniciar", json={"id_materia": "7777"})
     
     assert response.status_code == 503
 
@@ -73,7 +73,7 @@ def test_cerrar_sesion_con_ausentes():
 
     sesion_dummy = SesionAsistencia(
         id_sesion=120,
-        id_materia=35,
+        id_materia="35",
         estado_sesion=EstadoSesion.ACTIVA,
         fecha_hora_fin=datetime.utcnow() + timedelta(minutes=5)
     )
@@ -87,7 +87,7 @@ def test_cerrar_sesion_con_ausentes():
         mock_get_sesion.return_value = sesion_dummy
         mock_close.return_value = True
         mock_get_alumnos.return_value = [
-            {"id_alumno": 100, "matricula": "A100", "nombre_completo": "Juan Perez"}
+            {"id_alumno": "100", "matricula": "A100", "nombre_completo": "Juan Perez"}
         ]
         # Ningún alumno ha registrado asistencia
         mock_list_asistencias.return_value = []
@@ -100,7 +100,7 @@ def test_cerrar_sesion_con_ausentes():
         # Confirmamos que se intentó crear el registro de asistencia como AUSENTE para Juan Perez
         mock_create_asistencia.assert_called_once()
         args, kwargs = mock_create_asistencia.call_args
-        assert kwargs["id_alumno"] == 100
+        assert kwargs["id_alumno"] == "100"
         assert kwargs["matricula"] == "A100"
         assert kwargs["estado_asistencia"] == EstadoAsistencia.AUSENTE
         assert kwargs["metodo_registro"] == MetodoRegistro.SISTEMA

@@ -8,8 +8,23 @@ from app.generated import auth_pb2, auth_pb2_grpc
 class ClienteAuth:
     def __init__(self):
         self.target = f"{settings.AUTH_GRPC_HOST}:{settings.AUTH_GRPC_PORT}"
-        self.channel = grpc.aio.insecure_channel(self.target)
-        self.stub = auth_pb2_grpc.AuthServiceStub(self.channel)
+        self._channel = None
+        self._stub = None
+        self._loop = None
+
+    @property
+    def stub(self):
+        import asyncio
+        try:
+            current_loop = asyncio.get_running_loop()
+        except RuntimeError:
+            current_loop = None
+
+        if self._channel is None or self._loop != current_loop:
+            self._loop = current_loop
+            self._channel = grpc.aio.insecure_channel(self.target)
+            self._stub = auth_pb2_grpc.AuthServiceStub(self._channel)
+        return self._stub
 
     async def validar_token(self, token: str) -> dict:
         """

@@ -1,0 +1,1717 @@
+{
+  "info": {
+    "_postman_id": "7fd606fc-cf90-4b1c-94e5-9907762168d3",
+    "name": "AGM - Colección ALUMNO - Flujo completo",
+    "description": "Colección por rol para demostrar el flujo completo del ALUMNO conforme al documento base AGM: autenticación, dashboard/perfil, materias inscritas, consulta de actividades y calificaciones, generación de QR de asistencia, estadísticas personales, baja de materia y cierre de sesión. Usa headers Authorization: Bearer {{alumno_access_token}} y variables compartidas con las colecciones ADMIN/DOCENTE.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+          "function setVar(name, value) {",
+          "  if (value === undefined || value === null || value === '') return;",
+          "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+          "  pm.collectionVariables.set(name, String(value));",
+          "}",
+          "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+          "function uuidv4() {",
+          "  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+          "    const r = Math.random() * 16 | 0;",
+          "    const v = c === 'x' ? r : (r & 0x3 | 0x8);",
+          "    return v.toString(16);",
+          "  });",
+          "}",
+          "setIfMissing('ms_auth_base_url', 'http://localhost:8001');",
+          "setIfMissing('ms_periodos_materias_base_url', 'http://localhost:8002/api/v1');",
+          "setIfMissing('ms_docentes_alumnos_base_url', 'http://localhost:8003');",
+          "setIfMissing('ms_calificaciones_base_url', 'http://localhost:8004');",
+          "setIfMissing('ms_asistencias_base_url', 'http://localhost:8005');",
+          "setIfMissing('ms_notificaciones_base_url', 'http://localhost:8006');",
+          "setIfMissing('ms_reportes_base_url', 'http://localhost:8007');",
+          "setIfMissing('alumno_email', '');",
+          "setIfMissing('alumno_password', '');",
+          "if (!getVar('alumno_access_token') && getVar('access_token') && (getVar('current_user_role') || '').toLowerCase().includes('alumno')) setVar('alumno_access_token', getVar('access_token'));",
+          "if (!getVar('materia_id') && getVar('materia_ofertada_id')) setVar('materia_id', getVar('materia_ofertada_id'));",
+          "if (!getVar('materia_ofertada_id') && getVar('materia_id')) setVar('materia_ofertada_id', getVar('materia_id'));",
+          "if (!getVar('id_materia') && getVar('materia_id')) setVar('id_materia', getVar('materia_id'));",
+          "if (!getVar('id_materia') && getVar('materia_ofertada_id')) setVar('id_materia', getVar('materia_ofertada_id'));",
+          "if (!getVar('alumno_id') && getVar('alumno_user_id')) console.warn('Falta alumno_id. Se intentará capturar desde MS-3; si no funciona, llena alumno_id manualmente.');",
+          "if (!getVar('id_sesion')) console.warn('Para generar QR, primero debe existir id_sesion creado por el flujo DOCENTE en MS-5.');"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Status HTTP esperado', function () {",
+          "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "ms_auth_base_url",
+      "value": "http://localhost:8001",
+      "type": "string"
+    },
+    {
+      "key": "ms_periodos_materias_base_url",
+      "value": "http://localhost:8002/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "ms_docentes_alumnos_base_url",
+      "value": "http://localhost:8003",
+      "type": "string"
+    },
+    {
+      "key": "ms_calificaciones_base_url",
+      "value": "http://localhost:8004",
+      "type": "string"
+    },
+    {
+      "key": "ms_asistencias_base_url",
+      "value": "http://localhost:8005",
+      "type": "string"
+    },
+    {
+      "key": "ms_notificaciones_base_url",
+      "value": "http://localhost:8006",
+      "type": "string"
+    },
+    {
+      "key": "ms_reportes_base_url",
+      "value": "http://localhost:8007",
+      "type": "string"
+    },
+    {
+      "key": "alumno_email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_password",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_new_password",
+      "value": "Alumno12345Reset",
+      "type": "string"
+    },
+    {
+      "key": "alumno_password_reset_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_correo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_matricula",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_tipo_formacion",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_activo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_ofertada_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "id_materia",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_nrc",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_seccion",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "inscripcion_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "actividad_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "calificacion_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "promedio_ponderado_actual",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "promedio_redondeado_actual",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "id_sesion",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sesion_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_cifrado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "qr_token_cifrado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_estado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_alumno_total_materias",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_alumno_promedio_general",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_alumno_promedio_asistencia",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_alumno_total_asistencias",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_baja_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_baja_materia_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health checks",
+      "description": "Verifica disponibilidad de los microservicios usados en el flujo del alumno.",
+      "item": [
+        {
+          "name": "MS-1 Auth Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_auth_base_url}}/health",
+            "description": "Health de autenticación.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-1 responde 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-2 Periodos/Materias Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_periodos_materias_base_url}}/health",
+            "description": "Health de periodos y materias.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-2 responde 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-3 Docentes/Alumnos Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_docentes_alumnos_base_url}}/",
+            "description": "Health de docentes y alumnos.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-3 responde 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-4 Calificaciones Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/health",
+            "description": "Health de calificaciones y ponderaciones.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-4 responde 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-5 Asistencias QR Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_asistencias_base_url}}/",
+            "description": "Health de asistencias QR.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-5 responde 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-6 Notificaciones Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_notificaciones_base_url}}/",
+            "description": "Health de notificaciones. En el flujo alumno se prueba indirectamente con la baja de materia.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-6 responde 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-7 Reportes/Estadísticas Health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{ms_reportes_base_url}}/",
+            "description": "Health de reportes y estadísticas.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-7 responde 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - MS-1 Sesión ALUMNO",
+      "description": "Autenticación del alumno: login, validación de token y refresh.",
+      "item": [
+        {
+          "name": "01.1 Login alumno",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_auth_base_url}}/auth/login",
+            "description": "Inicia sesión como ALUMNO. Guarda alumno_access_token/alumno_refresh_token y variables de usuario.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{alumno_email}}\",\n  \"contrasena\": \"{{alumno_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login alumno responde 200', function () { pm.response.to.have.status(200); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "pm.test('Tokens presentes', function () {",
+                  "  pm.expect(data.access_token).to.be.a('string').and.not.empty;",
+                  "  pm.expect(data.refresh_token).to.be.a('string').and.not.empty;",
+                  "});",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('alumno_access_token', data.access_token);",
+                  "setVar('alumno_refresh_token', data.refresh_token);",
+                  "setVar('access_token', data.access_token);",
+                  "setVar('refresh_token', data.refresh_token);",
+                  "if (data.user) {",
+                  "  setVar('current_user_id', data.user.user_id || data.user.id);",
+                  "  setVar('current_user_email', data.user.email);",
+                  "  setVar('current_user_role', data.user.rol || data.user.role);",
+                  "  setVar('current_user_name', data.user.nombre_completo || data.user.nombre);",
+                  "  setVar('alumno_user_id', data.user.user_id || data.user.id);",
+                  "  setVar('alumno_correo', data.user.email);",
+                  "  setVar('alumno_nombre', data.user.nombre_completo || data.user.nombre);",
+                  "}",
+                  "if ((data.user && String(data.user.rol || data.user.role || '').toLowerCase() !== 'alumno')) console.warn('El usuario autenticado no parece tener rol ALUMNO.');"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.2 Validar sesión /auth/me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_auth_base_url}}/auth/me",
+            "description": "Valida que el JWT del alumno esté activo y captura datos básicos."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('current_user_id', data.user_id || data.id);",
+                  "setVar('current_user_email', data.email);",
+                  "setVar('current_user_role', data.rol || data.role);",
+                  "setVar('current_user_name', data.nombre_completo || data.nombre);",
+                  "setVar('alumno_user_id', data.user_id || data.id);",
+                  "setVar('alumno_correo', data.email);",
+                  "setVar('alumno_nombre', data.nombre_completo || data.nombre);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "01.3 Refresh token alumno",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_auth_base_url}}/auth/refresh-token",
+            "description": "Renueva sesión del alumno y actualiza tokens.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{alumno_refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('alumno_access_token', data.access_token);",
+                  "setVar('alumno_refresh_token', data.refresh_token);",
+                  "setVar('access_token', data.access_token);",
+                  "setVar('refresh_token', data.refresh_token);",
+                  "if (data.user) {",
+                  "  setVar('current_user_id', data.user.user_id || data.user.id);",
+                  "  setVar('current_user_email', data.user.email);",
+                  "  setVar('current_user_role', data.user.rol || data.user.role);",
+                  "  setVar('current_user_name', data.user.nombre_completo || data.user.nombre);",
+                  "  setVar('alumno_user_id', data.user.user_id || data.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Dashboard alumno y materias inscritas",
+      "description": "Perfil del alumno, periodo activo y materias actuales con NRC/docente/sección.",
+      "item": [
+        {
+          "name": "02.1 Obtener periodo activo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_periodos_materias_base_url}}/periodos/activo",
+            "description": "Consulta el periodo activo usado como referencia del dashboard del alumno."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('periodo_activo_id', data.periodo_id || data.id);",
+                  "setIfMissing('periodo_id', data.periodo_id || data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.2 Buscar mi registro de alumno",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/alumnos/?skip={{ms3_skip}}&limit={{ms3_limit}}",
+            "description": "Localiza el registro académico del alumno autenticado y captura alumno_id, matrícula y tipo de formación."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let payload = {};",
+                  "try { payload = pm.response.json(); } catch (e) { payload = {}; }",
+                  "let data = payload.data || payload;",
+                  "if (data && data.items && Array.isArray(data.items)) data = data.items;",
+                  "if (data && data.data && Array.isArray(data.data)) data = data.data;",
+                  "if (!Array.isArray(data)) data = data ? [data] : [];",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "const userId = getVar('alumno_user_id') || getVar('current_user_id');",
+                  "const email = (getVar('alumno_correo') || getVar('alumno_email') || getVar('current_user_email') || '').toLowerCase();",
+                  "let found = null;",
+                  "if (userId) found = data.find(a => String(a.user_id || a.usuario_id || '') === String(userId));",
+                  "if (!found && email) found = data.find(a => String(a.correo || a.email || '').toLowerCase() === email);",
+                  "if (!found && data.length === 1) found = data[0];",
+                  "if (!found && data.length > 0) found = data[0];",
+                  "if (found) {",
+                  "  setVar('alumno_id', found.alumno_id || found.id);",
+                  "  setVar('alumno_user_id', found.user_id || found.usuario_id);",
+                  "  setVar('alumno_correo', found.correo || found.email);",
+                  "  setVar('alumno_nombre', found.nombre_completo || found.nombre);",
+                  "  setVar('alumno_matricula', found.matricula);",
+                  "  setVar('alumno_tipo_formacion', found.tipo_formacion);",
+                  "} else { console.warn('No se encontró el registro de alumno; llena alumno_id manualmente.'); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.3 Obtener mi perfil de alumno",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/alumnos/{{alumno_id}}",
+            "description": "Consulta detalle del alumno para el dashboard: nombre, matrícula, correo y tipo de formación."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('alumno_id', data.alumno_id || data.id);",
+                  "setVar('alumno_user_id', data.user_id || data.usuario_id);",
+                  "setVar('alumno_correo', data.correo || data.email);",
+                  "setVar('alumno_nombre', data.nombre_completo || data.nombre);",
+                  "setVar('alumno_matricula', data.matricula);",
+                  "setVar('alumno_tipo_formacion', data.tipo_formacion);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.4 Listar mis inscripciones / materias",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/inscripciones/?alumno_id={{alumno_id}}",
+            "description": "Verifica las materias inscritas del alumno. Captura materia_id/materia_ofertada_id para el resto del flujo."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let payload = {};",
+                  "try { payload = pm.response.json(); } catch (e) { payload = {}; }",
+                  "let data = payload.data || payload;",
+                  "if (data && data.items && Array.isArray(data.items)) data = data.items;",
+                  "if (data && data.data && Array.isArray(data.data)) data = data.data;",
+                  "if (!Array.isArray(data)) data = data ? [data] : [];",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "const alumnoId = getVar('alumno_id');",
+                  "let found = null;",
+                  "if (alumnoId) found = data.find(i => String(i.alumno_id || i.id_alumno || '') === String(alumnoId));",
+                  "if (!found && data.length === 1) found = data[0];",
+                  "if (!found && data.length > 0) found = data[0];",
+                  "if (found) {",
+                  "  setVar('inscripcion_id', found.inscripcion_id || found.id);",
+                  "  setVar('alumno_id', found.alumno_id || found.id_alumno);",
+                  "  setVar('materia_id', found.materia_id || found.materia_ofertada_id || found.id_materia);",
+                  "  setVar('materia_ofertada_id', found.materia_ofertada_id || found.materia_id || found.id_materia);",
+                  "  setVar('id_materia', found.materia_id || found.materia_ofertada_id || found.id_materia);",
+                  "  setVar('docente_id', found.docente_id || found.id_docente);",
+                  "  setVar('periodo_id', found.periodo_id);",
+                  "  setVar('materia_nrc', found.nrc_materia || found.nrc);",
+                  "  setVar('materia_seccion', found.seccion_materia || found.seccion);",
+                  "} else { console.warn('No se encontró inscripción/materia del alumno.'); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "02.5 Obtener detalle de mi materia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_periodos_materias_base_url}}/materias/{{materia_id}}",
+            "description": "Consulta NRC, nombre, docente, sección y estado de la materia inscrita."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('materia_id', data.materia_id || data.materia_ofertada_id || data.id);",
+                  "setVar('materia_ofertada_id', data.materia_ofertada_id || data.materia_id || data.id);",
+                  "setVar('id_materia', data.materia_id || data.materia_ofertada_id || data.id);",
+                  "setVar('materia_nombre', data.nombre || data.materia_nombre);",
+                  "setVar('materia_nrc', data.nrc);",
+                  "setVar('materia_seccion', data.seccion);",
+                  "setVar('docente_id', data.docente_id || data.id_docente);",
+                  "setVar('docente_nombre', data.docente_nombre || data.docente);",
+                  "setVar('periodo_id', data.periodo_id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Consulta de actividades y calificaciones",
+      "description": "Detalle de actividades, calificaciones parciales y promedio ponderado actual del alumno.",
+      "item": [
+        {
+          "name": "03.1 Obtener actividades de la materia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/actividades/materia/{{materia_id}}",
+            "description": "Lista actividades de evaluación de la materia inscrita."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let payload = {};",
+                  "try { payload = pm.response.json(); } catch (e) { payload = {}; }",
+                  "let data = payload.data || payload;",
+                  "if (data && data.items && Array.isArray(data.items)) data = data.items;",
+                  "if (!Array.isArray(data)) data = data ? [data] : [];",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "if (data.length > 0) {",
+                  "  setVar('actividad_id', data[0].id || data[0].actividad_id);",
+                  "  setVar('materia_id', data[0].materia_id || getVar('materia_id'));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.2 Obtener detalle de actividad",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/actividades/{{actividad_id}}",
+            "description": "Consulta una actividad específica de la materia."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('actividad_id', data.id || data.actividad_id);",
+                  "setVar('materia_id', data.materia_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.3 Obtener mis calificaciones por materia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/calificaciones/alumno/{{alumno_id}}/materia/{{materia_id}}",
+            "description": "Consulta calificaciones parciales del alumno en la materia."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let payload = {};",
+                  "try { payload = pm.response.json(); } catch (e) { payload = {}; }",
+                  "let data = payload.data || payload;",
+                  "if (data && data.items && Array.isArray(data.items)) data = data.items;",
+                  "if (data && data.data && Array.isArray(data.data)) data = data.data;",
+                  "if (!Array.isArray(data)) data = data ? [data] : [];",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "if (data.length > 0) {",
+                  "  setVar('calificacion_id', data[0].id || data[0].calificacion_id);",
+                  "  setVar('actividad_id', data[0].actividad_id);",
+                  "  setVar('materia_id', data[0].materia_id || getVar('materia_id'));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "03.4 Obtener concentrado de mi materia - modo actual",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/concentrado/{{materia_id}}?modo=actual",
+            "description": "Consulta promedio ponderado actual y promedio redondeado. Si la respuesta es grupal, el script busca el alumno_id actual."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "let alumno = null;",
+                  "const alumnoId = getVar('alumno_id');",
+                  "if (Array.isArray(data)) alumno = data.find(a => String(a.alumno_id || a.id) === String(alumnoId));",
+                  "if (!alumno && data.alumnos && Array.isArray(data.alumnos)) alumno = data.alumnos.find(a => String(a.alumno_id || a.id) === String(alumnoId));",
+                  "if (!alumno && data.items && Array.isArray(data.items)) alumno = data.items.find(a => String(a.alumno_id || a.id) === String(alumnoId));",
+                  "if (!alumno && !Array.isArray(data)) alumno = data;",
+                  "if (alumno) {",
+                  "  setVar('promedio_ponderado_actual', alumno.promedio_ponderado || alumno.promedio_real || alumno.promedio_actual);",
+                  "  setVar('promedio_redondeado_actual', alumno.promedio_redondeado || alumno.promedio_final);",
+                  "}",
+                  "setVar('concentrado_modo', data.modo || 'actual');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Asistencia QR del alumno",
+      "description": "Generación del QR dinámico del alumno y consulta de asistencia/estadísticas disponibles.",
+      "item": [
+        {
+          "name": "04.1 Generar QR dinámico",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/qr/generar",
+            "description": "Genera el token cifrado del QR personal del alumno. Requiere que el DOCENTE haya iniciado id_sesion previamente.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_sesion\": \"{{id_sesion}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "const token = data.token_cifrado || data.qr_token || data.token || data.codigo_qr || data.qr || data.payload;",
+                  "setVar('token_cifrado', token);",
+                  "setVar('qr_token_cifrado', token);",
+                  "setVar('id_sesion', data.id_sesion || data.sesion_id || getVar('id_sesion'));",
+                  "setVar('sesion_id', data.id_sesion || data.sesion_id || getVar('sesion_id'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.2 Regenerar QR dinámico",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/qr/generar",
+            "description": "Vuelve a generar el QR para evidenciar que el código es dinámico y cambia con el tiempo.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_sesion\": \"{{id_sesion}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "const token = data.token_cifrado || data.qr_token || data.token || data.codigo_qr || data.qr || data.payload;",
+                  "setVar('token_cifrado', token);",
+                  "setVar('qr_token_cifrado', token);",
+                  "setVar('id_sesion', data.id_sesion || data.sesion_id || getVar('id_sesion'));",
+                  "setVar('sesion_id', data.id_sesion || data.sesion_id || getVar('sesion_id'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.3 Consultar asistencias de hoy en mi materia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/asistencias/{{id_materia}}/hoy",
+            "description": "Consulta registros de asistencia del día para la materia. Si el backend filtra por token, muestra la del alumno; si no, devuelve la vista de la materia."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let payload = {};",
+                  "try { payload = pm.response.json(); } catch (e) { payload = {}; }",
+                  "let data = payload.data || payload;",
+                  "if (data && data.items && Array.isArray(data.items)) data = data.items;",
+                  "if (!Array.isArray(data)) data = data ? [data] : [];",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "const alumnoId = getVar('alumno_id');",
+                  "let mine = alumnoId ? data.find(a => String(a.alumno_id || a.id_alumno || '') === String(alumnoId)) : null;",
+                  "if (!mine && data.length === 1) mine = data[0];",
+                  "if (mine) {",
+                  "  setVar('asistencia_id', mine.asistencia_id || mine.id);",
+                  "  setVar('asistencia_estado', mine.estado || mine.status);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "04.4 Consultar historial/estadísticas de asistencia de mi materia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/asistencias/{{id_materia}}/historial",
+            "description": "Consulta historial de asistencias de la materia para validar estadísticas personales o de grupo según la implementación."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let payload = {};",
+                  "try { payload = pm.response.json(); } catch (e) { payload = {}; }",
+                  "let data = payload.data || payload;",
+                  "if (data && data.items && Array.isArray(data.items)) data = data.items;",
+                  "if (!Array.isArray(data)) data = data ? [data] : [];",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('asistencia_historial_total', data.length);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - Estadísticas personales del alumno",
+      "description": "Estadísticas individuales de asistencias y rendimiento.",
+      "item": [
+        {
+          "name": "05.1 Estadísticas alumno",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/api/v1/estadisticas/alumno/{{alumno_id}}",
+            "description": "Consulta estadísticas individuales del alumno: materias, promedio general, asistencia y rendimiento histórico."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('estadisticas_alumno_total_materias', data.total_materias || data.materias_total);",
+                  "setVar('estadisticas_alumno_promedio_general', data.promedio_general || data.promedio);",
+                  "setVar('estadisticas_alumno_promedio_asistencia', data.promedio_asistencia || data.porcentaje_asistencia);",
+                  "setVar('estadisticas_alumno_total_asistencias', data.total_asistencias || data.asistencias_total);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 - Baja de materia",
+      "description": "Flujo terminal del alumno. El PDF indica que la baja es irreversible, solo se permite una vez y debe notificar al docente.",
+      "item": [
+        {
+          "name": "06.1 Baja de mi materia",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/alumnos/{{alumno_id}}/baja?materia_id={{materia_id}}",
+            "description": "Da de baja al alumno de la materia. Ejecutar al final: después de esto el alumno pierde acceso a esa materia y el sistema debe notificar al docente."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('alumno_baja_id', getVar('alumno_id'));",
+                  "setVar('alumno_baja_materia_id', getVar('materia_id') || getVar('materia_ofertada_id'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "06.2 Verificar alumnos activos de la materia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/alumnos/materia/{{materia_id}}",
+            "description": "Verifica que el alumno dado de baja ya no aparezca como activo en la materia, si el endpoint permite consulta con rol alumno."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let payload = {};",
+                  "try { payload = pm.response.json(); } catch (e) { payload = {}; }",
+                  "let data = payload.data || payload;",
+                  "if (data && data.items && Array.isArray(data.items)) data = data.items;",
+                  "if (!Array.isArray(data)) data = data ? [data] : [];",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "const alumnoId = getVar('alumno_id');",
+                  "const sigueActivo = data.some(a => String(a.alumno_id || a.id) === String(alumnoId));",
+                  "setVar('alumno_sigue_activo_en_materia', String(sigueActivo));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07 - Recuperación de contraseña ALUMNO (opcional)",
+      "description": "Flujo transversal del sistema. Úsalo solo si quieres evidenciar recuperación de contraseña para alumno; cambia realmente la contraseña.",
+      "item": [
+        {
+          "name": "07.1 Forgot password alumno",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_auth_base_url}}/auth/forgot-password",
+            "description": "Solicita recuperación de contraseña para el correo del alumno.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{alumno_email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('alumno_password_reset_token', data.reset_token || data.token || data.password_reset_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "07.2 Reset password alumno",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_auth_base_url}}/auth/reset-password",
+            "description": "Cambia la contraseña del alumno. Después deberás actualizar alumno_password con alumno_new_password para futuros logins.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reset_token\": \"{{alumno_password_reset_token}}\",\n  \"nueva_contrasena\": \"{{alumno_new_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "if (getVar('alumno_new_password')) setVar('alumno_password', getVar('alumno_new_password'));",
+                  "try { pm.environment.unset('alumno_password_reset_token'); } catch(e) {}",
+                  "pm.collectionVariables.unset('alumno_password_reset_token');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "99 - Cierre de sesión",
+      "description": "Ejecutar al final de la demo del alumno.",
+      "item": [
+        {
+          "name": "99.1 Logout alumno",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{alumno_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario ALUMNO generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_auth_base_url}}/auth/logout",
+            "description": "Cierra sesión e invalida refresh token del alumno.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{alumno_refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "setVar('alumno_logged_out', 'true');",
+                  "try { pm.environment.unset('alumno_access_token'); } catch(e) {}",
+                  "try { pm.environment.unset('alumno_refresh_token'); } catch(e) {}",
+                  "pm.collectionVariables.set('alumno_access_token', '');",
+                  "pm.collectionVariables.set('alumno_refresh_token', '');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

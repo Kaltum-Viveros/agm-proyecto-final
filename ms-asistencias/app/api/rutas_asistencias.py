@@ -65,7 +65,7 @@ async def listar_historial_sesion(
     summary="Obtener las asistencias de una materia en el día de hoy",
 )
 async def listar_asistencias_hoy(
-    id_materia: int,
+    id_materia: str,
     claims: dict = Depends(requerir_usuario),
     db: AsyncSession = Depends(get_db),
 ):

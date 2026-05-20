@@ -1,0 +1,3471 @@
+{
+  "info": {
+    "_postman_id": "ec23129e-ee47-46ab-9328-9525fe200925",
+    "name": "AGM - Colección DOCENTE - Flujo completo",
+    "description": "Colección por rol para demostrar el flujo completo del Docente en AGM: login, dashboard/materias asignadas, importación de alumnos, ponderaciones, actividades, calificaciones, pase de lista QR, cierre de materia, notificaciones y exportación de reportes.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "function uuidv4() { return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) { const r = Math.random()*16|0; const v = c === 'x' ? r : (r & 0x3 | 0x8); return v.toString(16); }); }",
+          "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+          "function setVar(name, value) { if (value === undefined || value === null || value === '') return; try { pm.environment.set(name, String(value)); } catch(e) {} pm.collectionVariables.set(name, String(value)); }",
+          "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+          "function todayIso() { return new Date().toISOString().slice(0,10); }",
+          "setIfMissing('ms_auth_base_url', 'http://localhost:8001');",
+          "setIfMissing('ms_periodos_materias_base_url', 'http://localhost:8002/api/v1');",
+          "setIfMissing('ms_docentes_alumnos_base_url', 'http://localhost:8003');",
+          "setIfMissing('ms_calificaciones_base_url', 'http://localhost:8004');",
+          "setIfMissing('ms_asistencias_base_url', 'http://localhost:8005');",
+          "setIfMissing('ms_notificaciones_base_url', 'http://localhost:8006');",
+          "setIfMissing('ms_reportes_base_url', 'http://localhost:8007');",
+          "setIfMissing('docente_email', 'docente@agm.com');",
+          "setIfMissing('docente_password', 'Docente12345');",
+          "setIfMissing('ms2_page', '1');",
+          "setIfMissing('ms2_limit', '10');",
+          "setIfMissing('ms3_skip', '0');",
+          "setIfMissing('ms3_limit', '100');",
+          "setIfMissing('reporte_formato_pdf', 'pdf');",
+          "setIfMissing('reporte_formato_xlsx', 'xlsx');",
+          "setIfMissing('actividad_fecha', todayIso());",
+          "setIfMissing('calificacion_valor', '8.50');",
+          "setIfMissing('calificacion_valor_actualizada', '9.20');",
+          "setIfMissing('calificacion_observaciones', 'Registro docente desde Postman');",
+          "setIfMissing('calificacion_observaciones_actualizada', 'Actualización docente desde Postman');",
+          "setIfMissing('password_temporal', 'Temp12345!');",
+          "if (!getVar('docente_access_token') && getVar('access_token')) setVar('docente_access_token', getVar('access_token'));",
+          "if (!getVar('access_token') && getVar('docente_access_token')) setVar('access_token', getVar('docente_access_token'));",
+          "if (!getVar('docente_refresh_token') && getVar('refresh_token')) setVar('docente_refresh_token', getVar('refresh_token'));",
+          "if (!getVar('materia_id') && getVar('materia_ofertada_id')) setVar('materia_id', getVar('materia_ofertada_id'));",
+          "if (!getVar('materia_id') && getVar('ms2_materia_ofertada_id')) setVar('materia_id', getVar('ms2_materia_ofertada_id'));",
+          "if (!getVar('id_materia') && getVar('materia_id')) setVar('id_materia', getVar('materia_id'));",
+          "if (!getVar('id_materia') && getVar('materia_ofertada_id')) setVar('id_materia', getVar('materia_ofertada_id'));",
+          "if (!getVar('reset_email') && getVar('docente_email')) setVar('reset_email', getVar('docente_email'));",
+          "if (!getVar('password_reset_email') && getVar('docente_email')) setVar('password_reset_email', getVar('docente_email'));",
+          "if (!getVar('usuario_id') && getVar('docente_user_id')) setVar('usuario_id', getVar('docente_user_id'));"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Status HTTP esperado', function () {",
+          "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+          "});"
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "ms_auth_base_url",
+      "value": "http://localhost:8001",
+      "type": "string"
+    },
+    {
+      "key": "ms_periodos_materias_base_url",
+      "value": "http://localhost:8002/api/v1",
+      "type": "string"
+    },
+    {
+      "key": "ms_docentes_alumnos_base_url",
+      "value": "http://localhost:8003",
+      "type": "string"
+    },
+    {
+      "key": "ms_calificaciones_base_url",
+      "value": "http://localhost:8004",
+      "type": "string"
+    },
+    {
+      "key": "ms_asistencias_base_url",
+      "value": "http://localhost:8005",
+      "type": "string"
+    },
+    {
+      "key": "ms_notificaciones_base_url",
+      "value": "http://localhost:8006",
+      "type": "string"
+    },
+    {
+      "key": "ms_reportes_base_url",
+      "value": "http://localhost:8007",
+      "type": "string"
+    },
+    {
+      "key": "docente_email",
+      "value": "docente@agm.com",
+      "type": "string"
+    },
+    {
+      "key": "docente_password",
+      "value": "Docente12345",
+      "type": "string"
+    },
+    {
+      "key": "docente_new_password",
+      "value": "Docente12345Reset",
+      "type": "string"
+    },
+    {
+      "key": "docente_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "refresh_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_email_actual",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "docente_rol",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ms2_page",
+      "value": "1",
+      "type": "string"
+    },
+    {
+      "key": "ms2_limit",
+      "value": "10",
+      "type": "string"
+    },
+    {
+      "key": "ms3_skip",
+      "value": "0",
+      "type": "string"
+    },
+    {
+      "key": "ms3_limit",
+      "value": "100",
+      "type": "string"
+    },
+    {
+      "key": "periodo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "periodo_activo_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_ofertada_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ms2_materia_ofertada_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "id_materia",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_nrc",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "materia_seccion",
+      "value": "001",
+      "type": "string"
+    },
+    {
+      "key": "materia_estado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_nombre",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_correo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumno_matricula",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumnos_materia_total",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "inscripcion_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "inscripciones_total",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "alumnos_importados_exitos",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ponderacion_examen_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ponderacion_tareas_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ponderacion_proyecto_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "ponderacion_asistencia_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "actividad_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "actividad_fecha",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "actividades_total",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "calificacion_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "calificacion_valor",
+      "value": "8.50",
+      "type": "string"
+    },
+    {
+      "key": "calificacion_valor_actualizada",
+      "value": "9.20",
+      "type": "string"
+    },
+    {
+      "key": "calificacion_observaciones",
+      "value": "Registro docente desde Postman",
+      "type": "string"
+    },
+    {
+      "key": "calificacion_observaciones_actualizada",
+      "value": "Actualización docente desde Postman",
+      "type": "string"
+    },
+    {
+      "key": "import_calificaciones_procesadas",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "import_calificaciones_insertadas",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "import_calificaciones_actualizadas",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "import_calificaciones_errores",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "concentrado_total_alumnos",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "concentrado_modo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "concentrado_cierre_estado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "concentrado_cierre_materia_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "concentrado_cierre_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "id_sesion",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sesion_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "sesion_estado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "token_cifrado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "qr_token_cifrado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_estado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_alumno_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_historial_total",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_hoy_total",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_presentes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_retardos",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_ausentes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "asistencia_porcentaje",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "password_temporal",
+      "value": "Temp12345!",
+      "type": "string"
+    },
+    {
+      "key": "usuario_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reset_email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reset_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "password_reset_email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "password_reset_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificacion_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificacion_tipo",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificacion_estado",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "notificacion_email",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "cierre_materia_notificacion_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_formato_pdf",
+      "value": "pdf",
+      "type": "string"
+    },
+    {
+      "key": "reporte_formato_xlsx",
+      "value": "xlsx",
+      "type": "string"
+    },
+    {
+      "key": "reporte_last_content_type",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_last_content_disposition",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_last_size_bytes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_calificaciones_pdf_content_type",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_calificaciones_pdf_content_disposition",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_calificaciones_pdf_size_bytes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_calificaciones_xlsx_content_type",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_calificaciones_xlsx_content_disposition",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_calificaciones_xlsx_size_bytes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_asistencias_pdf_content_type",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_asistencias_pdf_content_disposition",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_asistencias_pdf_size_bytes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_asistencias_xlsx_content_type",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_asistencias_xlsx_content_disposition",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reporte_asistencias_xlsx_size_bytes",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_docente_total_materias",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_docente_total_alumnos",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_docente_promedio_general",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "estadisticas_docente_promedio_asistencia",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "00 - Health checks",
+      "description": "Validación rápida de disponibilidad de los microservicios usados por el flujo DOCENTE.",
+      "item": [
+        {
+          "name": "MS-1 Auth /health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_auth_base_url}}/health",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-1 Health 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-2 Periodos & Materias /health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_periodos_materias_base_url}}/health",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-2 Health 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-3 Docentes & Alumnos /",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-3 Health 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-4 Calificaciones /health",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/health",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-4 Health 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-5 Asistencias QR /",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-5 Health 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-6 Notificaciones /",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_notificaciones_base_url}}/",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-6 Health 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "MS-7 Reportes /",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/",
+            "description": "",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('MS-7 Health 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "01 - MS-1 Sesión DOCENTE",
+      "description": "Autenticación JWT del docente. El login guarda docente_access_token y access_token para encadenar el resto del flujo.",
+      "item": [
+        {
+          "name": "Login DOCENTE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_auth_base_url}}/auth/login",
+            "description": "Inicia sesión como DOCENTE y guarda tokens de sesión.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{docente_email}}\",\n  \"contrasena\": \"{{docente_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login DOCENTE exitoso', function () { pm.response.to.have.status(200); });",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "pm.test('Respuesta contiene tokens', function () {",
+                  "  pm.expect(data.access_token).to.be.a('string').and.not.empty;",
+                  "  pm.expect(data.refresh_token).to.be.a('string').and.not.empty;",
+                  "});",
+                  "function setVar(name, value) { if (value === undefined || value === null || value === '') return; try { pm.environment.set(name, String(value)); } catch(e) {} pm.collectionVariables.set(name, String(value)); }",
+                  "setVar('docente_access_token', data.access_token);",
+                  "setVar('access_token', data.access_token);",
+                  "setVar('docente_refresh_token', data.refresh_token);",
+                  "setVar('refresh_token', data.refresh_token);",
+                  "if (data.user) {",
+                  "  setVar('docente_user_id', data.user.user_id || data.user.id);",
+                  "  setVar('current_user_id', data.user.user_id || data.user.id);",
+                  "  setVar('docente_email_actual', data.user.email);",
+                  "  setVar('current_user_email', data.user.email);",
+                  "  setVar('docente_rol', data.user.rol || data.user.role);",
+                  "  setVar('current_user_role', data.user.rol || data.user.role);",
+                  "  setVar('docente_nombre', data.user.nombre_completo || data.user.nombre || data.user.name);",
+                  "  setVar('current_user_name', data.user.nombre_completo || data.user.nombre || data.user.name);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Validar sesión /auth/me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_auth_base_url}}/auth/me",
+            "description": "Valida que el token corresponda a un usuario autenticado."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('docente_user_id', data.user_id || data.id);",
+                  "setVar('docente_email_actual', data.email);",
+                  "setVar('docente_rol', data.rol || data.role);",
+                  "setVar('docente_nombre', data.nombre_completo || data.nombre || data.name);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Refresh token DOCENTE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_auth_base_url}}/auth/refresh-token",
+            "description": "Renueva tokens y actualiza docente_access_token/access_token.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{docente_refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Refresh DOCENTE exitoso', function () { pm.response.to.have.status(200); });",
+                  "let json = {}; try { json = pm.response.json(); } catch(e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "function setVar(name, value) { if (value === undefined || value === null || value === '') return; try { pm.environment.set(name, String(value)); } catch(e) {} pm.collectionVariables.set(name, String(value)); }",
+                  "setVar('docente_access_token', data.access_token);",
+                  "setVar('access_token', data.access_token);",
+                  "setVar('docente_refresh_token', data.refresh_token);",
+                  "setVar('refresh_token', data.refresh_token);",
+                  "if (data.user) { setVar('docente_user_id', data.user.user_id || data.user.id); setVar('docente_email_actual', data.user.email); setVar('docente_rol', data.user.rol || data.user.role); setVar('docente_nombre', data.user.nombre_completo || data.user.nombre || data.user.name); }"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Dashboard docente y materias asignadas",
+      "description": "Vista docente: periodo activo, materias asignadas, estadísticas y resumen de asistencia.",
+      "item": [
+        {
+          "name": "Obtener periodo activo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_periodos_materias_base_url}}/periodos/activo",
+            "description": "Referencia temporal del dashboard docente."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('periodo_activo_id', data.periodo_id || data.id);",
+                  "setVar('periodo_id', data.periodo_id || data.id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar materias asignadas al docente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_periodos_materias_base_url}}/materias/docente/{{docente_id}}?page={{ms2_page}}&limit={{ms2_limit}}",
+            "description": "Tabla resumen de materias asignadas al docente. Requiere docente_id; se puede capturar desde MS-3 o cargar en el environment."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('docente_materias_total', arr.length);",
+                  "if (arr.length) {",
+                  "  if (!getVar('materia_ofertada_id')) setVar('materia_ofertada_id', arr[0].materia_ofertada_id || arr[0].id);",
+                  "  if (!getVar('materia_id')) setVar('materia_id', arr[0].materia_ofertada_id || arr[0].id);",
+                  "  if (!getVar('materia_nrc')) setVar('materia_nrc', arr[0].nrc);",
+                  "  if (!getVar('materia_seccion')) setVar('materia_seccion', arr[0].seccion);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Materias del periodo activo",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_periodos_materias_base_url}}/materias/periodo-activo?page={{ms2_page}}&limit={{ms2_limit}}",
+            "description": "Consulta útil para validar NRC, sección y estado de materias vigentes."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('materias_periodo_activo_total', arr.length);",
+                  "if (arr.length) {",
+                  "  if (!getVar('materia_ofertada_id')) setVar('materia_ofertada_id', arr[0].materia_ofertada_id || arr[0].id);",
+                  "  if (!getVar('materia_id')) setVar('materia_id', arr[0].materia_ofertada_id || arr[0].id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Detalle de materia académica",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_periodos_materias_base_url}}/materias/{{materia_ofertada_id}}",
+            "description": "Detalle de la materia seleccionada para el flujo docente."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('materia_ofertada_id', data.materia_ofertada_id || data.id);",
+                  "setVar('materia_id', data.materia_ofertada_id || data.id);",
+                  "setVar('materia_nrc', data.nrc);",
+                  "setVar('materia_seccion', data.seccion);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Dashboard/estadísticas docente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/api/v1/estadisticas/docente/{{docente_id}}",
+            "description": "Estadísticas generales del docente: materias, alumnos, promedios y asistencia."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('estadisticas_docente_total_materias', data.total_materias);",
+                  "setVar('estadisticas_docente_total_alumnos', data.total_alumnos);",
+                  "setVar('estadisticas_docente_promedio_general', data.promedio_general);",
+                  "setVar('estadisticas_docente_promedio_asistencia', data.promedio_asistencia || data.porcentaje_asistencia);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Asistencias de la materia hoy",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/asistencias/{{id_materia}}/hoy",
+            "description": "Porcentaje/resumen de asistencia del día para el dashboard."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('asistencia_historial_total', arr.length);",
+                  "if (arr.length) {",
+                  "  if (!getVar('asistencia_id')) setVar('asistencia_id', arr[0].asistencia_id || arr[0].id);",
+                  "  if (!getVar('asistencia_estado')) setVar('asistencia_estado', arr[0].estado || arr[0].status);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - MS-3 Alumnos de la materia",
+      "description": "Importación de alumnos por archivo y consulta del concentrado de alumnos inscritos en la materia.",
+      "item": [
+        {
+          "name": "Importar alumnos Excel/CSV",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/importar/alumnos",
+            "description": "Importa alumnos y genera inscripciones contra la materia/NRC de acuerdo con la implementación actual del MS-3.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": [],
+                  "description": "Archivo Excel/CSV de alumnos. Selecciónalo manualmente en Postman."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let json = {}; try { json = pm.response.json(); } catch(e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "if (data.resumen) setVar('alumnos_importados_exitos', data.resumen.exitos || data.resumen.importados || 0);",
+                  "setVar('alumnos_importados_exitos', data.exitos || data.importados || data.alumnos_importados);",
+                  "if (data.materia_id) { setVar('materia_ofertada_id', data.materia_id); setVar('materia_id', data.materia_id); setVar('id_materia', data.materia_id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar alumnos",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/alumnos/?skip={{ms3_skip}}&limit={{ms3_limit}}",
+            "description": "Consulta general de alumnos importados."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('alumnos_total', arr.length);",
+                  "if (arr.length) {",
+                  "  if (!getVar('alumno_id')) setVar('alumno_id', arr[0].alumno_id || arr[0].id);",
+                  "  if (!getVar('alumno_user_id')) setVar('alumno_user_id', arr[0].user_id);",
+                  "  if (!getVar('alumno_correo')) setVar('alumno_correo', arr[0].correo || arr[0].email);",
+                  "  if (!getVar('alumno_matricula')) setVar('alumno_matricula', arr[0].matricula);",
+                  "  if (!getVar('alumno_nombre')) setVar('alumno_nombre', arr[0].nombre_completo || arr[0].nombre);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar inscripciones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/inscripciones/",
+            "description": "Verifica las inscripciones generadas por la importación de alumnos."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('inscripciones_total', arr.length);",
+                  "if (arr.length) {",
+                  "  if (!getVar('inscripcion_id')) setVar('inscripcion_id', arr[0].inscripcion_id || arr[0].id);",
+                  "  if (!getVar('alumno_id')) setVar('alumno_id', arr[0].alumno_id);",
+                  "  if (!getVar('materia_ofertada_id')) setVar('materia_ofertada_id', arr[0].materia_id || arr[0].materia_ofertada_id);",
+                  "  if (!getVar('materia_id')) setVar('materia_id', arr[0].materia_id || arr[0].materia_ofertada_id);",
+                  "  if (!getVar('periodo_id')) setVar('periodo_id', arr[0].periodo_id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener alumnos de una materia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_docentes_alumnos_base_url}}/api/v1/alumnos/materia/{{materia_ofertada_id}}",
+            "description": "Concentrado de alumnos activos inscritos en la materia."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('alumnos_materia_total', arr.length);",
+                  "if (arr.length) {",
+                  "  if (!getVar('alumno_id')) setVar('alumno_id', arr[0].alumno_id || arr[0].id);",
+                  "  if (!getVar('alumno_user_id')) setVar('alumno_user_id', arr[0].user_id);",
+                  "  if (!getVar('alumno_correo')) setVar('alumno_correo', arr[0].correo || arr[0].email);",
+                  "  if (!getVar('alumno_matricula')) setVar('alumno_matricula', arr[0].matricula);",
+                  "  if (!getVar('alumno_nombre')) setVar('alumno_nombre', arr[0].nombre_completo || arr[0].nombre);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - MS-4 Ponderaciones",
+      "description": "Configuración de criterios de evaluación por materia. La suma debe ser 100%.",
+      "item": [
+        {
+          "name": "Crear ponderaciones 100%",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/ponderaciones/{{materia_id}}",
+            "description": "Configura ponderaciones iniciales de la materia.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"criterios\": [\n    { \"nombre\": \"Exámenes\", \"porcentaje\": 40, \"orden\": 1 },\n    { \"nombre\": \"Tareas\", \"porcentaje\": 30, \"orden\": 2 },\n    { \"nombre\": \"Proyecto\", \"porcentaje\": 20, \"orden\": 3 },\n    { \"nombre\": \"Asistencia\", \"porcentaje\": 10, \"orden\": 4 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('materia_id', data.materia_id);",
+                  "const criterios = data.criterios || [];",
+                  "criterios.forEach(function(c){ const name=(c.nombre||'').toLowerCase(); if(name.includes('examen')||name.includes('exámen')) setVar('ponderacion_examen_id', c.id); if(name.includes('tarea')) setVar('ponderacion_tareas_id', c.id); if(name.includes('proyecto')) setVar('ponderacion_proyecto_id', c.id); if(name.includes('asistencia')) setVar('ponderacion_asistencia_id', c.id); });",
+                  "if (criterios.length && !getVar('ponderacion_examen_id')) setVar('ponderacion_examen_id', criterios[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener ponderaciones",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/ponderaciones/{{materia_id}}",
+            "description": "Consulta ponderaciones configuradas."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('materia_id', data.materia_id);",
+                  "const criterios = data.criterios || [];",
+                  "criterios.forEach(function(c){ const name=(c.nombre||'').toLowerCase(); if(name.includes('examen')||name.includes('exámen')) setVar('ponderacion_examen_id', c.id); if(name.includes('tarea')) setVar('ponderacion_tareas_id', c.id); if(name.includes('proyecto')) setVar('ponderacion_proyecto_id', c.id); if(name.includes('asistencia')) setVar('ponderacion_asistencia_id', c.id); });",
+                  "if (criterios.length && !getVar('ponderacion_examen_id')) setVar('ponderacion_examen_id', criterios[0].id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar ponderaciones antes de actividades",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/ponderaciones/{{materia_id}}",
+            "description": "Actualizar antes de crear actividades si tu lógica impide modificar ponderaciones con actividades asociadas.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"criterios\": [\n    { \"nombre\": \"Exámenes\", \"porcentaje\": 50, \"orden\": 1 },\n    { \"nombre\": \"Tareas\", \"porcentaje\": 20, \"orden\": 2 },\n    { \"nombre\": \"Proyecto\", \"porcentaje\": 20, \"orden\": 3 },\n    { \"nombre\": \"Asistencia\", \"porcentaje\": 10, \"orden\": 4 }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('materia_id', data.materia_id);",
+                  "const criterios = data.criterios || [];",
+                  "criterios.forEach(function(c){ const name=(c.nombre||'').toLowerCase(); if(name.includes('examen')||name.includes('exámen')) setVar('ponderacion_examen_id', c.id); if(name.includes('tarea')) setVar('ponderacion_tareas_id', c.id); if(name.includes('proyecto')) setVar('ponderacion_proyecto_id', c.id); if(name.includes('asistencia')) setVar('ponderacion_asistencia_id', c.id); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "05 - MS-4 Actividades y calificaciones",
+      "description": "Creación de actividades, calificaciones individuales, importación masiva y concentrado.",
+      "item": [
+        {
+          "name": "Crear actividad",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/actividades",
+            "description": "Crea una actividad bajo la ponderación seleccionada.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materia_id\": \"{{materia_id}}\",\n  \"ponderacion_id\": \"{{ponderacion_examen_id}}\",\n  \"nombre\": \"Examen Parcial 1\",\n  \"descripcion\": \"Actividad creada desde la colección DOCENTE.\",\n  \"valor_maximo\": 10,\n  \"fecha_aplicacion\": \"{{actividad_fecha}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('actividad_id', data.id || data.actividad_id);",
+                  "setVar('materia_id', data.materia_id);",
+                  "setVar('ponderacion_examen_id', data.ponderacion_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener actividades por materia",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/actividades/materia/{{materia_id}}",
+            "description": "Lista actividades de la materia."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('actividades_total', arr.length);",
+                  "if (arr.length) {",
+                  "  if (!getVar('actividad_id')) setVar('actividad_id', arr[0].id || arr[0].actividad_id);",
+                  "  if (!getVar('ponderacion_examen_id')) setVar('ponderacion_examen_id', arr[0].ponderacion_id);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar actividad",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/actividades/{{actividad_id}}",
+            "description": "Actualiza metadatos de la actividad.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Examen Parcial 1 - Actualizado\",\n  \"descripcion\": \"Actualización desde colección DOCENTE.\",\n  \"valor_maximo\": 10,\n  \"fecha_aplicacion\": \"{{actividad_fecha}}\",\n  \"estado\": \"activa\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('actividad_id', data.id || data.actividad_id);",
+                  "setVar('materia_id', data.materia_id);",
+                  "setVar('ponderacion_examen_id', data.ponderacion_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Crear calificación individual",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/calificaciones",
+            "description": "Asigna calificación individual a un alumno inscrito.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"actividad_id\": \"{{actividad_id}}\",\n  \"alumno_id\": \"{{alumno_id}}\",\n  \"calificacion\": \"{{calificacion_valor}}\",\n  \"observaciones\": \"{{calificacion_observaciones}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('calificacion_id', data.id || data.calificacion_id);",
+                  "setVar('actividad_id', data.actividad_id);",
+                  "setVar('materia_id', data.materia_id);",
+                  "setVar('alumno_id', data.alumno_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Actualizar calificación",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/calificaciones/{{calificacion_id}}",
+            "description": "Actualiza una calificación individual registrada.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"calificacion\": \"{{calificacion_valor_actualizada}}\",\n  \"observaciones\": \"{{calificacion_observaciones_actualizada}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('calificacion_id', data.id || data.calificacion_id);",
+                  "setVar('actividad_id', data.actividad_id);",
+                  "setVar('materia_id', data.materia_id);",
+                  "setVar('alumno_id', data.alumno_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Importar calificaciones Excel/CSV",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/calificaciones/importar",
+            "description": "Importación masiva de calificaciones. Selecciona archivo manualmente en Postman.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "actividad_id",
+                  "value": "{{actividad_id}}",
+                  "type": "text"
+                },
+                {
+                  "key": "archivo",
+                  "type": "file",
+                  "src": [],
+                  "description": "Archivo .xlsx/.xls/.csv con calificaciones."
+                }
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status 2xx', function () { pm.expect(pm.response.code).to.be.within(200, 299); });",
+                  "let json = {}; try { json = pm.response.json(); } catch(e) { json = {}; }",
+                  "const data = json.data || json;",
+                  "setVar('import_calificaciones_procesadas', data.procesadas);",
+                  "setVar('import_calificaciones_insertadas', data.insertadas);",
+                  "setVar('import_calificaciones_actualizadas', data.actualizadas);",
+                  "if (Array.isArray(data.errores)) setVar('import_calificaciones_errores', data.errores.length);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener concentrado - modo actual",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/concentrado/{{materia_id}}?modo=actual",
+            "description": "Promedio ponderado actual."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('concentrado_total_alumnos', data.total_alumnos);",
+                  "setVar('concentrado_modo', data.modo);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener concentrado - modo final",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/concentrado/{{materia_id}}?modo=final",
+            "description": "Promedio final considerando faltantes como 0."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('concentrado_total_alumnos', data.total_alumnos);",
+                  "setVar('concentrado_modo', data.modo);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "06 - MS-5 Pase de lista QR",
+      "description": "Flujo docente para abrir sesión, escanear token QR, consultar asistencia y cerrar sesión.",
+      "item": [
+        {
+          "name": "Iniciar sesión de asistencia",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/sesiones/iniciar",
+            "description": "El docente abre una sesión de asistencia para la materia.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_materia\": \"{{id_materia}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('id_sesion', data.id_sesion || data.sesion_id || data.id || data.session_id);",
+                  "setVar('sesion_id', data.id_sesion || data.sesion_id || data.id || data.session_id);",
+                  "setVar('id_materia', data.id_materia || data.materia_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener detalles de sesión",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/sesiones/{{id_sesion}}",
+            "description": "Consulta metadatos de la sesión de asistencia."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('id_sesion', data.id_sesion || data.sesion_id || data.id || data.session_id);",
+                  "setVar('sesion_estado', data.estado || data.status);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Registrar asistencia escaneando QR",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/asistencias/registrar",
+            "description": "Registra asistencia con el token QR generado por el alumno. Para esta colección por rol, token_cifrado puede venir de la colección ALUMNO.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token_cifrado\": \"{{token_cifrado}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('asistencia_id', data.asistencia_id || data.id);",
+                  "setVar('asistencia_estado', data.estado || data.status);",
+                  "setVar('asistencia_alumno_id', data.alumno_id || data.id_alumno);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener historial de sesión",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/asistencias/{{id_sesion}}/historial",
+            "description": "Historial de alumnos registrados en la sesión."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('asistencia_historial_total', arr.length);",
+                  "if (arr.length) {",
+                  "  if (!getVar('asistencia_id')) setVar('asistencia_id', arr[0].asistencia_id || arr[0].id);",
+                  "  if (!getVar('asistencia_estado')) setVar('asistencia_estado', arr[0].estado || arr[0].status);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Listar asistencias de la materia hoy",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/asistencias/{{id_materia}}/hoy",
+            "description": "Asistencias capturadas hoy para la materia."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('asistencia_hoy_total', arr.length);",
+                  "if (arr.length) {",
+                  "  if (!getVar('asistencia_id')) setVar('asistencia_id', arr[0].asistencia_id || arr[0].id);",
+                  "  if (!getVar('asistencia_estado')) setVar('asistencia_estado', arr[0].estado || arr[0].status);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Obtener estadísticas de sesión",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/asistencias/sesion/{{id_sesion}}/estadisticas",
+            "description": "Presentes, retardos, ausentes y porcentaje de asistencia."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('asistencia_presentes', data.presentes);",
+                  "setVar('asistencia_retardos', data.retardos);",
+                  "setVar('asistencia_ausentes', data.ausentes);",
+                  "setVar('asistencia_porcentaje', data.porcentaje || data.porcentaje_asistencia);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cerrar sesión manualmente",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_asistencias_base_url}}/sesiones/{{id_sesion}}/cerrar",
+            "description": "Operación terminal del pase de lista. Ejecutar al final de la sesión QR."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('sesion_estado', data.estado || data.status || 'cerrada');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "07 - Cierre de materia y notificaciones",
+      "description": "Cierre académico de materia/concentrado y evidencia de notificación por correo.",
+      "item": [
+        {
+          "name": "Cierre final de concentrado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_calificaciones_base_url}}/api/v1/concentrado/{{materia_id}}/cierre",
+            "description": "Cierra el concentrado final de calificaciones. Ejecutar después de registrar/importar calificaciones.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"modo\": \"final\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('concentrado_cierre_estado', data.estado || data.status);",
+                  "setVar('concentrado_cierre_materia_id', data.materia_id);",
+                  "setVar('concentrado_cierre_id', data.id || data.cierre_id);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cerrar materia ofertada",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_periodos_materias_base_url}}/materias-ofertadas/{{materia_ofertada_id}}/cerrar",
+            "description": "Cierra la materia ofertada. Operación terminal: ejecutarla solo al final del flujo docente."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('materia_ofertada_id', data.materia_ofertada_id || data.id);",
+                  "setVar('materia_id', data.materia_ofertada_id || data.id);",
+                  "setVar('materia_estado', data.estado || data.status);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Enviar notificación de cierre de materia",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_notificaciones_base_url}}/api/v1/notificaciones/cierre-materia",
+            "description": "Smoke test del correo de cierre/publicación de calificaciones. Si tu cierre lo dispara automáticamente, úsalo solo como evidencia directa del MS-6.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"materia_id\": \"{{materia_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('notificacion_id', data.id || data.notificacion_id);",
+                  "setVar('notificacion_tipo', data.tipo);",
+                  "setVar('notificacion_estado', data.estado);",
+                  "setVar('notificacion_email', data.email);",
+                  "setVar('cierre_materia_notificacion_id', data.id || data.notificacion_id);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "08 - MS-7 Reportes, exportaciones e historial",
+      "description": "Exportación de calificaciones/asistencias y estadísticas históricas del docente.",
+      "item": [
+        {
+          "name": "Exportar calificaciones PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/api/v1/reportes/calificaciones/{{materia_id}}?formato={{reporte_formato_pdf}}",
+            "description": "Descarga reporte final de calificaciones en PDF."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reporte descargado correctamente', function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.responseSize).to.be.above(0); });",
+                  "function setVar(name, value) { if (value === undefined || value === null || value === '') return; try { pm.environment.set(name, String(value)); } catch(e) {} pm.collectionVariables.set(name, String(value)); }",
+                  "const contentType = pm.response.headers.get('Content-Type');",
+                  "const contentDisposition = pm.response.headers.get('Content-Disposition');",
+                  "setVar('reporte_last_content_type', contentType);",
+                  "setVar('reporte_last_content_disposition', contentDisposition);",
+                  "setVar('reporte_last_size_bytes', pm.response.responseSize);",
+                  "setVar('reporte_calificaciones_pdf_content_type', contentType);",
+                  "setVar('reporte_calificaciones_pdf_content_disposition', contentDisposition);",
+                  "setVar('reporte_calificaciones_pdf_size_bytes', pm.response.responseSize);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Exportar calificaciones XLSX",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/api/v1/reportes/calificaciones/{{materia_id}}?formato={{reporte_formato_xlsx}}",
+            "description": "Descarga reporte final de calificaciones en XLSX."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reporte descargado correctamente', function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.responseSize).to.be.above(0); });",
+                  "function setVar(name, value) { if (value === undefined || value === null || value === '') return; try { pm.environment.set(name, String(value)); } catch(e) {} pm.collectionVariables.set(name, String(value)); }",
+                  "const contentType = pm.response.headers.get('Content-Type');",
+                  "const contentDisposition = pm.response.headers.get('Content-Disposition');",
+                  "setVar('reporte_last_content_type', contentType);",
+                  "setVar('reporte_last_content_disposition', contentDisposition);",
+                  "setVar('reporte_last_size_bytes', pm.response.responseSize);",
+                  "setVar('reporte_calificaciones_xlsx_content_type', contentType);",
+                  "setVar('reporte_calificaciones_xlsx_content_disposition', contentDisposition);",
+                  "setVar('reporte_calificaciones_xlsx_size_bytes', pm.response.responseSize);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Exportar asistencias PDF",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/api/v1/reportes/asistencias/{{materia_id}}?formato={{reporte_formato_pdf}}",
+            "description": "Descarga concentrado de asistencias en PDF."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reporte descargado correctamente', function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.responseSize).to.be.above(0); });",
+                  "function setVar(name, value) { if (value === undefined || value === null || value === '') return; try { pm.environment.set(name, String(value)); } catch(e) {} pm.collectionVariables.set(name, String(value)); }",
+                  "const contentType = pm.response.headers.get('Content-Type');",
+                  "const contentDisposition = pm.response.headers.get('Content-Disposition');",
+                  "setVar('reporte_last_content_type', contentType);",
+                  "setVar('reporte_last_content_disposition', contentDisposition);",
+                  "setVar('reporte_last_size_bytes', pm.response.responseSize);",
+                  "setVar('reporte_asistencias_pdf_content_type', contentType);",
+                  "setVar('reporte_asistencias_pdf_content_disposition', contentDisposition);",
+                  "setVar('reporte_asistencias_pdf_size_bytes', pm.response.responseSize);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Exportar asistencias XLSX",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "*/*",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/api/v1/reportes/asistencias/{{materia_id}}?formato={{reporte_formato_xlsx}}",
+            "description": "Descarga concentrado de asistencias en XLSX."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Reporte descargado correctamente', function () { pm.expect(pm.response.code).to.eql(200); pm.expect(pm.response.responseSize).to.be.above(0); });",
+                  "function setVar(name, value) { if (value === undefined || value === null || value === '') return; try { pm.environment.set(name, String(value)); } catch(e) {} pm.collectionVariables.set(name, String(value)); }",
+                  "const contentType = pm.response.headers.get('Content-Type');",
+                  "const contentDisposition = pm.response.headers.get('Content-Disposition');",
+                  "setVar('reporte_last_content_type', contentType);",
+                  "setVar('reporte_last_content_disposition', contentDisposition);",
+                  "setVar('reporte_last_size_bytes', pm.response.responseSize);",
+                  "setVar('reporte_asistencias_xlsx_content_type', contentType);",
+                  "setVar('reporte_asistencias_xlsx_content_disposition', contentDisposition);",
+                  "setVar('reporte_asistencias_xlsx_size_bytes', pm.response.responseSize);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Historial / estadísticas docente",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_reportes_base_url}}/api/v1/estadisticas/docente/{{docente_id}}",
+            "description": "Historial académico y estadísticas comparativas del docente."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('estadisticas_docente_total_materias', data.total_materias);",
+                  "setVar('estadisticas_docente_total_alumnos', data.total_alumnos);",
+                  "setVar('estadisticas_docente_promedio_general', data.promedio_general);",
+                  "setVar('estadisticas_docente_promedio_asistencia', data.promedio_asistencia || data.porcentaje_asistencia);"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "09 - Recuperación de contraseña DOCENTE (opcional)",
+      "description": "Funcionalidad transversal de Auth. Úsala solo si quieres evidenciar recuperación de contraseña del docente.",
+      "item": [
+        {
+          "name": "Forgot password DOCENTE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_auth_base_url}}/auth/forgot-password",
+            "description": "Solicita recuperación de contraseña para password_reset_email/docente_email.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{password_reset_email}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "function getVar(name) { return pm.environment.get(name) || pm.collectionVariables.get(name); }",
+                  "function setVar(name, value) {",
+                  "  if (value === undefined || value === null || value === '') return;",
+                  "  try { pm.environment.set(name, String(value)); } catch (e) {}",
+                  "  pm.collectionVariables.set(name, String(value));",
+                  "}",
+                  "function setIfMissing(name, value) { if (!getVar(name)) setVar(name, value); }",
+                  "function dataRoot(json) { return (json && json.data !== undefined) ? json.data : json; }",
+                  "function firstArray(root) {",
+                  "  if (Array.isArray(root)) return root;",
+                  "  if (root && Array.isArray(root.items)) return root.items;",
+                  "  if (root && Array.isArray(root.results)) return root.results;",
+                  "  if (root && root.data && Array.isArray(root.data)) return root.data;",
+                  "  if (root && root.data && root.data.items && Array.isArray(root.data.items)) return root.data.items;",
+                  "  return [];",
+                  "}",
+                  "function todayIso() { return new Date().toISOString().slice(0,10); }",
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "let json = {};",
+                  "try { json = pm.response.json(); } catch (e) { json = {}; }",
+                  "const root = dataRoot(json);",
+                  "const arr = firstArray(root);",
+                  "const data = arr.length ? arr[0] : root;",
+                  "setVar('password_reset_token', data.reset_token);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Reset password DOCENTE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_auth_base_url}}/auth/reset-password",
+            "description": "Cambia la contraseña si tienes token de recuperación. Cuidado: modifica credenciales reales.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reset_token\": \"{{password_reset_token}}\",\n  \"nueva_contrasena\": \"{{docente_new_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "pm.test('Contraseña actualizada si el token era válido', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]); });",
+                  "if (pm.environment.get('docente_new_password')) pm.environment.set('docente_password', pm.environment.get('docente_new_password'));",
+                  "pm.environment.unset('password_reset_token');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "99 - Cierre de sesión",
+      "description": "Ejecutar al final para invalidar la sesión docente.",
+      "item": [
+        {
+          "name": "Logout DOCENTE",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{docente_access_token}}",
+                "type": "text",
+                "description": "JWT Bearer token de usuario DOCENTE generado por MS-1 Auth"
+              },
+              {
+                "key": "Accept",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": "{{ms_auth_base_url}}/auth/logout",
+            "description": "Cierra sesión y revoca tokens del docente.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refresh_token\": \"{{docente_refresh_token}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status HTTP esperado', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]);",
+                  "});",
+                  "pm.test('Logout procesado', function () { pm.expect(pm.response.code).to.be.oneOf([200, 201, 202, 204]); });",
+                  "try { pm.environment.unset('docente_access_token'); pm.environment.unset('docente_refresh_token'); } catch(e) {}",
+                  "pm.collectionVariables.unset('docente_access_token'); pm.collectionVariables.unset('docente_refresh_token');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

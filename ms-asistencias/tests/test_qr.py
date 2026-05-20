@@ -13,7 +13,7 @@ from datetime import datetime, timedelta
 client = TestClient(app)
 
 def mock_requerir_alumno_valido():
-    return {"id_alumno": 27, "role": "ALUMNO", "user_id": 27, "matricula": "A01234567"}
+    return {"id_alumno": "27", "role": "ALUMNO", "user_id": "27", "matricula": "A01234567"}
 
 app.dependency_overrides[requerir_alumno] = mock_requerir_alumno_valido
 
@@ -29,7 +29,7 @@ def mock_sesion_activa():
         # Devolvemos una sesión dummy
         sesion = SesionAsistencia(
             id_sesion=15,
-            id_materia=35,
+            id_materia="35",
             estado_sesion=EstadoSesion.ACTIVA,
             fecha_hora_fin=datetime.utcnow() + timedelta(minutes=5)
         )
@@ -44,7 +44,7 @@ def test_generar_qr_flujo_feliz(mock_grpc_alumno, mock_sesion_activa):
     
     assert response.status_code == 201
     assert "token" in response.json()
-    mock_grpc_alumno.assert_called_once_with(27, 35)
+    mock_grpc_alumno.assert_called_once_with("27", "35")
 
 
 def test_generar_qr_forbidden(mock_grpc_alumno, mock_sesion_activa):

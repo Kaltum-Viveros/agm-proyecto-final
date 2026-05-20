@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,7 +22,7 @@ class ServicioAsistencias:
         """
         Flujo completo para procesar un QR escaneado por el docente.
         """
-        ahora = datetime.utcnow()
+        ahora = datetime.now(timezone.utc)
         huella = ServicioQr.generar_huella_token(token_cifrado)
 
         # 1. Validar que el hash del token exacto no se haya usado antes (seguridad extrema)
@@ -91,7 +91,10 @@ class ServicioAsistencias:
         # 6. Clasificar PRESENTE o RETARDO
         # Si la fecha actual es menor o igual al límite marcado por la sesión
         estado_asistencia = EstadoAsistencia.PRESENTE
-        if ahora > sesion.fecha_hora_limite_presente:
+        fecha_hora_limite_presente = sesion.fecha_hora_limite_presente
+        if fecha_hora_limite_presente.tzinfo is None:
+            fecha_hora_limite_presente = fecha_hora_limite_presente.replace(tzinfo=timezone.utc)
+        if ahora > fecha_hora_limite_presente:
             estado_asistencia = EstadoAsistencia.RETARDO
 
         # 7. Todo bien: Guardar el pase de lista
@@ -118,7 +121,7 @@ class ServicioAsistencias:
 
     @staticmethod
     async def _registrar_auditoria_qr(
-        db: AsyncSession, id_sesion: int, id_alumno: int, uuid_qr: str, huella: str, emision: datetime, expiracion: datetime, resultado: ResultadoValidacionQr, motivo: str | None = None
+        db: AsyncSession, id_sesion: int, id_alumno: str, uuid_qr: str, huella: str, emision: datetime, expiracion: datetime, resultado: ResultadoValidacionQr, motivo: str | None = None
     ):
         """
         Helper privado para dejar el rastro del token en la tabla tokens_qr_usados.
@@ -175,7 +178,7 @@ class ServicioAsistencias:
         }
 
     @staticmethod
-    async def obtener_asistencias_hoy_materia(db: AsyncSession, id_materia: int) -> list:
+    async def obtener_asistencias_hoy_materia(db: AsyncSession, id_materia: str) -> list:
         """
         Obtiene los registros de asistencia de todas las sesiones de la materia en el día actual.
         """

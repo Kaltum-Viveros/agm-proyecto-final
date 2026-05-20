@@ -36,7 +36,7 @@ async def generar_qr(
     resultado = await ServicioQr.generar_token_qr(
         db=db,
         id_sesion=request.id_sesion,
-        id_alumno=int(id_alumno),
+        id_alumno=str(id_alumno),
         matricula=str(matricula),
     )
     return GenerarQrResponse(**resultado)

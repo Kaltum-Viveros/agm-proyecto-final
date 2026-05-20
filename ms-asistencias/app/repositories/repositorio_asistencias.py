@@ -18,7 +18,7 @@ class RepositorioAsistencias:
     async def crear_registro_asistencia(
         db: AsyncSession,
         id_sesion: int,
-        id_alumno: int,
+        id_alumno: str,
         matricula: str,
         estado_asistencia: EstadoAsistencia,
         identificador_qr: str | None = None,
@@ -46,7 +46,7 @@ class RepositorioAsistencias:
 
     @staticmethod
     async def obtener_registro_por_sesion_y_alumno(
-        db: AsyncSession, id_sesion: int, id_alumno: int
+        db: AsyncSession, id_sesion: int, id_alumno: str
     ) -> RegistroAsistencia | None:
         """
         Verifica si un alumno ya tiene un registro de asistencia en una sesión específica.

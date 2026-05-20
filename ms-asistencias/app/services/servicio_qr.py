@@ -1,7 +1,7 @@
 import hashlib
 import json
 import uuid
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from cryptography.fernet import Fernet, InvalidToken
 from fastapi import HTTPException, status
@@ -22,7 +22,7 @@ class ServicioQr:
     _fernet = Fernet(settings.QR_SECRET_KEY.encode("utf-8"))
 
     @staticmethod
-    async def generar_token_qr(db: AsyncSession, id_sesion: int, id_alumno: int, matricula: str) -> dict:
+    async def generar_token_qr(db: AsyncSession, id_sesion: int, id_alumno: str, matricula: str) -> dict:
         """
         Genera un token QR cifrado con un tiempo de vida corto (ej. 20 segundos).
         Retorna un diccionario con el token cifrado y su fecha límite.
@@ -42,8 +42,11 @@ class ServicioQr:
                 detail=f"La sesión ya no está activa. Estado actual: {sesion.estado_sesion.value}.",
             )
 
-        ahora = datetime.utcnow()
-        if ahora > sesion.fecha_hora_fin:
+        ahora = datetime.now(timezone.utc)
+        fecha_hora_fin = sesion.fecha_hora_fin
+        if fecha_hora_fin.tzinfo is None:
+            fecha_hora_fin = fecha_hora_fin.replace(tzinfo=timezone.utc)
+        if ahora > fecha_hora_fin:
             # Marcar como expirada por si acaso
             await RepositorioSesiones.marcar_sesion_expirada(db=db, id_sesion=id_sesion)
             raise HTTPException(
@@ -96,7 +99,9 @@ class ServicioQr:
 
             # Validar expiración (El TTL que viene dentro del token)
             expiracion = datetime.fromisoformat(payload["expiracion"])
-            if datetime.utcnow() > expiracion:
+            if expiracion.tzinfo is None:
+                expiracion = expiracion.replace(tzinfo=timezone.utc)
+            if datetime.now(timezone.utc) > expiracion:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
                     detail="El token QR ha expirado. Por favor, genere uno nuevo.",

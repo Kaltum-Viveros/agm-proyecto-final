@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -18,7 +18,7 @@ class ServicioSesiones:
 
     @staticmethod
     async def iniciar_sesion(
-        db: AsyncSession, id_materia: int, id_docente: int
+        db: AsyncSession, id_materia: str, id_docente: str
     ) -> SesionAsistencia:
         """
         Inicia una nueva sesión de asistencia.
@@ -44,7 +44,7 @@ class ServicioSesiones:
             )
 
         # 2. Calcular los tiempos de la sesión usando la configuración global
-        ahora = datetime.utcnow()
+        ahora = datetime.now(timezone.utc)
         limite_presente = ahora + timedelta(minutes=settings.PRESENT_LIMIT_MINUTES)
         limite_fin = ahora + timedelta(minutes=settings.SESSION_DURATION_MINUTES)
 
@@ -97,7 +97,7 @@ class ServicioSesiones:
             )
 
         # 3. Cerrar la sesión
-        ahora = datetime.utcnow()
+        ahora = datetime.now(timezone.utc)
         actualizado = await RepositorioSesiones.cerrar_sesion(
             db=db, id_sesion=id_sesion, fecha_hora_cierre=ahora
         )
@@ -149,5 +149,8 @@ class ServicioSesiones:
         """
         sesion = await RepositorioSesiones.obtener_sesion_por_id(db=db, id_sesion=id_sesion)
         if sesion and sesion.estado_sesion == EstadoSesion.ACTIVA:
-            if datetime.utcnow() > sesion.fecha_hora_fin:
+            fecha_hora_fin = sesion.fecha_hora_fin
+            if fecha_hora_fin.tzinfo is None:
+                fecha_hora_fin = fecha_hora_fin.replace(tzinfo=timezone.utc)
+            if datetime.now(timezone.utc) > fecha_hora_fin:
                 await RepositorioSesiones.marcar_sesion_expirada(db=db, id_sesion=id_sesion)

@@ -29,8 +29,8 @@ def normalizar_texto(t):
 async def importar_alumnos_pdf(
     file: UploadFile = File(...), 
     db: Session = Depends(get_db),
-    # Seguridad: Solo el Administrador accede
-    admin = Depends(role_required("Administrador"))
+    # Seguridad: Solo el Docente accede
+    docente = Depends(role_required("Docente"))
 ):
     try:
         pdf_bytes = await file.read()

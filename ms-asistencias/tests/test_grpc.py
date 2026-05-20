@@ -24,8 +24,8 @@ async def test_get_asistencia_alumno():
         stub = asistencias_pb2_grpc.AsistenciasServiceStub(channel)
         
         request = asistencias_pb2.AsistenciaAlumnoRequest(
-            id_alumno=100,
-            id_materia=1
+            id_alumno="100",
+            id_materia="1"
         )
         
         try:

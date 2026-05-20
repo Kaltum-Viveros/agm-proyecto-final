@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,8 +16,8 @@ class RepositorioSesiones:
     @staticmethod
     async def crear_sesion(
         db: AsyncSession,
-        id_materia: int,
-        id_docente: int,
+        id_materia: str,
+        id_docente: str,
         fecha_hora_inicio: datetime,
         fecha_hora_limite_presente: datetime,
         fecha_hora_fin: datetime,
@@ -49,7 +49,7 @@ class RepositorioSesiones:
         return result.scalar_one_or_none()
 
     @staticmethod
-    async def obtener_sesion_activa_por_materia(db: AsyncSession, id_materia: int) -> SesionAsistencia | None:
+    async def obtener_sesion_activa_por_materia(db: AsyncSession, id_materia: str) -> SesionAsistencia | None:
         """
         Devuelve la sesión que se encuentre en estado ACTIVA para una materia específica.
         Si no hay ninguna, retorna None.
@@ -92,13 +92,13 @@ class RepositorioSesiones:
         return result.rowcount > 0
 
     @staticmethod
-    async def listar_sesiones_de_hoy_por_materia(db: AsyncSession, id_materia: int) -> list[SesionAsistencia]:
+    async def listar_sesiones_de_hoy_por_materia(db: AsyncSession, id_materia: str) -> list[SesionAsistencia]:
         """
         Devuelve las sesiones de una materia creadas en el día actual (UTC).
         """
-        hoy = datetime.utcnow().date()
-        inicio_dia = datetime(hoy.year, hoy.month, hoy.day)
-        fin_dia = datetime(hoy.year, hoy.month, hoy.day, 23, 59, 59, 999999)
+        hoy = datetime.now(timezone.utc).date()
+        inicio_dia = datetime(hoy.year, hoy.month, hoy.day, tzinfo=timezone.utc)
+        fin_dia = datetime(hoy.year, hoy.month, hoy.day, 23, 59, 59, 999999, tzinfo=timezone.utc)
         
         query = select(SesionAsistencia).where(
             SesionAsistencia.id_materia == id_materia,

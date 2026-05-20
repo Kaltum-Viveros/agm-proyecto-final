@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,7 +17,7 @@ class RepositorioTokens:
     async def registrar_token_qr_usado(
         db: AsyncSession,
         id_sesion: int,
-        id_alumno: int,
+        id_alumno: str,
         identificador_unico_qr: str,
         huella_token: str,
         fecha_hora_emision: datetime,
@@ -35,7 +35,7 @@ class RepositorioTokens:
             huella_token=huella_token,
             fecha_hora_emision=fecha_hora_emision,
             fecha_hora_expiracion=fecha_hora_expiracion,
-            fecha_hora_uso=datetime.utcnow(),
+            fecha_hora_uso=datetime.now(timezone.utc),
             resultado_validacion=resultado_validacion,
             motivo_rechazo=motivo_rechazo,
         )

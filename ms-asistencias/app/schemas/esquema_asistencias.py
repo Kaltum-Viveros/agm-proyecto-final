@@ -27,7 +27,7 @@ class DetalleAsistencia(BaseModel):
     """
     id_asistencia: int
     id_sesion: int
-    id_alumno: int
+    id_alumno: str
     matricula: str
     estado_asistencia: EstadoAsistencia
     metodo_registro: MetodoRegistro
