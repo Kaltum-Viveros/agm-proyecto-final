@@ -154,11 +154,17 @@ class ServicioAsistencias:
         # 2. Obtener conteos básicos
         stats = await RepositorioAsistencias.obtener_estadisticas_por_sesion(db, id_sesion)
         
-        # --- FASE 11: Integración gRPC con MS-3 (Alumnos) ---
-        # Idealmente, consultamos MS-3 para saber el total de alumnos inscritos.
-        # Por ahora lo simulamos ya que MS-3 podría no estar activo en local.
-        # total_alumnos = await cliente_alumnos.obtener_total_alumnos_materia(sesion.id_materia)
-        total_alumnos = 40  # MOCK para pruebas locales
+        # --- Integración gRPC con MS-3 (Alumnos) ---
+        # Consultamos MS-3 para saber el total de alumnos inscritos.
+        try:
+            alumnos_inscritos = await cliente_alumnos.obtener_alumnos_por_materia(sesion.id_materia)
+            total_alumnos = len(alumnos_inscritos)
+        except Exception as e:
+            # Si falla MS-3, levantamos error, no queremos stats inventadas
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="No se pudo obtener el total de alumnos de MS-3 para calcular estadísticas."
+            )
         # ------------------------------------------------------
         
         # 3. Calcular ausentes y porcentaje (asumiendo que los que no pasaron lista están ausentes)

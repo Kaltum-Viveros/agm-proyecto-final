@@ -96,7 +96,23 @@ class ServicioSesiones:
                 detail=f"La sesión ya está {sesion.estado_sesion.value}.",
             )
 
-        # 3. Cerrar la sesión
+        # 3. Consultar alumnos en MS-3 antes de cerrar
+        from app.grpc_clients.cliente_alumnos import cliente_alumnos
+        from app.repositories.repositorio_asistencias import RepositorioAsistencias
+        from app.models.enums import EstadoAsistencia, MetodoRegistro
+        import logging
+
+        try:
+            # Obtener los alumnos inscritos en la materia desde MS-3
+            alumnos_inscritos = await cliente_alumnos.obtener_alumnos_por_materia(sesion.id_materia)
+        except Exception as e:
+            logging.error(f"Error al obtener alumnos inscritos de MS-3 para sesión {id_sesion}: {str(e)}")
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail="No se pudo consultar la lista de alumnos para registrar ausencias. La sesión no fue cerrada."
+            )
+
+        # 4. Cerrar la sesión
         ahora = datetime.now(timezone.utc)
         actualizado = await RepositorioSesiones.cerrar_sesion(
             db=db, id_sesion=id_sesion, fecha_hora_cierre=ahora
@@ -108,16 +124,8 @@ class ServicioSesiones:
                 detail="Ocurrió un error al intentar cerrar la sesión.",
             )
 
-        # 4. Registrar ausentes automáticamente de la materia (Fase 21 - Opción B)
-        from app.grpc_clients.cliente_alumnos import cliente_alumnos
-        from app.repositories.repositorio_asistencias import RepositorioAsistencias
-        from app.models.enums import EstadoAsistencia, MetodoRegistro
-        import logging
-
+        # 5. Registrar ausentes
         try:
-            # Obtener los alumnos inscritos en la materia desde MS-3
-            alumnos_inscritos = await cliente_alumnos.obtener_alumnos_por_materia(sesion.id_materia)
-
             # Obtener las asistencias ya registradas (Presente, Retardo) para esta sesión
             asistencias_existentes = await RepositorioAsistencias.listar_asistencias_por_sesion(db, id_sesion)
             ids_alumnos_asistieron = {a.id_alumno for a in asistencias_existentes}
@@ -136,7 +144,6 @@ class ServicioSesiones:
                         observaciones="Registrado automáticamente por el sistema al cerrar la sesión de asistencia."
                     )
         except Exception as e:
-            # Capturamos el error pero no cancelamos el cierre de la sesión por resiliencia
             logging.error(f"Error registrando ausencias automáticas para sesión {id_sesion}: {str(e)}")
 
         return {"mensaje": "Sesión cerrada exitosamente", "id_sesion": id_sesion}

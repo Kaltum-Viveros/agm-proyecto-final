@@ -11,7 +11,11 @@ app = FastAPI(
 )
 
 # Configuración de CORS
+import logging
 origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",") if origin.strip()]
+
+if settings.ENVIRONMENT == "production" and "*" in origins:
+    logging.warning("⚠️ CORS configurado con '*' en ambiente de producción. Esto es un riesgo de seguridad.")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,

@@ -98,16 +98,54 @@ class AsistenciasServicer(asistencias_pb2_grpc.AsistenciasServiceServicer):
         Calcula un resumen estadístico de la materia para el Dashboard del docente.
         """
         async with AsyncSessionLocal() as db:
-            # Lógica simplificada
+            from app.grpc_clients.cliente_alumnos import cliente_alumnos
+            
+            # Obtener sesiones de la materia
             query_sesiones = select(SesionAsistencia).where(
                 SesionAsistencia.id_materia == request.id_materia
             )
             result_sesiones = await db.execute(query_sesiones)
-            total_sesiones = len(result_sesiones.scalars().all())
+            sesiones = result_sesiones.scalars().all()
+            total_sesiones = len(sesiones)
+
+            if total_sesiones == 0:
+                return asistencias_pb2.EstadisticasResponse(
+                    total_alumnos=0,
+                    porcentaje_asistencia_general=0.0,
+                    total_sesiones_impartidas=0,
+                )
+
+            # Obtener alumnos inscritos desde MS-3
+            try:
+                alumnos_inscritos = await cliente_alumnos.obtener_alumnos_por_materia(request.id_materia)
+                total_alumnos = len(alumnos_inscritos)
+            except Exception as e:
+                import logging
+                logging.error(f"Error MS-3 en GetEstadisticasAsistencia: {str(e)}")
+                context.abort(grpc.StatusCode.UNAVAILABLE, "No se pudo consultar el total de alumnos.")
+                return asistencias_pb2.EstadisticasResponse()
+
+            # Obtener todos los registros de esas sesiones
+            ids_sesiones = [s.id_sesion for s in sesiones]
+            query_registros = select(RegistroAsistencia).where(
+                RegistroAsistencia.id_sesion.in_(ids_sesiones)
+            )
+            result_registros = await db.execute(query_registros)
+            registros = result_registros.scalars().all()
+
+            presentes = sum(1 for r in registros if r.estado_asistencia == EstadoAsistencia.PRESENTE)
+            retardos = sum(1 for r in registros if r.estado_asistencia == EstadoAsistencia.RETARDO)
+            
+            total_posibles_asistencias = total_alumnos * total_sesiones
+            asistencias_validas = presentes + retardos
+            
+            porcentaje_asistencia_general = 0.0
+            if total_posibles_asistencias > 0:
+                porcentaje_asistencia_general = (asistencias_validas / total_posibles_asistencias) * 100.0
 
             return asistencias_pb2.EstadisticasResponse(
-                total_alumnos=0,  # Dependería de MS-3 (Alumnos) 
-                porcentaje_asistencia_general=100.0 if total_sesiones > 0 else 0.0,
+                total_alumnos=total_alumnos,
+                porcentaje_asistencia_general=round(porcentaje_asistencia_general, 2),
                 total_sesiones_impartidas=total_sesiones,
             )
 
@@ -118,6 +156,9 @@ async def serve():
     """
     server = grpc.aio.server()
     asistencias_pb2_grpc.add_AsistenciasServiceServicer_to_server(AsistenciasServicer(), server)
+    # NOTA DE SEGURIDAD: add_insecure_port se utiliza únicamente para comunicación interna
+    # dentro de la red confiable de Docker/desarrollo.
+    # En producción real (sobre redes públicas), se debe implementar mTLS/TLS.
     server.add_insecure_port("[::]:50055")
     print("Servidor gRPC Asistencias iniciado en el puerto 50055...")
     await server.start()
