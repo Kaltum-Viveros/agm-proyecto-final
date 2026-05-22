@@ -11,9 +11,10 @@ class DocenteBase(BaseModel):
     horario_atencion: Optional[str] = None
     estatus_laboral: bool = True
 
-# 2. Propiedades para crear (Lo que llega de Postman)
+# 2. Propiedades para crear (Lo que llega del cliente REST).
+#    user_id NO se acepta desde el cliente; se obtiene desde MS-1 vía gRPC.
 class DocenteCreate(DocenteBase):
-    user_id: UUID  # Para vincularlo con el MS-Auth
+    pass
 
 # 3. Propiedades para actualizar
 class DocenteUpdate(BaseModel):

@@ -10,8 +10,9 @@ class AlumnoBase(BaseModel):
     estatus_academico: bool = True
     tipo_formacion: Optional[str] = None
 
+# user_id NO se acepta desde el cliente REST; se obtiene desde MS-1 vía gRPC.
 class AlumnoCreate(AlumnoBase):
-    user_id: UUID
+    pass
 
 class AlumnoUpdate(BaseModel):
     nombre_completo: Optional[str] = None

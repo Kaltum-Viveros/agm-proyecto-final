@@ -2,7 +2,6 @@ from sqlalchemy.orm import Session
 from app.models.alumno import Alumno
 from app.repositories.base import BaseRepository
 from uuid import UUID
-import uuid
 
 class AlumnoRepository(BaseRepository[Alumno]):
     # Método para el proceso de importación del PDF
@@ -11,23 +10,35 @@ class AlumnoRepository(BaseRepository[Alumno]):
         db_alumno = self.get_by_matricula(db, alumno_data["matricula"])
 
         if db_alumno:
-            # Si existe, actualizamos sus campos
+            # Si existe, actualizamos sus campos PERO nunca sobrescribimos user_id
+            # con un valor vacío o generado localmente.
             for key, value in alumno_data.items():
-                setattr(db_alumno, key, value)
+                if key == "user_id":
+                    # Solo actualizar user_id si se provee uno real y no vacío.
+                    if value:
+                        setattr(db_alumno, key, value)
+                else:
+                    setattr(db_alumno, key, value)
         else:
-            # Si no existe, lo creamos
-            # El modelo Alumno requiere un user_id (referencia a MS-1)
-            if "user_id" not in alumno_data or not alumno_data["user_id"]:
-                alumno_data["user_id"] = str(uuid.uuid4())
-            
+            # Si no existe, lo creamos. user_id debe provenir de MS-1 (obligatorio).
+            if not alumno_data.get("user_id"):
+                raise ValueError(
+                    "No se puede crear un alumno sin user_id. "
+                    "El user_id debe provenir de MS-1 vía gRPC."
+                )
             db_alumno = Alumno(**alumno_data)
             db.add(db_alumno)
-        
+
         db.commit()
         db.refresh(db_alumno)
         return db_alumno
 
     def create(self, db: Session, *, obj_in: dict) -> Alumno:
+        if not obj_in.get("user_id"):
+            raise ValueError(
+                "No se puede crear un alumno sin user_id. "
+                "El user_id debe provenir de MS-1 vía gRPC."
+            )
         db_obj = Alumno(**obj_in)
         db.add(db_obj)
         db.commit()
