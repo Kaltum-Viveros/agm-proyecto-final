@@ -36,8 +36,8 @@ class AlumnosClient:
         """
         stub = self._get_stub()
         if not stub:
-            logging.warning("[AlumnosClient MS-4] Proto no disponible, permitiendo operación.")
-            return True  # Modo degradado: no bloquear si no hay proto
+            logging.warning("[AlumnosClient MS-4] Proto no disponible, operación rechazada.")
+            return False  # Fail closed: si no hay proto, no se puede validar
         try:
             request = docentes_alumnos_pb2.RelationRequest(
                 alumno_id=str(alumno_id),
@@ -47,7 +47,7 @@ class AlumnosClient:
             return response.exists
         except grpc.RpcError as e:
             logging.error(f"[AlumnosClient MS-4] Error gRPC IsAlumnoEnMateria: {e.details()}")
-            return True  # Modo degradado: no bloquear en caso de fallo de red
+            return False  # Fail closed: si MS-3 falla, no permitir la operación
 
     def get_alumno_perfil(self, alumno_id: str) -> dict | None:
         """

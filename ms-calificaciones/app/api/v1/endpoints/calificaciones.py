@@ -110,6 +110,7 @@ def actualizar_calificacion(
     calificacion_id: UUID,
     payload: CalificacionUpdate,
     service: CalificacionService = Depends(get_calificacion_service),
+    _user = Depends(role_required("DOCENTE")),
 ):
     data = service.actualizar(calificacion_id, payload)
 
@@ -123,6 +124,7 @@ def actualizar_calificacion(
 def eliminar_calificacion(
     calificacion_id: UUID,
     service: CalificacionService = Depends(get_calificacion_service),
+    _user = Depends(role_required("DOCENTE")),
 ):
     service.eliminar(calificacion_id)
 

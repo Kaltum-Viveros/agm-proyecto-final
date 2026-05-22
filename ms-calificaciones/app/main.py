@@ -22,10 +22,16 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Configuración de CORS para el Frontend (Angular)
+import logging
+
+# Advertencia de seguridad en producción
+if settings.env == "production" and "*" in settings.cors_origins_list:
+    logging.warning("⚠️ CORS configurado con '*' en ambiente de producción. Esto es un riesgo de seguridad.")
+
+# Configuración de CORS para el Frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción se debe restringir a la URL de Angular (ej. https://frontend.com)
+    allow_origins=settings.cors_origins_list,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

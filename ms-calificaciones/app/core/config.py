@@ -1,9 +1,11 @@
+from typing import List
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
 
 class Settings(BaseSettings):
     service_name: str = "ms-calificaciones"
     env: str = "development"
+    cors_allowed_origins: str = "*"
 
     rest_host: str = "0.0.0.0"
     rest_port: int = 8004
@@ -37,6 +39,18 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
     )
+
+    @model_validator(mode='after')
+    def validate_database_url(self) -> 'Settings':
+        if self.storage_mode == "database" and (not self.database_url or self.database_url == "not_configured_yet"):
+            raise ValueError("DATABASE_URL is required when STORAGE_MODE is 'database'")
+        return self
+
+    @property
+    def cors_origins_list(self) -> List[str]:
+        if not self.cors_allowed_origins:
+            return []
+        return [origin.strip() for origin in self.cors_allowed_origins.split(",") if origin.strip()]
 
 
 settings = Settings()
