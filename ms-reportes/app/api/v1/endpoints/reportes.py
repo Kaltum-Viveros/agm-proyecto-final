@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.repositories.reporte_repository import ReporteRepository
 from app.services.reporte_service import ReporteService
+from app.api.deps import require_authenticated_user
 
 router = APIRouter()
 
@@ -14,7 +15,8 @@ def get_reporte_service(db: AsyncSession = Depends(get_db)) -> ReporteService:
 async def descargar_reporte_calificaciones(
     materia_id: str,
     formato: str = Query(..., description="Formato del reporte: pdf o xlsx"),
-    service: ReporteService = Depends(get_reporte_service)
+    service: ReporteService = Depends(get_reporte_service),
+    _user: dict = Depends(require_authenticated_user)
 ):
     """
     Genera y descarga un reporte de calificaciones de una materia específica en PDF o XLSX.
@@ -34,7 +36,8 @@ async def descargar_reporte_calificaciones(
 async def descargar_reporte_asistencias(
     materia_id: str,
     formato: str = Query(..., description="Formato del reporte: pdf o xlsx"),
-    service: ReporteService = Depends(get_reporte_service)
+    service: ReporteService = Depends(get_reporte_service),
+    _user: dict = Depends(require_authenticated_user)
 ):
     """
     Genera y descarga un reporte de asistencias de una materia específica en PDF o XLSX.

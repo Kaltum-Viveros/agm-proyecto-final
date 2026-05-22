@@ -1,3 +1,10 @@
+"""
+NOTA DE SEGURIDAD (canal gRPC):
+  grpc.insecure_channel se utiliza unicamente porque este microservicio corre
+  dentro de la red interna Docker/desarrollo, donde los canales entre contenedores
+  son confiables. En un entorno de produccion real donde los servicios cruzan redes
+  no confiables, se debe implementar TLS/mTLS.
+"""
 import grpc
 from app.core.config import settings
 from app.grpc.generated import docentes_alumnos_pb2, docentes_alumnos_pb2_grpc
@@ -45,3 +52,4 @@ class DocentesAlumnosClient:
                 return None
 
 docentes_alumnos_client = DocentesAlumnosClient()
+

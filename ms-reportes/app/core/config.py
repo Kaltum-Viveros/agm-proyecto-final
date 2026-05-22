@@ -12,6 +12,8 @@ class Settings(BaseSettings):
     GRPC_HOST: str = "0.0.0.0"
     GRPC_PORT: int = 50057
 
+    CORS_ALLOWED_ORIGINS: str = "*"
+
     DATABASE_URL: str
 
     API_V1_PREFIX: str = "/api/v1"

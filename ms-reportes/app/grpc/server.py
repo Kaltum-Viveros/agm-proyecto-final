@@ -25,6 +25,11 @@ async def start_grpc_server():
     )
 
     listen_addr = f"[::]:{settings.GRPC_PORT}"
+    # NOTA DE SEGURIDAD (canal gRPC):
+    #   add_insecure_port se utiliza únicamente porque este microservicio corre
+    #   dentro de la red interna Docker/desarrollo, donde los canales entre contenedores
+    #   son confiables. En un entorno de producción real donde los servicios cruzan redes
+    #   no confiables, se debe implementar TLS/mTLS.
     _server.add_insecure_port(listen_addr)
 
     print(f"gRPC server running on {listen_addr}")
