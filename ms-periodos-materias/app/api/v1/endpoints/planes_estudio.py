@@ -8,6 +8,7 @@ from app.db.session import get_db
 from app.schemas.plan_estudio import PlanEstudioCreate, PlanEstudioRead, PlanEstudioUpdate
 from app.services.plan_estudio_service import PlanEstudioService
 from app.core.pagination import build_paginated_response
+from app.api.deps import get_current_user, role_required
 
 router = APIRouter()
 
@@ -18,6 +19,7 @@ async def list_planes_estudio(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     service = PlanEstudioService(db)
     planes, total = await service.list_planes_estudio(
@@ -46,6 +48,7 @@ async def list_planes_estudio(
 async def get_plan_estudio(
     plan_estudio_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     service = PlanEstudioService(db)
     plan = await service.get_plan_estudio(plan_estudio_id)
@@ -60,6 +63,7 @@ async def get_plan_estudio(
 async def create_plan_estudio(
     payload: PlanEstudioCreate,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = PlanEstudioService(db)
     plan = await service.create_plan_estudio(payload)
@@ -75,6 +79,7 @@ async def update_plan_estudio(
     plan_estudio_id: UUID,
     payload: PlanEstudioUpdate,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = PlanEstudioService(db)
     plan = await service.update_plan_estudio(plan_estudio_id, payload)
@@ -89,6 +94,7 @@ async def update_plan_estudio(
 async def deactivate_plan_estudio(
     plan_estudio_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = PlanEstudioService(db)
     plan = await service.deactivate_plan_estudio(plan_estudio_id)

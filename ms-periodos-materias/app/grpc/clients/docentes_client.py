@@ -31,28 +31,24 @@ class DocentesClient:
             self._stub = docentes_alumnos_pb2_grpc.DocentesAlumnosServiceStub(self._channel)
         return self._stub
 
-    def verificar_docente(self, docente_id: str) -> dict | None:
+    def verificar_docente(self, docente_id: str) -> bool:
         """
         Consulta al MS-3 para verificar si un docente existe y está activo.
-        Retorna dict con datos del docente o None si no existe / hay error.
+        Retorna True si existe y es válido, False en caso contrario.
         """
         stub = self._get_stub()
         if not stub:
             logging.warning("[DocentesClient] Proto no disponible, omitiendo verificación.")
-            return None
+            return False
         try:
-            request = docentes_alumnos_pb2.AlumnoIdRequest(alumno_id=docente_id)
-            response = self._stub.GetAlumnoById(request)
-            if response and response.correo:
-                return {
-                    "docente_id": response.alumno_id,
-                    "nombre_completo": response.nombre_completo,
-                    "correo": response.correo,
-                }
-            return None
+            request = docentes_alumnos_pb2.DocenteIdRequest(docente_id=docente_id)
+            response = stub.GetDocenteById(request)
+            if response and response.encontrado:
+                return True
+            return False
         except grpc.RpcError as e:
             logging.error(f"[DocentesClient] Error gRPC al verificar docente {docente_id}: {e.details()}")
-            return None
+            return False
 
     def resolver_docente_por_nombre(self, nombre_completo: str) -> str | None:
         """

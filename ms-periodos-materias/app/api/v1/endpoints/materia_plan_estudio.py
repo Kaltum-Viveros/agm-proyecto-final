@@ -12,6 +12,7 @@ from app.schemas.materia_plan_estudio import (
 )
 from app.services.materia_plan_estudio_service import MateriaPlanEstudioService
 from app.core.pagination import build_paginated_response
+from app.api.deps import get_current_user, role_required
 
 router = APIRouter()
 
@@ -23,6 +24,7 @@ async def list_materias_planes_estudio(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     service = MateriaPlanEstudioService(db)
     relaciones, total = await service.list_materias_plan_estudio(
@@ -52,6 +54,7 @@ async def list_materias_planes_estudio(
 async def get_materia_plan_estudio(
     materia_plan_estudio_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     service = MateriaPlanEstudioService(db)
     relacion = await service.get_relacion(materia_plan_estudio_id)
@@ -66,6 +69,7 @@ async def get_materia_plan_estudio(
 async def create_materia_plan_estudio(
     payload: MateriaPlanEstudioCreate,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaPlanEstudioService(db)
     relacion = await service.create_relacion(payload)
@@ -81,6 +85,7 @@ async def update_materia_plan_estudio(
     materia_plan_estudio_id: UUID,
     payload: MateriaPlanEstudioUpdate,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaPlanEstudioService(db)
     relacion = await service.update_relacion(materia_plan_estudio_id, payload)
@@ -95,6 +100,7 @@ async def update_materia_plan_estudio(
 async def deactivate_materia_plan_estudio(
     materia_plan_estudio_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaPlanEstudioService(db)
     relacion = await service.deactivate_relacion(materia_plan_estudio_id)

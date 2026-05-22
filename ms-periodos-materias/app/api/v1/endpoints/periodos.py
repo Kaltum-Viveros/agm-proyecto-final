@@ -9,7 +9,7 @@ from app.schemas.periodo import PeriodoCreate, PeriodoRead, PeriodoUpdate
 from app.services.periodo_service import PeriodoService
 from app.services import materia_consulta_service
 from app.core.pagination import build_paginated_response
-from app.api.deps import role_required
+from app.api.deps import get_current_user, role_required
 
 router = APIRouter()
 
@@ -19,6 +19,7 @@ async def list_periodos(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     service = PeriodoService(db)
     periodos, total = await service.list_periodos(
@@ -45,6 +46,7 @@ async def list_periodos(
 @router.get("/activo")
 async def get_periodo_activo(
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     data = await materia_consulta_service.get_periodo_activo(db)
 
@@ -58,6 +60,7 @@ async def get_periodo_activo(
 async def get_periodo(
     periodo_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     service = PeriodoService(db)
     periodo = await service.get_periodo(periodo_id)
@@ -117,6 +120,7 @@ async def deactivate_periodo(
 async def activar_periodo(
     periodo_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = PeriodoService(db)
     periodo = await service.activar_periodo(periodo_id)

@@ -12,6 +12,7 @@ from app.schemas.materia_catalogo import (
 )
 from app.services.materia_catalogo_service import MateriaCatalogoService
 from app.core.pagination import build_paginated_response
+from app.api.deps import get_current_user, role_required
 
 router = APIRouter()
 
@@ -23,6 +24,7 @@ async def list_materias_catalogo(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     service = MateriaCatalogoService(db)
     materias, total = await service.list_materias_catalogo(
@@ -52,6 +54,7 @@ async def list_materias_catalogo(
 async def get_materia_catalogo(
     materia_catalogo_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     service = MateriaCatalogoService(db)
     materia = await service.get_materia_catalogo(materia_catalogo_id)
@@ -66,6 +69,7 @@ async def get_materia_catalogo(
 async def create_materia_catalogo(
     payload: MateriaCatalogoCreate,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaCatalogoService(db)
     materia = await service.create_materia_catalogo(payload)
@@ -81,6 +85,7 @@ async def update_materia_catalogo(
     materia_catalogo_id: UUID,
     payload: MateriaCatalogoUpdate,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaCatalogoService(db)
     materia = await service.update_materia_catalogo(materia_catalogo_id, payload)
@@ -95,6 +100,7 @@ async def update_materia_catalogo(
 async def deactivate_materia_catalogo(
     materia_catalogo_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaCatalogoService(db)
     materia = await service.deactivate_materia_catalogo(materia_catalogo_id)

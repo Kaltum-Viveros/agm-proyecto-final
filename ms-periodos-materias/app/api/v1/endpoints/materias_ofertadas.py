@@ -13,7 +13,7 @@ from app.schemas.materia_ofertada import (
 )
 from app.services.materia_ofertada_service import MateriaOfertadaService
 from app.core.pagination import build_paginated_response
-from app.api.deps import role_required
+from app.api.deps import get_current_user, role_required
 
 
 router = APIRouter()
@@ -29,6 +29,7 @@ async def list_materias_ofertadas(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     service = MateriaOfertadaService(db)
     materias, total = await service.list_materias_ofertadas(
@@ -61,6 +62,7 @@ async def list_materias_ofertadas(
 async def get_materia_ofertada(
     materia_ofertada_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     service = MateriaOfertadaService(db)
     materia = await service.get_materia_ofertada(materia_ofertada_id)
@@ -120,6 +122,7 @@ async def deactivate_materia_ofertada(
 async def activar_materia_ofertada(
     materia_ofertada_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaOfertadaService(db)
     materia = await service.activar_materia_ofertada(materia_ofertada_id)
@@ -134,6 +137,7 @@ async def activar_materia_ofertada(
 async def cerrar_materia_ofertada(
     materia_ofertada_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("DOCENTE")),
 ):
     service = MateriaOfertadaService(db)
     materia = await service.cerrar_materia_ofertada(materia_ofertada_id)
@@ -148,6 +152,7 @@ async def cerrar_materia_ofertada(
 async def cancelar_materia_ofertada(
     materia_ofertada_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaOfertadaService(db)
     materia = await service.cancelar_materia_ofertada(materia_ofertada_id)
@@ -163,6 +168,7 @@ async def asignar_docente_materia_ofertada(
     materia_ofertada_id: UUID,
     payload: MateriaOfertadaAsignarDocente,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaOfertadaService(db)
     materia = await service.asignar_docente_materia_ofertada(

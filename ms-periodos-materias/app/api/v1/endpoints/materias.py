@@ -7,6 +7,7 @@ from app.core.pagination import build_paginated_response
 from app.core.responses import success_response
 from app.db.session import get_db
 from app.services import materia_consulta_service
+from app.api.deps import get_current_user
 
 router = APIRouter()
 
@@ -36,6 +37,7 @@ async def list_materias(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     items, total = await materia_consulta_service.list_materias_academicas(
         db=db,
@@ -64,6 +66,7 @@ async def list_materias_periodo_activo(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     items, total = await materia_consulta_service.list_materias_periodo_activo(
         db=db,
@@ -88,6 +91,7 @@ async def list_materias_by_periodo(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     items, total = await materia_consulta_service.list_materias_by_periodo(
         db=db,
@@ -113,6 +117,7 @@ async def list_materias_by_docente(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     items, total = await materia_consulta_service.list_materias_by_docente(
         db=db,
@@ -136,6 +141,7 @@ async def list_materias_by_docente(
 async def get_materia_by_id(
     materia_ofertada_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     data = await materia_consulta_service.get_materia_academica_by_id(
         db=db,

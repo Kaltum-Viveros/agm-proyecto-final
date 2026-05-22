@@ -12,6 +12,7 @@ from app.schemas.materia_horario import (
 )
 from app.services.materia_horario_service import MateriaHorarioService
 from app.core.pagination import build_paginated_response
+from app.api.deps import get_current_user, role_required
 
 router = APIRouter()
 
@@ -23,6 +24,7 @@ async def list_materia_horarios(
     page: int = Query(default=1, ge=1),
     limit: int = Query(default=10, ge=1, le=100),
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     service = MateriaHorarioService(db)
     horarios, total = await service.list_materia_horarios(
@@ -52,6 +54,7 @@ async def list_materia_horarios(
 async def get_materia_horario(
     materia_horario_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _user = Depends(get_current_user),
 ):
     service = MateriaHorarioService(db)
     horario = await service.get_horario(materia_horario_id)
@@ -66,6 +69,7 @@ async def get_materia_horario(
 async def create_materia_horario(
     payload: MateriaHorarioCreate,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaHorarioService(db)
     horario = await service.create_horario(payload)
@@ -81,6 +85,7 @@ async def update_materia_horario(
     materia_horario_id: UUID,
     payload: MateriaHorarioUpdate,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaHorarioService(db)
     horario = await service.update_horario(materia_horario_id, payload)
@@ -95,6 +100,7 @@ async def update_materia_horario(
 async def delete_materia_horario(
     materia_horario_id: UUID,
     db: AsyncSession = Depends(get_db),
+    _admin = Depends(role_required("ADMIN")),
 ):
     service = MateriaHorarioService(db)
     await service.delete_horario(materia_horario_id)
