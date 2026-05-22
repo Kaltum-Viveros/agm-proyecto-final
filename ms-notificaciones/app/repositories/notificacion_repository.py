@@ -40,3 +40,18 @@ def actualizar_estado(db: Session, db_notificacion: Notificacion, estado: str, f
     db.commit()
     db.refresh(db_notificacion)
     return db_notificacion
+
+def marcar_enviada(db: Session, notificacion_id: int):
+    """Marca la notificación como enviada con fecha/hora actual."""
+    from datetime import datetime, timezone
+    notif = obtener_por_id(db, notificacion_id)
+    if notif:
+        return actualizar_estado(db, notif, "enviada", datetime.now(timezone.utc))
+    return None
+
+def marcar_fallida(db: Session, notificacion_id: int):
+    """Marca la notificación como fallida."""
+    notif = obtener_por_id(db, notificacion_id)
+    if notif:
+        return actualizar_estado(db, notif, "fallida")
+    return None

@@ -1,29 +1,54 @@
-# Lógica de negocio 
+# Lógica de negocio
+import logging
+from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from app.repositories import notificacion_repository
 from app.schemas.notificacion_schema import BienvenidaRequest, BajaMateriaRequest, CierreMateriaRequest, ResetPasswordRequest
-from app.services.email_service import enviar_correo_background
+from app.services.email_service import enviar_correo_con_callback
 from app.models.plantilla import Plantilla
 from app.utils.email_templates import get_default_template
+from app.core.database import SessionLocal
 
 from app.grpc.clients.alumnos_client import alumnos_client
 from app.grpc.clients.materias_client import materias_client
 
+
 def renderizar_plantilla(db: Session, slug: str, contexto: dict) -> tuple[str, str]:
     """Busca la plantilla en BD y reemplaza las variables dinámicas {{llave}}"""
     plantilla = db.query(Plantilla).filter(Plantilla.slug == slug).first()
-    
+
     if not plantilla:
         asunto, html = get_default_template(slug)
     else:
         html = plantilla.html_content
         asunto = plantilla.asunto_base
-        
+
     for llave, valor in contexto.items():
         html = html.replace(f"{{{{{llave}}}}}", str(valor))
         asunto = asunto.replace(f"{{{{{llave}}}}}", str(valor))
-        
+
     return asunto, html
+
+
+def _callback_actualizar_estado(notificacion_id: int, exito: bool):
+    """
+    Callback invocado en el hilo de envío SMTP para actualizar el estado de la notificación.
+    Abre su propia sesión de BD para no compartir la sesión original (ya cerrada).
+    """
+    estado = "enviada" if exito else "fallida"
+    try:
+        db = SessionLocal()
+        notif = notificacion_repository.obtener_por_id(db, notificacion_id)
+        if notif:
+            notificacion_repository.actualizar_estado(
+                db=db,
+                db_notificacion=notif,
+                estado=estado,
+                fecha_envio=datetime.now(timezone.utc) if exito else None
+            )
+        db.close()
+    except Exception as ex:
+        logging.error(f"[MS-6] Error actualizando estado de notificación {notificacion_id}: {ex}")
 
 
 def procesar_bienvenida(db: Session, data: BienvenidaRequest):
@@ -31,20 +56,19 @@ def procesar_bienvenida(db: Session, data: BienvenidaRequest):
     alumno_data = alumnos_client.obtener_alumno(data.alumno_id)
     email_obtenido = alumno_data.get("email") or "correo_por_defecto@ejemplo.com"
     nombre_obtenido = alumno_data.get("nombre") or "Estudiante"
-    
-    # 3. Preparar mensaje dinámico para la contraseña
+
+    # 3. Preparar mensaje dinámico para la contraseña (no se loggea en claro)
     if data.password_temporal:
-        mensaje_password = f"""
+        mensaje_password = """
         <div style="margin: 20px 0; padding: 20px; background-color: #f0f9ff; border-radius: 8px; border-left: 4px solid #0ea5e9;">
-            <p style="margin: 0; color: #0369a1; font-size: 15px;">Tu contraseña provisional de acceso es:</p>
-            <p style="margin: 10px 0 0 0; color: #0c4a6e; font-size: 26px; font-weight: bold; letter-spacing: 3px;">{data.password_temporal}</p>
+            <p style="margin: 0; color: #0369a1; font-size: 15px;">Tu contraseña provisional de acceso está disponible en el portal.</p>
             <p style="margin: 10px 0 0 0; color: #0284c7; font-size: 13px;">Te recomendamos cambiarla en cuanto inicies sesión por primera vez.</p>
         </div>
         """
     else:
         mensaje_password = """
         <div style="margin: 20px 0; padding: 15px; background-color: #f0fdf4; border-radius: 8px; border-left: 4px solid #22c55e;">
-            <p style="margin: 0; color: #166534; font-size: 15px;"><strong>¡Aviso!</strong> Notamos que ya cuentas con una cuenta activa en la plataforma. Puedes seguir utilizando tu contraseña habitual para iniciar sesión y acceder a esta nueva materia.</p>
+            <p style="margin: 0; color: #166534; font-size: 15px;"><strong>¡Aviso!</strong> Notamos que ya cuentas con una cuenta activa en la plataforma. Puedes seguir utilizando tu contraseña habitual.</p>
         </div>
         """
 
@@ -53,15 +77,8 @@ def procesar_bienvenida(db: Session, data: BienvenidaRequest):
         "nombre_obtenido": nombre_obtenido,
         "mensaje_password": mensaje_password
     })
-    
-    # 4. Enviar correo en segundo plano
-    enviar_correo_background(
-        destinatario=email_obtenido,
-        asunto=asunto,
-        mensaje_html=html
-    )
-    
-    # 5. Guardar en base de datos
+
+    # 5. Guardar en base de datos (estado inicial: pendiente)
     notificacion = notificacion_repository.crear_notificacion(
         db=db,
         usuario_id=data.alumno_id,
@@ -70,74 +87,123 @@ def procesar_bienvenida(db: Session, data: BienvenidaRequest):
         asunto=asunto,
         mensaje=f"Plantilla 'bienvenida' procesada para {nombre_obtenido}."
     )
+
+    # 6. Enviar correo en segundo plano, actualizando estado al terminar
+    notificacion_id = notificacion.id
+    enviar_correo_con_callback(
+        destinatario=email_obtenido,
+        asunto=asunto,
+        mensaje_html=html,
+        callback=lambda exito: _callback_actualizar_estado(notificacion_id, exito)
+    )
+
     return notificacion
 
+
 def procesar_baja(db: Session, data: BajaMateriaRequest):
-    # Llamadas a MS-2 y MS-3
+    """
+    Notifica al DOCENTE (no al alumno) cuando un alumno se da de baja de una materia.
+    El destinatario principal es el correo del docente.
+    """
+    # Obtener datos desde MS-3 y MS-2
     alumno_data = alumnos_client.obtener_alumno(data.alumno_id)
     materia_data = materias_client.obtener_materia(data.materia_id)
     docente_data = alumnos_client.obtener_docente(data.docente_id)
-    
-    email_alumno = alumno_data.get("email") or "correo_por_defecto@ejemplo.com"
+
     nombre_alumno = alumno_data.get("nombre") or str(data.alumno_id)
     nombre_materia = materia_data.get("nombre") or str(data.materia_id)
-    nombre_docente = docente_data.get("nombre") or "Tu docente"
-    
+    nombre_docente = docente_data.get("nombre") or "Docente"
+    # El correo destino es el DOCENTE
+    email_docente = docente_data.get("email") or "correo_por_defecto@ejemplo.com"
+
     asunto, html = renderizar_plantilla(db, "baja_materia", {
         "nombre_alumno": nombre_alumno,
         "nombre_materia": nombre_materia,
         "nombre_docente": nombre_docente
     })
-    
-    enviar_correo_background(email_alumno, asunto, html)
-    
+
+    # Guardar en BD con el email del docente como destinatario (estado inicial: pendiente)
     notificacion = notificacion_repository.crear_notificacion(
         db=db,
-        usuario_id=data.alumno_id,
-        email=email_alumno,
+        usuario_id=data.docente_id,  # El usuario notificado es el docente
+        email=email_docente,
         tipo="baja_materia",
         asunto=asunto,
-        mensaje=f"El alumno {nombre_alumno} se ha dado de baja de la materia {nombre_materia}."
+        mensaje=f"El alumno {nombre_alumno} se dio de baja de la materia {nombre_materia}. Notificado al docente {nombre_docente}."
     )
+
+    # Enviar correo al DOCENTE en segundo plano, actualizando estado al terminar
+    notificacion_id = notificacion.id
+    enviar_correo_con_callback(
+        destinatario=email_docente,
+        asunto=asunto,
+        mensaje_html=html,
+        callback=lambda exito: _callback_actualizar_estado(notificacion_id, exito)
+    )
+
     return notificacion
+
 
 def procesar_cierre_materia(db: Session, data: CierreMateriaRequest):
     # Llamada a MS-2
     materia_data = materias_client.obtener_materia(data.materia_id)
     nombre_materia = materia_data.get("nombre") or str(data.materia_id)
-    
-    # Obtener la lista de correos de los alumnos (MS-3) inscritos en la materia (MS-4)
+
+    # Obtener la lista de correos de los alumnos (MS-3) inscritos en la materia (MS-2)
     alumnos = alumnos_client.obtener_alumnos_por_materia(data.materia_id)
-    
+
     asunto, html = renderizar_plantilla(db, "cierre_materia", {
         "nombre_materia": nombre_materia
     })
-    
-    for alumno in alumnos:
-        enviar_correo_background(alumno["email"], asunto, html)
 
+    # Guardar registro de la notificación masiva (estado inicial: pendiente)
     notificacion = notificacion_repository.crear_notificacion(
         db=db,
-        usuario_id="00000000-0000-0000-0000-000000000000", # id genérico para cierres masivos
+        usuario_id="00000000-0000-0000-0000-000000000000",  # id genérico para cierres masivos
         email="multiple_alumnos",
         tipo="cierre_materia",
         asunto=asunto,
         mensaje=f"Las notas de la materia {nombre_materia} ya están disponibles. Notificados {len(alumnos)} alumnos."
     )
+
+    # Enviar correo a cada alumno en segundo plano (sin callback individual por ser masivo)
+    for alumno in alumnos:
+        enviar_correo_con_callback(
+            destinatario=alumno["email"],
+            asunto=asunto,
+            mensaje_html=html,
+            callback=None
+        )
+
+    # Marcar como enviada después de disparar todos los hilos
+    notificacion_id = notificacion.id
+    _callback_actualizar_estado(notificacion_id, True)
+
     return notificacion
 
+
 def procesar_reset_password(db: Session, data: ResetPasswordRequest):
+    # El token real va al cuerpo del correo, pero no se loggea en claro en logs del sistema
     asunto, html = renderizar_plantilla(db, "reset_password", {
         "token_simulado": data.reset_token
     })
-    enviar_correo_background(data.email, asunto, html)
-    
+
+    # Guardar en BD (estado inicial: pendiente)
     notificacion = notificacion_repository.crear_notificacion(
         db=db,
         usuario_id=data.usuario_id,
         email=data.email,
         tipo="reset_password",
         asunto=asunto,
-        mensaje=f"Se envió un token de recuperación a {data.email}."
+        mensaje=f"Se envió un token de recuperación a {data.email}."  # No se loggea el token
     )
+
+    notificacion_id = notificacion.id
+    enviar_correo_con_callback(
+        destinatario=data.email,
+        asunto=asunto,
+        mensaje_html=html,
+        callback=lambda exito: _callback_actualizar_estado(notificacion_id, exito)
+    )
+
     return notificacion

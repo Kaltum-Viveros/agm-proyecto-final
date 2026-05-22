@@ -1,5 +1,5 @@
 """
-Dependencias de autenticación y autorización para MS-Calificaciones (MS-4).
+Dependencias de autenticación y autorización para MS-Notificaciones (MS-6).
 Valida tokens JWT contra MS-Auth (MS-1) vía gRPC.
 """
 from fastapi import Header, HTTPException, Depends
@@ -41,6 +41,27 @@ def role_required(role_name: str):
             raise HTTPException(
                 status_code=403,
                 detail=f"Permisos insuficientes. Tu rol es '{actual_role}', se requiere '{required_role}'"
+            )
+        return user
+
+    return checker
+
+def roles_required(role_names: list[str]):
+    """
+    Dependencia factory: permite el acceso si el usuario tiene uno de los roles indicados.
+    """
+    async def checker(user: dict = Depends(get_current_user)) -> dict:
+        actual_role   = user.get("role", "").upper()
+        required_roles = [r.upper() for r in role_names]
+
+        _ALIAS = {"ADMINISTRADOR": "ADMIN", "DOCENTE": "DOCENTE", "ALUMNO": "ALUMNO"}
+        actual_role = _ALIAS.get(actual_role, actual_role)
+        required_roles = [_ALIAS.get(r, r) for r in required_roles]
+
+        if actual_role not in required_roles:
+            raise HTTPException(
+                status_code=403,
+                detail=f"Permisos insuficientes. Tu rol es '{actual_role}', se requiere uno de: {', '.join(required_roles)}"
             )
         return user
 

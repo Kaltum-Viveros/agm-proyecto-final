@@ -8,7 +8,7 @@ class settings(BaseSettings):
     DEBUG: bool = True
     
     REST_HOST: str = "0.0.0.0"
-    REST_PORT: int = 8005
+    REST_PORT: int = 8006
     
     GRPC_HOST: str = "0.0.0.0"
     GRPC_PORT: int = 50056

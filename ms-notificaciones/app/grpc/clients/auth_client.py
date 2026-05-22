@@ -1,6 +1,6 @@
 """
 Cliente gRPC hacia MS-Auth (MS-1).
-Valida tokens JWT para proteger los endpoints de MS-Calificaciones.
+Valida tokens JWT para proteger los endpoints de MS-Notificaciones.
 """
 import grpc
 import logging
@@ -11,7 +11,7 @@ try:
     _PROTO_AVAILABLE = True
 except ImportError:
     _PROTO_AVAILABLE = False
-    logging.warning("[AuthClient MS-4] auth_pb2 no disponible.")
+    logging.warning("[AuthClient MS-6] auth_pb2 no disponible.")
 
 
 class AuthClient:
@@ -51,7 +51,7 @@ class AuthClient:
                 }
             return {"valid": False, "error": response.message}
         except grpc.RpcError as e:
-            logging.error(f"[AuthClient MS-4] Error gRPC al validar token: {e.details()}")
+            logging.error(f"[AuthClient MS-6] Error gRPC al validar token: {e.details()}")
             return None
 
 
