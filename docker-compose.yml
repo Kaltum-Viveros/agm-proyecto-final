@@ -1,5 +1,26 @@
 services:
   # ==================================
+  # RabbitMQ Broker
+  # ==================================
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: agm-rabbitmq
+    restart: always
+    ports:
+    - "${RABBITMQ_AMQP_PORT:-5672}:5672"
+    - "${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: agm
+      RABBITMQ_DEFAULT_PASS: agm_password
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ==================================
   # MS-1: Auth
   # ==================================
   auth_db:
@@ -33,8 +54,15 @@ services:
       - JWT_SECRET_KEY=change-this-secret-key
       - NOTIFICACIONES_GRPC_HOST=ms-notificaciones
       - NOTIFICACIONES_GRPC_PORT=50056
+      - RABBITMQ_URL=amqp://agm:agm_password@rabbitmq:5672/
+      - RABBITMQ_EXCHANGE_RPC=agm.rpc
+      - RABBITMQ_EXCHANGE_EVENTS=agm.events
+      - RABBITMQ_EXCHANGE_DLX=agm.dlx
+      - RABBITMQ_RPC_TIMEOUT_SECONDS=5
+      - COMMUNICATION_MODE=hybrid
     depends_on:
       - auth_db
+      - rabbitmq
 
   # ==================================
   # MS-2: Periodos y Materias
@@ -75,8 +103,15 @@ services:
       - MS_AUTH_GRPC_PORT=50051
       - MS_DOCENTES_ALUMNOS_GRPC_HOST=ms-docentes-alumnos
       - MS_DOCENTES_ALUMNOS_GRPC_PORT=50053
+      - RABBITMQ_URL=amqp://agm:agm_password@rabbitmq:5672/
+      - RABBITMQ_EXCHANGE_RPC=agm.rpc
+      - RABBITMQ_EXCHANGE_EVENTS=agm.events
+      - RABBITMQ_EXCHANGE_DLX=agm.dlx
+      - RABBITMQ_RPC_TIMEOUT_SECONDS=5
+      - COMMUNICATION_MODE=hybrid
     depends_on:
       - periodos_db
+      - rabbitmq
 
   # ==================================
   # MS-3: Docentes y Alumnos
@@ -112,9 +147,16 @@ services:
       - MS2_PORT=50052
       - MS6_HOST=ms-notificaciones
       - MS6_PORT=50056
+      - RABBITMQ_URL=amqp://agm:agm_password@rabbitmq:5672/
+      - RABBITMQ_EXCHANGE_RPC=agm.rpc
+      - RABBITMQ_EXCHANGE_EVENTS=agm.events
+      - RABBITMQ_EXCHANGE_DLX=agm.dlx
+      - RABBITMQ_RPC_TIMEOUT_SECONDS=5
+      - COMMUNICATION_MODE=hybrid
     depends_on:
       - db-docentes
       - ms-auth
+      - rabbitmq
 
   # ==================================
   # MS-4: Calificaciones
@@ -151,9 +193,16 @@ services:
       - DATABASE_URL=postgresql://calificaciones_user:calificaciones_pass@calificaciones_db:5432/agm_calificaciones_db
       - MS_ALUMNOS_GRPC_URL=ms-docentes-alumnos:50053
       - STORAGE_MODE=database
+      - RABBITMQ_URL=amqp://agm:agm_password@rabbitmq:5672/
+      - RABBITMQ_EXCHANGE_RPC=agm.rpc
+      - RABBITMQ_EXCHANGE_EVENTS=agm.events
+      - RABBITMQ_EXCHANGE_DLX=agm.dlx
+      - RABBITMQ_RPC_TIMEOUT_SECONDS=5
+      - COMMUNICATION_MODE=hybrid
     depends_on:
       - calificaciones_db
       - ms-docentes-alumnos
+      - rabbitmq
 
   # ==================================
   # MS-5: Asistencias
@@ -192,11 +241,18 @@ services:
       - MATERIAS_GRPC_PORT=50052
       - ALUMNOS_GRPC_HOST=ms-docentes-alumnos
       - ALUMNOS_GRPC_PORT=50053
+      - RABBITMQ_URL=amqp://agm:agm_password@rabbitmq:5672/
+      - RABBITMQ_EXCHANGE_RPC=agm.rpc
+      - RABBITMQ_EXCHANGE_EVENTS=agm.events
+      - RABBITMQ_EXCHANGE_DLX=agm.dlx
+      - RABBITMQ_RPC_TIMEOUT_SECONDS=5
+      - COMMUNICATION_MODE=hybrid
     depends_on:
       - asistencias_db
       - ms-auth
       - ms-periodos-materias
       - ms-docentes-alumnos
+      - rabbitmq
 
   ms-asistencias-grpc:
     build:
@@ -220,11 +276,18 @@ services:
       - MATERIAS_GRPC_PORT=50052
       - ALUMNOS_GRPC_HOST=ms-docentes-alumnos
       - ALUMNOS_GRPC_PORT=50053
+      - RABBITMQ_URL=amqp://agm:agm_password@rabbitmq:5672/
+      - RABBITMQ_EXCHANGE_RPC=agm.rpc
+      - RABBITMQ_EXCHANGE_EVENTS=agm.events
+      - RABBITMQ_EXCHANGE_DLX=agm.dlx
+      - RABBITMQ_RPC_TIMEOUT_SECONDS=5
+      - COMMUNICATION_MODE=hybrid
     depends_on:
       - asistencias_db
       - ms-auth
       - ms-periodos-materias
       - ms-docentes-alumnos
+      - rabbitmq
 
   # ==================================
   # MS-6: Notificaciones
@@ -263,8 +326,15 @@ services:
       - SMTP_PORT=587
       - SMTP_USER=agm.notificaciones.pnzns@gmail.com
       - SMTP_PASSWORD=qmpotoybedzoqlls
+      - RABBITMQ_URL=amqp://agm:agm_password@rabbitmq:5672/
+      - RABBITMQ_EXCHANGE_RPC=agm.rpc
+      - RABBITMQ_EXCHANGE_EVENTS=agm.events
+      - RABBITMQ_EXCHANGE_DLX=agm.dlx
+      - RABBITMQ_RPC_TIMEOUT_SECONDS=5
+      - COMMUNICATION_MODE=hybrid
     depends_on:
       - notificaciones_db
+      - rabbitmq
     volumes:
       - ./proto:/app/proto
 
@@ -313,8 +383,15 @@ services:
       - CALIFICACIONES_GRPC_PORT=50054
       - ASISTENCIAS_GRPC_HOST=ms-asistencias-grpc
       - ASISTENCIAS_GRPC_PORT=50055
+      - RABBITMQ_URL=amqp://agm:agm_password@rabbitmq:5672/
+      - RABBITMQ_EXCHANGE_RPC=agm.rpc
+      - RABBITMQ_EXCHANGE_EVENTS=agm.events
+      - RABBITMQ_EXCHANGE_DLX=agm.dlx
+      - RABBITMQ_RPC_TIMEOUT_SECONDS=5
+      - COMMUNICATION_MODE=hybrid
     depends_on:
       - reportes_db
+      - rabbitmq
 
 volumes:
   auth_db_data:
@@ -324,3 +401,4 @@ volumes:
   asistencias_db_data:
   notificaciones_data:
   reportes_data:
+  rabbitmq_data:
