@@ -1,0 +1,3 @@
+"""
+Inicializador vacio.
+"""
