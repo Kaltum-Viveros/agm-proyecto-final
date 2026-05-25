@@ -9,18 +9,17 @@ from app.schemas.docente import DocenteCreate, DocenteOut, DocenteUpdate
 from app.repositories.docente_repository import docente_repository
 from app.db.session import get_db
 from app.api.deps import role_required, get_current_user
-from app.grpc.clients.auth_client import AuthClient
+from app.messaging.clients.auth_hybrid_client import auth_client
 from app.grpc.clients.notif_client import NotifClient
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-auth_client = AuthClient()
 notif_client = NotifClient()
 
 # 1. Crear un Docente
 @router.post("/", response_model=DocenteOut, status_code=status.HTTP_201_CREATED)
-def create_docente(
+async def create_docente(
     docente_in: DocenteCreate,
     db: Session = Depends(get_db),
     current_user: dict = Depends(role_required("Administrador"))
@@ -36,7 +35,7 @@ def create_docente(
     # Crear o reutilizar identidad en MS-1 vía gRPC ANTES de guardar localmente.
     # grpc.RpcError se propaga si MS-1 no está disponible (error de red/timeout).
     try:
-        user_id, temp_pass = auth_client.crear_identidad(
+        user_id, temp_pass = await auth_client.create_or_get_user_identity(
             nombre=docente_in.nombre_completo,
             email=docente_in.correo,
             role="Docente"

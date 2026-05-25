@@ -21,7 +21,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # 6. Copiar el resto del código
 COPY ms-docentes-alumnos/app ./app
-COPY ms-docentes-alumnos/alembic ./alembic
 COPY ms-docentes-alumnos/alembic.ini .
 COPY ms-docentes-alumnos/grpc_server.py .
 COPY ms-docentes-alumnos/scripts ./scripts

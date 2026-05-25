@@ -13,7 +13,7 @@ from app.models.docente import Docente
 
 # Clientes gRPC y Seguridad
 from app.grpc.clients.ms2_client import MS2Client
-from app.grpc.clients.auth_client import AuthClient
+from app.messaging.clients.auth_hybrid_client import auth_client
 from app.grpc.clients.notif_client import NotifClient
 from app.api.deps import role_required
 
@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 ms2_client = MS2Client()
-auth_client = AuthClient()
 notif_client = NotifClient()
 
 def normalizar_texto(t):
@@ -65,7 +64,7 @@ async def importar_alumnos_pdf(
                 # 3. Crear Identidad Real vía gRPC (MS-1).
                 #    grpc.RpcError se propaga como error parcial de la fila.
                 try:
-                    u_id, temp_pass = auth_client.crear_identidad(
+                    u_id, temp_pass = await auth_client.create_or_get_user_identity(
                         nombre=data["alumno"]["nombre_completo"],
                         email=data["alumno"]["correo"],
                         role="Alumno"
