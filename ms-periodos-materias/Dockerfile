@@ -17,6 +17,8 @@ COPY ms-periodos-materias/app ./app
 COPY ms-periodos-materias/alembic.ini .
 # se copia el directorio de migraciones de Alembic al contenedor
 COPY ms-periodos-materias/alembic ./alembic
+# se copia el directorio de scripts de prueba
+COPY ms-periodos-materias/scripts ./scripts
 # se copia el script de ejecución del servicio al contenedor
 COPY ms-periodos-materias/run.py .
 # se expone el puerto 8002 para que el servicio sea accesible desde fuera del contenedor y el puerto 50052 para gRPC
