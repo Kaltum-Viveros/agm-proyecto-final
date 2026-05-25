@@ -5,7 +5,8 @@ FROM python:3.12-slim
 WORKDIR /app
 
 # Copiamos solo el archivo de requerimientos primero (optimización de caché)
-COPY requirements.txt .
+COPY shared ./shared
+COPY ms-notificaciones/requirements.txt .
 
 # Instalamos las dependencias
 RUN pip install --no-cache-dir -r requirements.txt
@@ -20,7 +21,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 #      python -m grpc_tools.protoc -I=../proto --python_out=app/grpc/generated \
 #             --grpc_python_out=app/grpc/generated ../proto/*.proto
 #   Si se modifican los .proto, correr el comando anterior en local y commitear los stubs resultantes.
-COPY . .
+COPY ms-notificaciones/app ./app
+COPY ms-notificaciones/alembic ./alembic
+COPY ms-notificaciones/alembic.ini .
+COPY ms-notificaciones/seed_plantillas.py .
+COPY ms-notificaciones/test_email.py .
 
 # Exponemos los puertos:
 #   8006 → REST (FastAPI/Uvicorn)

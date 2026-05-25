@@ -15,11 +15,17 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # 5. Copiar e instalar dependencias de Python
-COPY requirements.txt .
+COPY shared ./shared
+COPY ms-docentes-alumnos/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # 6. Copiar el resto del código
-COPY . .
+COPY ms-docentes-alumnos/app ./app
+COPY ms-docentes-alumnos/alembic ./alembic
+COPY ms-docentes-alumnos/alembic.ini .
+COPY ms-docentes-alumnos/grpc_server.py .
+COPY ms-docentes-alumnos/scripts ./scripts
+COPY ms-docentes-alumnos/test-db.py .
 
 # 7. Comando para arrancar la app
 CMD python grpc_server.py & uvicorn app.main:app --host 0.0.0.0 --port 8003

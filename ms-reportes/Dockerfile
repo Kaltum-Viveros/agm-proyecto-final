@@ -12,10 +12,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY shared ./shared
+COPY ms-reportes/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY ms-reportes/app ./app
+COPY ms-reportes/alembic ./alembic
+COPY ms-reportes/alembic.ini .
 
 # 8007 -> REST (FastAPI)
 # 50057 -> gRPC

@@ -14,3 +14,8 @@ pytest-asyncio
 httpx
 gunicorn
 
+
+# RabbitMQ / Messaging Dependencies
+aio-pika==9.4.1
+tenacity==8.2.3
+orjson==3.10.3

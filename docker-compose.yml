@@ -38,8 +38,8 @@ services:
 
   ms-auth:
     build:
-      context: ./ms-auth
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ms-auth/Dockerfile
     container_name: ms-auth
     restart: always
     ports:
@@ -82,8 +82,8 @@ services:
 
   ms-periodos-materias:
     build:
-      context: ./ms-periodos-materias
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ms-periodos-materias/Dockerfile
     container_name: ms-periodos-materias
     restart: always
     ports:
@@ -131,8 +131,8 @@ services:
 
   ms-docentes-alumnos:
     build:
-      context: ./ms-docentes-alumnos
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ms-docentes-alumnos/Dockerfile
     container_name: ms-docentes-alumnos
     restart: always
     ports:
@@ -176,8 +176,8 @@ services:
 
   ms-calificaciones:
     build:
-      context: ./ms-calificaciones
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ms-calificaciones/Dockerfile
     container_name: ms-calificaciones
     restart: always
     ports:
@@ -222,8 +222,8 @@ services:
 
   ms-asistencias:
     build:
-      context: ./ms-asistencias
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ms-asistencias/Dockerfile
     container_name: ms-asistencias
     restart: always
     ports:
@@ -256,8 +256,8 @@ services:
 
   ms-asistencias-grpc:
     build:
-      context: ./ms-asistencias
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ms-asistencias/Dockerfile
     container_name: ms-asistencias-grpc
     restart: always
     command: python -m app.grpc_server.asistencias_server
@@ -307,8 +307,8 @@ services:
 
   ms-notificaciones:
     build:
-      context: ./ms-notificaciones
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ms-notificaciones/Dockerfile
     container_name: ms-notificaciones
     restart: always
     ports:
@@ -356,8 +356,8 @@ services:
 
   ms-reportes:
     build:
-      context: ./ms-reportes
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: ms-reportes/Dockerfile
     container_name: ms-reportes
     restart: always
     ports:

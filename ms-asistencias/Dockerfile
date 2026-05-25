@@ -16,13 +16,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Copiar solo el requirements primero para aprovechar el caché de Docker
-COPY requirements.txt .
+COPY shared ./shared
+COPY ms-asistencias/requirements.txt .
 
 # Instalar las dependencias de Python
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiar el resto del código del microservicio
-COPY . .
+COPY ms-asistencias/app ./app
+COPY ms-asistencias/alembic ./alembic
+COPY ms-asistencias/alembic.ini .
+COPY ms-asistencias/run.py .
+COPY ms-asistencias/tests ./tests
 
 # Exponer los puertos:
 # 8005 -> REST (FastAPI)

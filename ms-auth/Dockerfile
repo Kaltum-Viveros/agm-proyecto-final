@@ -5,15 +5,16 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-COPY requirements.txt .
+COPY shared ./shared
+COPY ms-auth/requirements.txt .
 
 RUN pip install --no-cache-dir --upgrade pip \
     && pip install --no-cache-dir -r requirements.txt
 
-COPY app ./app
-COPY scripts ./scripts
-COPY alembic.ini .
-COPY alembic ./alembic
+COPY ms-auth/app ./app
+COPY ms-auth/scripts ./scripts
+COPY ms-auth/alembic.ini .
+COPY ms-auth/alembic ./alembic
 
 EXPOSE 8001
 EXPOSE 50051
