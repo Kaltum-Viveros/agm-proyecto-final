@@ -97,7 +97,7 @@ class ServicioSesiones:
             )
 
         # 3. Consultar alumnos en MS-3 antes de cerrar
-        from app.grpc_clients.cliente_alumnos import cliente_alumnos
+        from app.messaging.clients.docentes_hybrid_client import cliente_alumnos
         from app.repositories.repositorio_asistencias import RepositorioAsistencias
         from app.models.enums import EstadoAsistencia, MetodoRegistro
         import logging

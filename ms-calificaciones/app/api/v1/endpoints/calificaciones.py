@@ -11,7 +11,7 @@ from app.schemas.calificacion import CalificacionCreate, CalificacionUpdate
 from app.services.calificacion_service import CalificacionService
 from app.services.importacion_calificaciones_service import ImportacionCalificacionesService
 from app.api.deps import get_current_user, role_required
-from app.grpc.clients.alumnos_client import alumnos_client
+from app.messaging.clients.docentes_hybrid_client import alumnos_client
 
 router = APIRouter(prefix="/calificaciones", tags=["Calificaciones"])
 

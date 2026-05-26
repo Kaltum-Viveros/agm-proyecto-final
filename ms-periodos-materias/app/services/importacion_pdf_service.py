@@ -12,7 +12,7 @@ from app.models.periodo import Periodo
 from app.models.plan_estudio import PlanEstudio
 from app.utils.pdf_programacion_parser import ProgramacionAcademicaRow
 from app.core.academic_rules import validar_rango_horas
-from app.grpc.clients.docentes_client import docentes_client
+from app.messaging.clients.docentes_hybrid_client import docentes_client
 
 
 class ImportacionProgramacionService:
@@ -194,7 +194,7 @@ class ImportacionProgramacionService:
         docente_id_resuelto = None
         if base_row.profesor:
             try:
-                docente_id_str = docentes_client.resolver_docente_por_nombre(base_row.profesor)
+                docente_id_str = await docentes_client.resolver_docente_por_nombre_async(base_row.profesor)
                 if docente_id_str:
                     from uuid import UUID as _UUID
                     docente_id_resuelto = _UUID(docente_id_str)

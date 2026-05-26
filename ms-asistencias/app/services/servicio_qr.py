@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.repositories.repositorio_sesiones import RepositorioSesiones
 from app.models.enums import EstadoSesion
-from app.grpc_clients.cliente_alumnos import cliente_alumnos
+from app.messaging.clients.docentes_hybrid_client import cliente_alumnos
 
 
 class ServicioQr:

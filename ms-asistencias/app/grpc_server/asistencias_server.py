@@ -98,7 +98,7 @@ class AsistenciasServicer(asistencias_pb2_grpc.AsistenciasServiceServicer):
         Calcula un resumen estadístico de la materia para el Dashboard del docente.
         """
         async with AsyncSessionLocal() as db:
-            from app.grpc_clients.cliente_alumnos import cliente_alumnos
+            from app.messaging.clients.docentes_hybrid_client import cliente_alumnos
             
             # Obtener sesiones de la materia
             query_sesiones = select(SesionAsistencia).where(

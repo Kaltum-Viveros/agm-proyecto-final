@@ -7,7 +7,7 @@ from fastapi import HTTPException, UploadFile, status
 
 from app.repositories.actividad_memory_repository import ActividadMemoryRepository
 from app.repositories.calificacion_memory_repository import CalificacionMemoryRepository
-from app.grpc.clients.alumnos_client import alumnos_client
+from app.messaging.clients.docentes_hybrid_client import alumnos_client
 
 
 class ImportacionCalificacionesService:
@@ -100,7 +100,7 @@ class ImportacionCalificacionesService:
                 # --- Perfeccionamiento Profesional: Validación gRPC ---
                 
                 # 1. Resolver alumno_id real por correo en MS-3
-                perfil_alumno = alumnos_client.get_alumno_by_email(correo)
+                perfil_alumno = await alumnos_client.get_alumno_by_email_async(correo)
                 
                 if not perfil_alumno:
                     errores.append({
@@ -114,7 +114,7 @@ class ImportacionCalificacionesService:
                 materia_id = actividad["materia_id"]
 
                 # 2. Verificar que el alumno está realmente inscrito en la materia (MS-3)
-                inscrito = alumnos_client.is_alumno_en_materia(
+                inscrito = await alumnos_client.is_alumno_en_materia_async(
                     alumno_id=str(alumno_id),
                     materia_id=str(materia_id)
                 )

@@ -34,7 +34,7 @@ async def obtener_claims_usuario(credentials: HTTPAuthorizationCredentials = Dep
     
     if email:
         import logging
-        from app.grpc_clients.cliente_alumnos import cliente_alumnos
+        from app.messaging.clients.docentes_hybrid_client import cliente_alumnos
         if role in ("DOCENTE", "ADMIN"):
             try:
                 docente_info = await cliente_alumnos.obtener_docente_por_email(email)

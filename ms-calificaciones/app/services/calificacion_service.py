@@ -2,7 +2,7 @@ from uuid import UUID, uuid4
 
 from fastapi import HTTPException, status
 
-from app.grpc.clients.alumnos_client import alumnos_client
+from app.messaging.clients.docentes_hybrid_client import alumnos_client
 from app.repositories.actividad_memory_repository import ActividadMemoryRepository
 from app.repositories.calificacion_memory_repository import CalificacionMemoryRepository
 from app.schemas.calificacion import CalificacionCreate, CalificacionUpdate

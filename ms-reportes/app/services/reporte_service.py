@@ -1,5 +1,6 @@
 from fastapi import HTTPException
-from app.grpc.clients import periodos_materias_client, docentes_alumnos_client, calificaciones_client
+from app.grpc.clients import periodos_materias_client, calificaciones_client
+from app.messaging.clients.docentes_hybrid_client import docentes_alumnos_client
 from app.services.pdf_generator import generate_calificaciones_pdf
 from app.services.excel_generator import generate_calificaciones_excel
 from app.repositories.reporte_repository import ReporteRepository
@@ -33,7 +34,7 @@ class ReporteService:
         }
 
         # 2. Consultar alumnos en MS-3
-        alumnos_res = docentes_alumnos_client.get_alumnos_by_materia(materia_id)
+        alumnos_res = await docentes_alumnos_client.get_alumnos_by_materia(materia_id)
         alumnos = alumnos_res.alumnos if alumnos_res else []
 
         # 3. Consultar concentrado en MS-4
@@ -100,7 +101,7 @@ class ReporteService:
             } if materia_res.HasField("periodo") else {}
         }
 
-        alumnos_res = docentes_alumnos_client.get_alumnos_by_materia(materia_id)
+        alumnos_res = await docentes_alumnos_client.get_alumnos_by_materia(materia_id)
         alumnos = alumnos_res.alumnos if alumnos_res else []
 
         from app.grpc.clients import asistencias_client
@@ -218,11 +219,11 @@ class ReporteService:
         }
 
     async def obtener_estadisticas_alumno(self, alumno_id: str):
-        alumno_res = docentes_alumnos_client.get_alumno_by_id(alumno_id)
+        alumno_res = await docentes_alumnos_client.get_alumno_by_id(alumno_id)
         if not alumno_res:
             raise HTTPException(status_code=404, detail="Alumno no encontrado en MS-3.")
         
-        materias_res = docentes_alumnos_client.get_materias_by_alumno(alumno_id)
+        materias_res = await docentes_alumnos_client.get_materias_by_alumno(alumno_id)
         materias_ids = materias_res.materias_ids if materias_res else []
 
         from app.grpc.clients import asistencias_client, calificaciones_client

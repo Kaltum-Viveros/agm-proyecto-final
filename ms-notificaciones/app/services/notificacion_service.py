@@ -9,7 +9,7 @@ from app.models.plantilla import Plantilla
 from app.utils.email_templates import get_default_template
 from app.core.database import SessionLocal
 
-from app.grpc.clients.alumnos_client import alumnos_client
+from app.messaging.clients.docentes_hybrid_client import alumnos_client
 from app.messaging.clients.periodos_hybrid_client import materias_client
 
 
@@ -100,15 +100,21 @@ def procesar_bienvenida(db: Session, data: BienvenidaRequest):
     return notificacion
 
 
-def procesar_baja(db: Session, data: BajaMateriaRequest, materia_data: dict | None = None):
+def procesar_baja(
+    db: Session,
+    data: BajaMateriaRequest,
+    materia_data: dict | None = None,
+    alumno_data: dict | None = None,
+    docente_data: dict | None = None,
+):
     """
     Notifica al alumno cuando se registra su baja de una materia.
     El docente se usa solo como contexto del mensaje.
     """
     # Obtener datos desde MS-3 y MS-2
-    alumno_data = alumnos_client.obtener_alumno(data.alumno_id)
+    alumno_data = alumno_data or alumnos_client.obtener_alumno(data.alumno_id)
     materia_data = materia_data or materias_client.obtener_materia(data.materia_id)
-    docente_data = alumnos_client.obtener_docente(data.docente_id)
+    docente_data = docente_data or alumnos_client.obtener_docente(data.docente_id)
 
     nombre_alumno = alumno_data.get("nombre") or str(data.alumno_id)
     nombre_materia = materia_data.get("nombre") or str(data.materia_id)
@@ -160,16 +166,29 @@ def procesar_baja(db: Session, data: BajaMateriaRequest, materia_data: dict | No
 
 async def procesar_baja_async(db: Session, data: BajaMateriaRequest):
     materia_data = await materias_client.obtener_materia_async(data.materia_id)
-    return procesar_baja(db, data, materia_data=materia_data)
+    alumno_data = await alumnos_client.obtener_alumno_async(data.alumno_id)
+    docente_data = await alumnos_client.obtener_docente_async(data.docente_id)
+    return procesar_baja(
+        db,
+        data,
+        materia_data=materia_data,
+        alumno_data=alumno_data,
+        docente_data=docente_data,
+    )
 
 
-def procesar_cierre_materia(db: Session, data: CierreMateriaRequest, materia_data: dict | None = None):
+def procesar_cierre_materia(
+    db: Session,
+    data: CierreMateriaRequest,
+    materia_data: dict | None = None,
+    alumnos: list | None = None,
+):
     # Llamada a MS-2
     materia_data = materia_data or materias_client.obtener_materia(data.materia_id)
     nombre_materia = materia_data.get("nombre") or str(data.materia_id)
 
     # Obtener la lista de correos de los alumnos (MS-3) inscritos en la materia (MS-2)
-    alumnos = alumnos_client.obtener_alumnos_por_materia(data.materia_id)
+    alumnos = alumnos if alumnos is not None else alumnos_client.obtener_alumnos_por_materia(data.materia_id)
 
     asunto, html = renderizar_plantilla(db, "cierre_materia", {
         "nombre_materia": nombre_materia
@@ -203,7 +222,8 @@ def procesar_cierre_materia(db: Session, data: CierreMateriaRequest, materia_dat
 
 async def procesar_cierre_materia_async(db: Session, data: CierreMateriaRequest):
     materia_data = await materias_client.obtener_materia_async(data.materia_id)
-    return procesar_cierre_materia(db, data, materia_data=materia_data)
+    alumnos = await alumnos_client.obtener_alumnos_por_materia_async(data.materia_id)
+    return procesar_cierre_materia(db, data, materia_data=materia_data, alumnos=alumnos)
 
 
 def procesar_reset_password(db: Session, data: ResetPasswordRequest):
