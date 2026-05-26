@@ -1,3 +1,5 @@
+import asyncio
+
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -6,6 +8,7 @@ from app.core.database import init_db
 from app.core.exceptions import NotFoundException, BadRequestException
 from app.core.responses import error_response
 from app.core.config import settings
+from app.messaging.event_worker import start_event_worker
 
 tags_metadata = [
     {
@@ -26,8 +29,17 @@ app = FastAPI(
 )
 
 @app.on_event("startup")
-def startup():
+async def startup():
     init_db()
+    app.state.notification_event_worker_task = asyncio.create_task(start_event_worker())
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    task = getattr(app.state, "notification_event_worker_task", None)
+    if task:
+        task.cancel()
+        await asyncio.gather(task, return_exceptions=True)
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
