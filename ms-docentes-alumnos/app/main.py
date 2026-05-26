@@ -1,5 +1,7 @@
 import sys
 import os
+import asyncio
+import threading
 
 # --- EL TRUCO PARA ARREGLAR gRPC EN PYTHON ---
 # Obtenemos la ruta absoluta de la carpeta raíz del microservicio
@@ -17,6 +19,7 @@ from app.models.inscripcion import Inscripcion
 
 # 1. IMPORTANTE: Importa el router centralizado que ya configuraste bien
 from app.api.v1.router import api_router 
+from app.messaging.rabbit_worker import start_rabbit_worker
 
 Base.metadata.create_all(bind=engine)
 
@@ -28,6 +31,19 @@ app = FastAPI(
 # 2. ÚNICA LÍNEA DE REGISTRO:
 # Aquí usamos el router central que unifica docentes y alumnos bajo "Importación"
 app.include_router(api_router, prefix="/api/v1")
+
+
+def _run_rabbit_worker():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(start_rabbit_worker())
+
+
+@app.on_event("startup")
+def start_background_workers():
+    rabbit_thread = threading.Thread(target=_run_rabbit_worker, daemon=True)
+    rabbit_thread.start()
+
 
 @app.get("/", tags=["Health"])
 def health_check():
