@@ -1,15 +1,20 @@
 from contextlib import asynccontextmanager
+import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.grpc.server import start_grpc_server, stop_grpc_server
+from app.messaging.rabbit_worker import start_rabbit_worker
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Iniciar servidor gRPC en segundo plano
     await start_grpc_server()
-    yield
-    # Detener servidor gRPC
-    await stop_grpc_server()
+    rabbit_task = asyncio.create_task(start_rabbit_worker())
+    try:
+        yield
+    finally:
+        rabbit_task.cancel()
+        await stop_grpc_server()
 
 
 from app.api.v1.router import api_router
