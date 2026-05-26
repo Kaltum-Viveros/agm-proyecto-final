@@ -74,6 +74,48 @@ class AuthClient:
                 "activo": claims.activo,
             }
 
+    def check_role(self, user_id: str, role: str) -> bool:
+        """Verifica el rol de un usuario contra MS-1 Auth via gRPC."""
+        with grpc.insecure_channel(self._channel_target()) as channel:
+            stub = auth_pb2_grpc.AuthServiceStub(channel)
+            request = auth_pb2.CheckRoleRequest(user_id=str(user_id), role=role)
+            try:
+                response = stub.CheckRole(request, timeout=self.timeout)
+            except grpc.RpcError as e:
+                logger.error(
+                    f"[AuthClient MS-7] Error gRPC al verificar rol: "
+                    f"code={e.code()} detail={e.details()}"
+                )
+                raise
+
+            return bool(response.allowed)
+
+    def get_user_by_id(self, user_id: str) -> dict | None:
+        """Obtiene el perfil de un usuario contra MS-1 Auth via gRPC."""
+        with grpc.insecure_channel(self._channel_target()) as channel:
+            stub = auth_pb2_grpc.AuthServiceStub(channel)
+            request = auth_pb2.GetUserByIdRequest(user_id=str(user_id))
+            try:
+                response = stub.GetUserById(request, timeout=self.timeout)
+            except grpc.RpcError as e:
+                logger.error(
+                    f"[AuthClient MS-7] Error gRPC al obtener usuario: "
+                    f"code={e.code()} detail={e.details()}"
+                )
+                raise
+
+            if not response.found:
+                return None
+
+            user = response.user
+            return {
+                "user_id": user.user_id,
+                "nombre_completo": user.nombre_completo,
+                "email": user.email,
+                "role": user.role,
+                "activo": user.activo,
+            }
+
 
 # Instancia compartida (canal se abre por llamada, sin estado persistente)
 auth_client = AuthClient()
