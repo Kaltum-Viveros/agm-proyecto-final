@@ -1,13 +1,13 @@
 """
 Dependencias de autenticación y autorización para MS-Calificaciones (MS-4).
-Valida tokens JWT contra MS-Auth (MS-1) vía gRPC.
+Valida tokens JWT contra MS-Auth (MS-1) vía RabbitMQ con fallback gRPC.
 """
 from fastapi import Header, HTTPException, Depends
-from app.grpc.clients.auth_client import auth_client
+from app.messaging.clients.auth_hybrid_client import auth_client
 
 
 async def get_current_user(authorization: str = Header(...)) -> dict:
-    """Extrae y valida el Bearer token usando el cliente gRPC de MS-Auth."""
+    """Extrae y valida el Bearer token usando el cliente híbrido de MS-Auth."""
     if not authorization.startswith("Bearer "):
         raise HTTPException(
             status_code=401,
@@ -15,7 +15,7 @@ async def get_current_user(authorization: str = Header(...)) -> dict:
         )
 
     token = authorization.split(" ", 1)[1]
-    result = auth_client.validate_token(token)
+    result = await auth_client.validate_token(token)
 
     if not result or not result.get("valid"):
         msg = result.get("error", "Sesión no válida") if result else "No se pudo conectar con MS-Auth"
