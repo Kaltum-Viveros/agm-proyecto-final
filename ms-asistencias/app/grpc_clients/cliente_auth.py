@@ -59,4 +59,24 @@ class ClienteAuth:
             logging.error(f"Error gRPC al conectar con MS-1 (Auth): {e.details()}")
             return False
 
+    async def get_user_by_id(self, user_id: str) -> dict | None:
+        """
+        Obtiene el perfil del usuario desde MS-1 (Auth).
+        """
+        try:
+            request = auth_pb2.GetUserByIdRequest(user_id=str(user_id))
+            response = await self.stub.GetUserById(request)
+            if not response.found:
+                return None
+            return {
+                "user_id": response.user.user_id,
+                "nombre_completo": response.user.nombre_completo,
+                "email": response.user.email,
+                "role": response.user.role,
+                "activo": response.user.activo,
+            }
+        except grpc.RpcError as e:
+            logging.error(f"Error gRPC al conectar con MS-1 (Auth): {e.details()}")
+            return None
+
 cliente_auth = ClienteAuth()

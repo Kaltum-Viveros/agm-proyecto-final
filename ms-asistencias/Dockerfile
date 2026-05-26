@@ -27,6 +27,7 @@ COPY ms-asistencias/app ./app
 COPY ms-asistencias/alembic ./alembic
 COPY ms-asistencias/alembic.ini .
 COPY ms-asistencias/run.py .
+COPY ms-asistencias/scripts ./scripts
 COPY ms-asistencias/tests ./tests
 
 # Exponer los puertos:

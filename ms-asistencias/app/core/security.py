@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-from app.grpc_clients.cliente_auth import cliente_auth
+from app.messaging.clients.auth_hybrid_client import cliente_auth
 
 # Instancia para extraer el token Bearer del header Authorization
 security = HTTPBearer()
