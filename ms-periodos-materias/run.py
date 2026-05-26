@@ -4,6 +4,7 @@ import uvicorn
 
 from app.core.config import settings
 from app.grpc.server import serve as serve_grpc
+from app.messaging.rabbit_worker import start_rabbit_worker
 
 
 async def serve_rest():
@@ -25,6 +26,7 @@ async def main():
     await asyncio.gather(
         serve_rest(),
         serve_grpc(),
+        start_rabbit_worker(),
     )
 
 
