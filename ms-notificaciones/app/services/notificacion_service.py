@@ -102,8 +102,8 @@ def procesar_bienvenida(db: Session, data: BienvenidaRequest):
 
 def procesar_baja(db: Session, data: BajaMateriaRequest, materia_data: dict | None = None):
     """
-    Notifica al DOCENTE (no al alumno) cuando un alumno se da de baja de una materia.
-    El destinatario principal es el correo del docente.
+    Notifica al alumno cuando se registra su baja de una materia.
+    El docente se usa solo como contexto del mensaje.
     """
     # Obtener datos desde MS-3 y MS-2
     alumno_data = alumnos_client.obtener_alumno(data.alumno_id)
@@ -113,8 +113,7 @@ def procesar_baja(db: Session, data: BajaMateriaRequest, materia_data: dict | No
     nombre_alumno = alumno_data.get("nombre") or str(data.alumno_id)
     nombre_materia = materia_data.get("nombre") or str(data.materia_id)
     nombre_docente = docente_data.get("nombre") or "Docente"
-    # El correo destino es el DOCENTE
-    email_docente = docente_data.get("email") or "correo_por_defecto@ejemplo.com"
+    email_alumno = alumno_data.get("email") or alumno_data.get("correo")
 
     asunto, html = renderizar_plantilla(db, "baja_materia", {
         "nombre_alumno": nombre_alumno,
@@ -122,20 +121,35 @@ def procesar_baja(db: Session, data: BajaMateriaRequest, materia_data: dict | No
         "nombre_docente": nombre_docente
     })
 
-    # Guardar en BD con el email del docente como destinatario (estado inicial: pendiente)
+    if not email_alumno:
+        logging.error("No se pudo enviar notificación de baja: alumno sin correo")
+        return notificacion_repository.crear_notificacion(
+            db=db,
+            usuario_id=data.alumno_id,
+            email="",
+            tipo="baja_materia",
+            asunto=asunto,
+            mensaje=(
+                "No se pudo enviar notificación de baja: alumno sin correo. "
+                f"alumno_id={data.alumno_id}, materia_id={data.materia_id}"
+            ),
+            estado="fallida"
+        )
+
+    # Guardar en BD con el email del alumno como destinatario (estado inicial: pendiente)
     notificacion = notificacion_repository.crear_notificacion(
         db=db,
-        usuario_id=data.docente_id,  # El usuario notificado es el docente
-        email=email_docente,
+        usuario_id=data.alumno_id,
+        email=email_alumno,
         tipo="baja_materia",
         asunto=asunto,
-        mensaje=f"El alumno {nombre_alumno} se dio de baja de la materia {nombre_materia}. Notificado al docente {nombre_docente}."
+        mensaje=f"El alumno {nombre_alumno} se dio de baja de la materia {nombre_materia} impartida por {nombre_docente}."
     )
 
-    # Enviar correo al DOCENTE en segundo plano, actualizando estado al terminar
+    # Enviar correo al alumno en segundo plano, actualizando estado al terminar
     notificacion_id = notificacion.id
     enviar_correo_con_callback(
-        destinatario=email_docente,
+        destinatario=email_alumno,
         asunto=asunto,
         mensaje_html=html,
         callback=lambda exito: _callback_actualizar_estado(notificacion_id, exito)

@@ -28,13 +28,13 @@ def seed():
         ),
         Plantilla(
             slug="baja_materia",
-            asunto_base="Aviso Automático: Baja de Alumno en {{nombre_materia}}",
+            asunto_base="Notificación de Baja de Materia",
             html_content="""
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;">
                 <h2 style="color: #c53030;">Aviso Oficial de Baja</h2>
-                <p>Estimado Docente,</p>
-                <p>Le notificamos que el alumno <strong>{{nombre_alumno}}</strong> se ha dado de baja de forma oficial de su materia <strong>{{nombre_materia}}</strong>.</p>
-                <p>El sistema ha actualizado las listas de asistencia y calificaciones de forma automática.</p>
+                <p>Hola <strong>{{nombre_alumno}}</strong>,</p>
+                <p>Te informamos que has sido dado de baja de la materia <strong>{{nombre_materia}}</strong> impartida por el docente {{nombre_docente}}.</p>
+                <p>El sistema ha actualizado tu registro académico de forma automática.</p>
                 <hr style="border-top: 1px solid #eee; margin-top: 30px;" />
                 <p style="font-size: 12px; color: #888; text-align: center;">AGM Microservicios</p>
             </div>
