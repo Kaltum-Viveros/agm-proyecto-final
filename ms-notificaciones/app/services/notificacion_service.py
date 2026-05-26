@@ -10,7 +10,7 @@ from app.utils.email_templates import get_default_template
 from app.core.database import SessionLocal
 
 from app.grpc.clients.alumnos_client import alumnos_client
-from app.grpc.clients.materias_client import materias_client
+from app.messaging.clients.periodos_hybrid_client import materias_client
 
 
 def renderizar_plantilla(db: Session, slug: str, contexto: dict) -> tuple[str, str]:
@@ -100,14 +100,14 @@ def procesar_bienvenida(db: Session, data: BienvenidaRequest):
     return notificacion
 
 
-def procesar_baja(db: Session, data: BajaMateriaRequest):
+def procesar_baja(db: Session, data: BajaMateriaRequest, materia_data: dict | None = None):
     """
     Notifica al DOCENTE (no al alumno) cuando un alumno se da de baja de una materia.
     El destinatario principal es el correo del docente.
     """
     # Obtener datos desde MS-3 y MS-2
     alumno_data = alumnos_client.obtener_alumno(data.alumno_id)
-    materia_data = materias_client.obtener_materia(data.materia_id)
+    materia_data = materia_data or materias_client.obtener_materia(data.materia_id)
     docente_data = alumnos_client.obtener_docente(data.docente_id)
 
     nombre_alumno = alumno_data.get("nombre") or str(data.alumno_id)
@@ -144,9 +144,14 @@ def procesar_baja(db: Session, data: BajaMateriaRequest):
     return notificacion
 
 
-def procesar_cierre_materia(db: Session, data: CierreMateriaRequest):
+async def procesar_baja_async(db: Session, data: BajaMateriaRequest):
+    materia_data = await materias_client.obtener_materia_async(data.materia_id)
+    return procesar_baja(db, data, materia_data=materia_data)
+
+
+def procesar_cierre_materia(db: Session, data: CierreMateriaRequest, materia_data: dict | None = None):
     # Llamada a MS-2
-    materia_data = materias_client.obtener_materia(data.materia_id)
+    materia_data = materia_data or materias_client.obtener_materia(data.materia_id)
     nombre_materia = materia_data.get("nombre") or str(data.materia_id)
 
     # Obtener la lista de correos de los alumnos (MS-3) inscritos en la materia (MS-2)
@@ -180,6 +185,11 @@ def procesar_cierre_materia(db: Session, data: CierreMateriaRequest):
     _callback_actualizar_estado(notificacion_id, True)
 
     return notificacion
+
+
+async def procesar_cierre_materia_async(db: Session, data: CierreMateriaRequest):
+    materia_data = await materias_client.obtener_materia_async(data.materia_id)
+    return procesar_cierre_materia(db, data, materia_data=materia_data)
 
 
 def procesar_reset_password(db: Session, data: ResetPasswordRequest):

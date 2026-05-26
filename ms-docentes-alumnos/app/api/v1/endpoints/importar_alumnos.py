@@ -12,7 +12,7 @@ from app.models.inscripcion import Inscripcion
 from app.models.docente import Docente
 
 # Clientes gRPC y Seguridad
-from app.grpc.clients.ms2_client import MS2Client
+from app.messaging.clients.periodos_hybrid_client import periodos_client
 from app.messaging.clients.auth_hybrid_client import auth_client
 from app.grpc.clients.notif_client import NotifClient
 from app.api.deps import role_required
@@ -20,7 +20,6 @@ from app.api.deps import role_required
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-ms2_client = MS2Client()
 notif_client = NotifClient()
 
 def normalizar_texto(t):
@@ -57,7 +56,7 @@ async def importar_alumnos_pdf(
 
                 # 2. Resolver Materia/Periodo vía gRPC (MS-2)
                 nrc = data["inscripcion"]["nrc_materia"]
-                m_id, p_id, seccion = ms2_client.obtener_materia_y_periodo(str(docente.docente_id), nrc)
+                m_id, p_id, seccion = await periodos_client.obtener_materia_y_periodo(str(docente.docente_id), nrc)
                 if not m_id:
                     raise Exception(f"NRC {nrc} no hallado en MS-2.")
 

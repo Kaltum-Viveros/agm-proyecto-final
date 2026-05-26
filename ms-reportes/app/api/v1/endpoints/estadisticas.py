@@ -20,7 +20,7 @@ async def get_estadisticas_docente(
     """
     Obtiene las estadísticas agrupadas por periodo y materia de un docente.
     """
-    return service.obtener_estadisticas_docente(docente_id)
+    return await service.obtener_estadisticas_docente(docente_id)
 
 @router.get("/alumno/{alumno_id}")
 async def get_estadisticas_alumno(
@@ -32,4 +32,4 @@ async def get_estadisticas_alumno(
     Obtiene el historial y estadísticas de un alumno. 
     Las materias del alumno se obtienen desde MS-3 (Docentes & Alumnos) mediante gRPC usando GetMateriasByAlumno.
     """
-    return service.obtener_estadisticas_alumno(alumno_id)
+    return await service.obtener_estadisticas_alumno(alumno_id)

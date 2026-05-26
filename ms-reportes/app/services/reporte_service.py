@@ -14,7 +14,7 @@ class ReporteService:
             raise HTTPException(status_code=400, detail="Formato no soportado. Use 'pdf' o 'xlsx'.")
 
         # 1. Consultar materia_id en MS-2
-        materia_res = periodos_materias_client.get_materia_by_id(materia_id)
+        materia_res = await periodos_materias_client.get_materia_by_id(materia_id)
         if not materia_res or not materia_res.materia_ofertada_id:
             raise HTTPException(status_code=404, detail="Materia no encontrada en MS-2 (Periodos y Materias).")
 
@@ -83,7 +83,7 @@ class ReporteService:
         if formato not in ["pdf", "xlsx"]:
             raise HTTPException(status_code=400, detail="Formato no soportado. Use 'pdf' o 'xlsx'.")
 
-        materia_res = periodos_materias_client.get_materia_by_id(materia_id)
+        materia_res = await periodos_materias_client.get_materia_by_id(materia_id)
         if not materia_res or not materia_res.materia_ofertada_id:
             raise HTTPException(status_code=404, detail="Materia no encontrada en MS-2 (Periodos y Materias).")
 
@@ -176,8 +176,8 @@ class ReporteService:
 
         return file_bytes, filename, content_type
 
-    def obtener_estadisticas_docente(self, docente_id: str):
-        materias_res = periodos_materias_client.get_materias_by_docente(docente_id)
+    async def obtener_estadisticas_docente(self, docente_id: str):
+        materias_res = await periodos_materias_client.get_materias_by_docente(docente_id)
         if not materias_res:
             return {"success": False, "periodos": [], "message": "No se pudieron obtener las materias del docente o no tiene materias."}
 
@@ -217,7 +217,7 @@ class ReporteService:
             "message": "Estadísticas de docente generadas correctamente."
         }
 
-    def obtener_estadisticas_alumno(self, alumno_id: str):
+    async def obtener_estadisticas_alumno(self, alumno_id: str):
         alumno_res = docentes_alumnos_client.get_alumno_by_id(alumno_id)
         if not alumno_res:
             raise HTTPException(status_code=404, detail="Alumno no encontrado en MS-3.")
@@ -229,7 +229,7 @@ class ReporteService:
 
         historial_materias = []
         for m_id in materias_ids:
-            materia_info = periodos_materias_client.get_materia_by_id(m_id)
+            materia_info = await periodos_materias_client.get_materia_by_id(m_id)
             
             promedio = calificaciones_client.get_promedio_alumno(alumno_id, m_id)
             asistencia = asistencias_client.get_asistencia_alumno(alumno_id, m_id)

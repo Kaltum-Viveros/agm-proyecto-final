@@ -4,7 +4,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
-from app.grpc_clients.cliente_materias import cliente_materias
+from app.messaging.clients.periodos_hybrid_client import periodos_client
 from app.models.enums import EstadoSesion
 from app.models.sesion_asistencia import SesionAsistencia
 from app.repositories.repositorio_sesiones import RepositorioSesiones
@@ -25,7 +25,7 @@ class ServicioSesiones:
         """
         # --- FASE 11: Integración gRPC con MS-2 (Materias) ---
         # Verificamos si la materia existe y le pertenece al docente.
-        es_valido = await cliente_materias.verificar_materia_docente(id_materia, id_docente)
+        es_valido = await periodos_client.verificar_materia_docente(id_materia, id_docente)
         if not es_valido:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,

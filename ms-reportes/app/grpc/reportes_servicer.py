@@ -45,7 +45,7 @@ class ReportesServicer(reportes_pb2_grpc.ReportesServiceServicer):
                 repo = ReporteRepository(db)
                 service = ReporteService(repo)
                 
-                stats_res = service.obtener_estadisticas_docente(request.docente_id)
+                stats_res = await service.obtener_estadisticas_docente(request.docente_id)
                 if not stats_res.get("success"):
                     return reportes_pb2.HistorialDocenteResponse(
                         success=False,
