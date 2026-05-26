@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from app.grpc.clients import periodos_materias_client
+from app.messaging.clients.asistencias_hybrid_client import asistencias_client
 from app.messaging.clients.calificaciones_hybrid_client import calificaciones_client
 from app.messaging.clients.docentes_hybrid_client import docentes_alumnos_client
 from app.services.pdf_generator import generate_calificaciones_pdf
@@ -105,11 +106,10 @@ class ReporteService:
         alumnos_res = await docentes_alumnos_client.get_alumnos_by_materia(materia_id)
         alumnos = alumnos_res.alumnos if alumnos_res else []
 
-        from app.grpc.clients import asistencias_client
-        stats_materia = asistencias_client.get_estadisticas_asistencia(materia_id)
+        stats_materia = await asistencias_client.get_estadisticas_asistencia(materia_id)
         total_sesiones = stats_materia.total_sesiones_impartidas if stats_materia else 0
 
-        asistencias_materia_res = asistencias_client.get_asistencias_materia(materia_id)
+        asistencias_materia_res = await asistencias_client.get_asistencias_materia(materia_id)
         asistencias_map = {}
         if asistencias_materia_res:
             for asis in asistencias_materia_res.asistencias:
@@ -184,8 +184,6 @@ class ReporteService:
             return {"success": False, "periodos": [], "message": "No se pudieron obtener las materias del docente o no tiene materias."}
 
         periodos_dict = {}
-        from app.grpc.clients import asistencias_client
-
         for mat in materias_res.materias:
             p_id = mat.periodo.periodo_id if mat.HasField("periodo") else "unknown"
             p_nombre = mat.periodo.nombre if mat.HasField("periodo") else "Desconocido"
@@ -198,7 +196,7 @@ class ReporteService:
                 }
 
             calif_stats = await calificaciones_client.get_estadisticas_materia(mat.materia_ofertada_id)
-            asis_stats = asistencias_client.get_estadisticas_asistencia(mat.materia_ofertada_id)
+            asis_stats = await asistencias_client.get_estadisticas_asistencia(mat.materia_ofertada_id)
 
             materia_stats = {
                 "periodo_id": p_id,
@@ -227,15 +225,13 @@ class ReporteService:
         materias_res = await docentes_alumnos_client.get_materias_by_alumno(alumno_id)
         materias_ids = materias_res.materias_ids if materias_res else []
 
-        from app.grpc.clients import asistencias_client
-
         historial_materias = []
         for m_id in materias_ids:
             materia_info = await periodos_materias_client.get_materia_by_id(m_id)
             
             promedio = await calificaciones_client.get_promedio_alumno(alumno_id, m_id)
-            asistencia = asistencias_client.get_asistencia_alumno(alumno_id, m_id)
-            stats_materia = asistencias_client.get_estadisticas_asistencia(m_id)
+            asistencia = await asistencias_client.get_asistencia_alumno(alumno_id, m_id)
+            stats_materia = await asistencias_client.get_estadisticas_asistencia(m_id)
             
             presentes = asistencia.total_presentes if asistencia else 0
             retardos = asistencia.total_retardos if asistencia else 0
