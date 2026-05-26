@@ -20,9 +20,19 @@ from app.api.v1.router import api_router
 
 Base.metadata.create_all(bind=engine)
 
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI(
     title="MS Docentes y Alumnos",
     version="1.0.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:4200", "http://localhost:3000", "http://localhost:5173", "http://localhost:8000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # 2. ÚNICA LÍNEA DE REGISTRO:
