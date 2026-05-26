@@ -54,6 +54,48 @@ class AuthClient:
             logging.error(f"[AuthClient MS-6] Error gRPC al validar token: {e.details()}")
             return None
 
+    def check_role(self, user_id: str, role: str) -> bool:
+        """
+        Verifica si el usuario tiene el rol indicado contra MS-Auth.
+        Retorna True si tiene permiso, False si no.
+        """
+        stub = self._get_stub()
+        if not stub:
+            return False
+        try:
+            response = stub.CheckRole(
+                auth_pb2.CheckRoleRequest(user_id=str(user_id), role=role)
+            )
+            return response.allowed
+        except grpc.RpcError as e:
+            logging.error(f"[AuthClient MS-6] Error gRPC al verificar rol: {e.details()}")
+            return False
+
+    def get_user_by_id(self, user_id: str) -> dict | None:
+        """
+        Obtiene el perfil de usuario desde MS-Auth.
+        Retorna dict si existe, None si no.
+        """
+        stub = self._get_stub()
+        if not stub:
+            return None
+        try:
+            response = stub.GetUserById(
+                auth_pb2.GetUserByIdRequest(user_id=str(user_id))
+            )
+            if not response.found:
+                return None
+            return {
+                "user_id": response.user.user_id,
+                "nombre_completo": response.user.nombre_completo,
+                "email": response.user.email,
+                "role": response.user.role,
+                "activo": response.user.activo,
+            }
+        except grpc.RpcError as e:
+            logging.error(f"[AuthClient MS-6] Error gRPC al obtener usuario: {e.details()}")
+            return None
+
 
 # Singleton
 auth_client = AuthClient()

@@ -23,6 +23,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 #   Si se modifican los .proto, correr el comando anterior en local y commitear los stubs resultantes.
 COPY ms-notificaciones/app ./app
 COPY ms-notificaciones/alembic.ini .
+COPY ms-notificaciones/scripts ./scripts
 COPY ms-notificaciones/seed_plantillas.py .
 COPY ms-notificaciones/test_email.py .
 
