@@ -1,5 +1,6 @@
 from fastapi import HTTPException
-from app.grpc.clients import periodos_materias_client, calificaciones_client
+from app.grpc.clients import periodos_materias_client
+from app.messaging.clients.calificaciones_hybrid_client import calificaciones_client
 from app.messaging.clients.docentes_hybrid_client import docentes_alumnos_client
 from app.services.pdf_generator import generate_calificaciones_pdf
 from app.services.excel_generator import generate_calificaciones_excel
@@ -38,7 +39,7 @@ class ReporteService:
         alumnos = alumnos_res.alumnos if alumnos_res else []
 
         # 3. Consultar concentrado en MS-4
-        concentrado_res = calificaciones_client.get_concentrado(materia_id, modo="actual")
+        concentrado_res = await calificaciones_client.get_concentrado(materia_id, modo="actual")
         concentrado_alumnos = concentrado_res.alumnos if concentrado_res else []
 
         # Generar el archivo
@@ -196,7 +197,7 @@ class ReporteService:
                     "materias": []
                 }
 
-            calif_stats = calificaciones_client.get_estadisticas_materia(mat.materia_ofertada_id)
+            calif_stats = await calificaciones_client.get_estadisticas_materia(mat.materia_ofertada_id)
             asis_stats = asistencias_client.get_estadisticas_asistencia(mat.materia_ofertada_id)
 
             materia_stats = {
@@ -226,13 +227,13 @@ class ReporteService:
         materias_res = await docentes_alumnos_client.get_materias_by_alumno(alumno_id)
         materias_ids = materias_res.materias_ids if materias_res else []
 
-        from app.grpc.clients import asistencias_client, calificaciones_client
+        from app.grpc.clients import asistencias_client
 
         historial_materias = []
         for m_id in materias_ids:
             materia_info = await periodos_materias_client.get_materia_by_id(m_id)
             
-            promedio = calificaciones_client.get_promedio_alumno(alumno_id, m_id)
+            promedio = await calificaciones_client.get_promedio_alumno(alumno_id, m_id)
             asistencia = asistencias_client.get_asistencia_alumno(alumno_id, m_id)
             stats_materia = asistencias_client.get_estadisticas_asistencia(m_id)
             
