@@ -91,11 +91,12 @@ def serve():
         print("Error: Los archivos .proto no han sido compilados. Por favor compila el archivo notificaciones.proto primero.")
         return
 
+    host = "0.0.0.0"
     port = "50056"
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     notificaciones_pb2_grpc.add_NotificacionServiceServicer_to_server(NotificacionServiceServicer(), server)
-    server.add_insecure_port(f'[::]:{port}')
-    print(f"Servidor gRPC iniciado y escuchando en el puerto {port}...")
+    server.add_insecure_port(f"{host}:{port}")
+    print(f"MS Notificaciones gRPC server running on {host}:{port}", flush=True)
     server.start()
     server.wait_for_termination()
 
