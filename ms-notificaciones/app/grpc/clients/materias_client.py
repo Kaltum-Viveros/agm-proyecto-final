@@ -32,13 +32,34 @@ class MateriasClient:
         """
         stub = self._get_stub()
         if not stub:
-            return {"nombre": "Materia Prueba (Mock)"}
+            logging.error(
+                "No se pudo crear stub gRPC de MS-2 Periodos/Materias; no se usara materia mock."
+            )
+            return {
+                "nombre": "",
+                "found": False,
+                "error_code": "PERIODOS_GRPC_STUB_UNAVAILABLE",
+                "message": "No se pudo consultar la materia por gRPC",
+            }
         try:
             request = periodos_materias_pb2.GetMateriaByIdRequest(materia_id=str(materia_id))
             response = stub.GetMateriaById(request)
-            return {"nombre": response.materia.nombre}
+            nombre = ""
+            if response.HasField("materia"):
+                nombre = response.materia.nombre
+            return {
+                "nombre": nombre,
+                "found": bool(nombre),
+                "materia_id": getattr(response, "materia_ofertada_id", str(materia_id)),
+                "nrc": getattr(response, "nrc", ""),
+            }
         except Exception as e:
             logging.error(f"Error gRPC al consultar MS-2: {e}")
-            return {"nombre": "Materia Desconocida"}
+            return {
+                "nombre": "",
+                "found": False,
+                "error_code": "PERIODOS_GRPC_ERROR",
+                "message": "No se pudo consultar la materia por gRPC",
+            }
 
 materias_client = MateriasClient()

@@ -22,14 +22,30 @@ class PeriodosRabbitClient:
 
         if data.get("found"):
             logger.info("[PeriodosRabbitClient] obtener_materia via RabbitMQ OK")
+            print("[PeriodosRabbitClient] obtener_materia via RabbitMQ OK", flush=True)
             materia = data.get("materia") or {}
-            return {"nombre": materia.get("nombre") or "Materia Desconocida"}
+            nested_materia = materia.get("materia") or {}
+            nombre = (
+                materia.get("nombre")
+                or nested_materia.get("nombre")
+                or materia.get("materia_nombre")
+            )
+            return {
+                **materia,
+                "nombre": nombre or "",
+                "found": True,
+            }
 
         logger.info(
             "[PeriodosRabbitClient] Business response obtener_materia: %s",
             data.get("error_code") or data.get("message"),
         )
-        return {"nombre": "Materia Desconocida"}
+        return {
+            "nombre": "",
+            "found": False,
+            "error_code": data.get("error_code") or "MATERIA_NOT_FOUND",
+            "message": data.get("message") or "Materia no encontrada",
+        }
 
     def _data_or_empty(self, response: dict[str, Any]) -> dict[str, Any]:
         if response.get("success"):

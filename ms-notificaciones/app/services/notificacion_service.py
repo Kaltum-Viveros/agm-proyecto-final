@@ -1,4 +1,5 @@
 # Lógica de negocio
+import asyncio
 import logging
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
@@ -11,6 +12,39 @@ from app.core.database import SessionLocal
 
 from app.messaging.clients.docentes_hybrid_client import alumnos_client
 from app.messaging.clients.periodos_hybrid_client import materias_client
+
+
+def _extraer_nombre_materia(materia_data: dict | None) -> str:
+    if not materia_data:
+        return ""
+
+    nested_materia = materia_data.get("materia") or {}
+    nombre = (
+        materia_data.get("nombre")
+        or nested_materia.get("nombre")
+        or materia_data.get("materia_nombre")
+        or ""
+    )
+    nombre = str(nombre).strip()
+    if "mock" in nombre.lower() or nombre == "Materia Prueba (Mock)":
+        logging.error("MS-6 recibio nombre de materia mock desde cliente Periodos: %s", nombre)
+        return ""
+    return nombre
+
+
+async def _obtener_contexto_baja(
+    data: BajaMateriaRequest,
+    materia_data: dict | None,
+    alumno_data: dict | None,
+    docente_data: dict | None,
+) -> tuple[dict, dict, dict]:
+    if alumno_data is None:
+        alumno_data = await alumnos_client.obtener_alumno_async(data.alumno_id)
+    if materia_data is None:
+        materia_data = await materias_client.obtener_materia_async(data.materia_id)
+    if docente_data is None:
+        docente_data = await alumnos_client.obtener_docente_async(data.docente_id)
+    return alumno_data or {}, materia_data or {}, docente_data or {}
 
 
 def renderizar_plantilla(db: Session, slug: str, contexto: dict) -> tuple[str, str]:
@@ -111,15 +145,35 @@ def procesar_baja(
     Notifica al alumno cuando se registra su baja de una materia.
     El docente se usa solo como contexto del mensaje.
     """
-    # Obtener datos desde MS-3 y MS-2
-    alumno_data = alumno_data or alumnos_client.obtener_alumno(data.alumno_id)
-    materia_data = materia_data or materias_client.obtener_materia(data.materia_id)
-    docente_data = docente_data or alumnos_client.obtener_docente(data.docente_id)
+    # Obtener datos desde MS-3 y MS-2. En el flujo gRPC sincronico se resuelven
+    # en un solo event loop para no reutilizar conexiones RabbitMQ cerradas.
+    if alumno_data is None or materia_data is None or docente_data is None:
+        alumno_data, materia_data, docente_data = asyncio.run(
+            _obtener_contexto_baja(data, materia_data, alumno_data, docente_data)
+        )
 
     nombre_alumno = alumno_data.get("nombre") or str(data.alumno_id)
-    nombre_materia = materia_data.get("nombre") or str(data.materia_id)
+    nombre_materia = _extraer_nombre_materia(materia_data)
     nombre_docente = docente_data.get("nombre") or "Docente"
     email_alumno = alumno_data.get("email") or alumno_data.get("correo")
+
+    if not nombre_materia:
+        logging.error(
+            "No se pudo enviar notificacion de baja: materia no encontrada o sin nombre. materia_id=%s",
+            data.materia_id,
+        )
+        return notificacion_repository.crear_notificacion(
+            db=db,
+            usuario_id=data.alumno_id,
+            email=email_alumno or "",
+            tipo="baja_materia",
+            asunto="Notificacion de Baja de Materia",
+            mensaje=(
+                "No se pudo enviar notificacion de baja: materia no encontrada o sin nombre. "
+                f"alumno_id={data.alumno_id}, materia_id={data.materia_id}"
+            ),
+            estado="fallida",
+        )
 
     asunto, html = renderizar_plantilla(db, "baja_materia", {
         "nombre_alumno": nombre_alumno,
@@ -185,7 +239,7 @@ def procesar_cierre_materia(
 ):
     # Llamada a MS-2
     materia_data = materia_data or materias_client.obtener_materia(data.materia_id)
-    nombre_materia = materia_data.get("nombre") or str(data.materia_id)
+    nombre_materia = _extraer_nombre_materia(materia_data) or "Materia no encontrada"
 
     # Obtener la lista de correos de los alumnos (MS-3) inscritos en la materia (MS-2)
     alumnos = alumnos if alumnos is not None else alumnos_client.obtener_alumnos_por_materia(data.materia_id)

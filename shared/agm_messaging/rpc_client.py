@@ -1,11 +1,10 @@
+import logging
 import asyncio
 import uuid
-import logging
 from typing import Any, Dict
 
 import aio_pika
 
-from .connection import RabbitMQConnection
 from .config import config
 from .envelope import MessageEnvelope
 from .exceptions import RPCTimeoutException, RPCException
@@ -19,12 +18,13 @@ class RabbitRpcClient(BaseRPCClient if 'BaseRPCClient' in globals() else object)
     def __init__(self, exchange_name: str = config.EXCHANGE_RPC):
         self.exchange_name = exchange_name
         self.futures: Dict[str, asyncio.Future] = {}
+        self.connection: aio_pika.RobustConnection = None
         self.channel: aio_pika.Channel = None
         self.callback_queue: aio_pika.Queue = None
 
     async def connect(self):
-        connection = await RabbitMQConnection.get_connection()
-        self.channel = await connection.channel()
+        self.connection = await aio_pika.connect_robust(config.URL)
+        self.channel = await self.connection.channel()
         
         # Cola callback exclusiva para este cliente
         self.callback_queue = await self.channel.declare_queue(exclusive=True)
@@ -46,8 +46,7 @@ class RabbitRpcClient(BaseRPCClient if 'BaseRPCClient' in globals() else object)
             future.set_exception(RPCException(f"Error parseando respuesta: {e}"))
 
     async def call(self, routing_key: str, data: Any, timeout: int = config.RPC_TIMEOUT) -> Dict[str, Any]:
-        if not self.channel or self.channel.is_closed:
-            await self.connect()
+        await self.connect()
 
         correlation_id = str(uuid.uuid4())
         loop = asyncio.get_running_loop()
@@ -77,7 +76,13 @@ class RabbitRpcClient(BaseRPCClient if 'BaseRPCClient' in globals() else object)
             raise RPCTimeoutException(f"Timeout RPC tras {timeout}s esperando {routing_key}")
         finally:
             self.futures.pop(correlation_id, None)
+            await self.close()
 
     async def close(self):
         if self.channel and not self.channel.is_closed:
             await self.channel.close()
+        if self.connection and not self.connection.is_closed:
+            await self.connection.close()
+        self.channel = None
+        self.callback_queue = None
+        self.connection = None
