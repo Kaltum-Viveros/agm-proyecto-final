@@ -110,6 +110,33 @@ def get_default_template(slug: str) -> tuple[str, str]:
         """ + BASE_HTML_END
         return asunto, html
 
+    if slug == "bienvenida_docente":
+        asunto = "Bienvenido a AGM"
+        html = BASE_HTML_START + """
+            <div class="header">
+                <h1>Bienvenido al Sistema AcadÃ©mico</h1>
+            </div>
+            <div class="content">
+                <div class="greeting">Hola, {{nombre_docente}}</div>
+                <div class="text">
+                    Tu cuenta docente ha sido creada exitosamente en AGM. Ya puedes acceder al portal para gestionar tus materias y consultar la informaciÃ³n acadÃ©mica asignada.
+                </div>
+
+                {{mensaje_password}}
+
+                <div class="text">
+                    Si tienes algÃºn problema para acceder, contacta al soporte tÃ©cnico de tu facultad.
+                </div>
+                <div style="text-align: center; margin-top: 30px;">
+                    <a href="http://localhost:4200" class="btn">Ir al Portal Docente</a>
+                </div>
+            </div>
+            <div class="footer">
+                Este es un mensaje automÃ¡tico del Sistema AGM. Por favor, no respondas a este correo.
+            </div>
+        """ + BASE_HTML_END
+        return asunto, html
+
     if slug == "baja_materia":
         asunto = "Notificación de Baja de Materia"
         html = BASE_HTML_START + """

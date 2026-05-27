@@ -63,6 +63,7 @@ RPC_ASISTENCIAS_GET_ESTADISTICAS_ASISTENCIA = "rpc.asistencias.get_estadisticas_
 # K) Notification event routing keys
 EVENT_NOTIFICACIONES_BIENVENIDA = "event.notificaciones.bienvenida"
 EVENT_NOTIFICACIONES_BIENVENIDA_ALUMNO = "event.notificaciones.bienvenida_alumno"
+EVENT_NOTIFICACIONES_BIENVENIDA_DOCENTE = "event.notificaciones.bienvenida_docente"
 EVENT_NOTIFICACIONES_BAJA = "event.notificaciones.baja"
 EVENT_NOTIFICACIONES_BAJA_ALUMNO = "event.notificaciones.baja_alumno"
 EVENT_NOTIFICACIONES_CIERRE_MATERIA = "event.notificaciones.cierre_materia"
@@ -71,6 +72,7 @@ EVENT_NOTIFICACIONES_RESET_PASSWORD = "event.notificaciones.reset_password"
 EVENT_ROUTING_KEYS_BY_TARGET = {
     SERVICE_NOTIFICACIONES: [
         EVENT_NOTIFICACIONES_BIENVENIDA_ALUMNO,
+        EVENT_NOTIFICACIONES_BIENVENIDA_DOCENTE,
         EVENT_NOTIFICACIONES_BAJA_ALUMNO,
         EVENT_NOTIFICACIONES_CIERRE_MATERIA,
         EVENT_NOTIFICACIONES_RESET_PASSWORD,

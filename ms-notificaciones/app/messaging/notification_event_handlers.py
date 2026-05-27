@@ -6,6 +6,7 @@ from typing import Any
 from app.core.database import SessionLocal
 from app.schemas.notificacion_schema import (
     BajaMateriaRequest,
+    BienvenidaDocenteRequest,
     BienvenidaRequest,
     CierreMateriaRequest,
     ResetPasswordRequest,
@@ -14,6 +15,7 @@ from app.services import notificacion_service
 from shared.agm_messaging.contracts import (
     EVENT_NOTIFICACIONES_BAJA_ALUMNO,
     EVENT_NOTIFICACIONES_BIENVENIDA_ALUMNO,
+    EVENT_NOTIFICACIONES_BIENVENIDA_DOCENTE,
     EVENT_NOTIFICACIONES_CIERRE_MATERIA,
     EVENT_NOTIFICACIONES_RESET_PASSWORD,
 )
@@ -41,6 +43,18 @@ async def handle_bienvenida_alumno(payload: dict[str, Any]) -> None:
     with db_session() as db:
         await asyncio.to_thread(notificacion_service.procesar_bienvenida, db, data)
     print(f"Evento procesado {EVENT_NOTIFICACIONES_BIENVENIDA_ALUMNO}", flush=True)
+
+
+async def handle_bienvenida_docente(payload: dict[str, Any]) -> None:
+    logger.info("Evento recibido %s", EVENT_NOTIFICACIONES_BIENVENIDA_DOCENTE)
+    print(f"Evento recibido {EVENT_NOTIFICACIONES_BIENVENIDA_DOCENTE}", flush=True)
+    data = BienvenidaDocenteRequest(
+        docente_id=str(payload.get("docente_id") or ""),
+        password_temporal=str(payload.get("password_temporal") or ""),
+    )
+    with db_session() as db:
+        await asyncio.to_thread(notificacion_service.procesar_bienvenida_docente, db, data)
+    print(f"Evento procesado {EVENT_NOTIFICACIONES_BIENVENIDA_DOCENTE}", flush=True)
 
 
 async def handle_baja_alumno(payload: dict[str, Any]) -> None:
@@ -80,6 +94,7 @@ async def handle_reset_password(payload: dict[str, Any]) -> None:
 
 EVENT_HANDLERS = {
     EVENT_NOTIFICACIONES_BIENVENIDA_ALUMNO: handle_bienvenida_alumno,
+    EVENT_NOTIFICACIONES_BIENVENIDA_DOCENTE: handle_bienvenida_docente,
     EVENT_NOTIFICACIONES_BAJA_ALUMNO: handle_baja_alumno,
     EVENT_NOTIFICACIONES_CIERRE_MATERIA: handle_cierre_materia,
     EVENT_NOTIFICACIONES_RESET_PASSWORD: handle_reset_password,

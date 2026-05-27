@@ -4,7 +4,13 @@ import logging
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from app.repositories import notificacion_repository
-from app.schemas.notificacion_schema import BienvenidaRequest, BajaMateriaRequest, CierreMateriaRequest, ResetPasswordRequest
+from app.schemas.notificacion_schema import (
+    BajaMateriaRequest,
+    BienvenidaDocenteRequest,
+    BienvenidaRequest,
+    CierreMateriaRequest,
+    ResetPasswordRequest,
+)
 from app.services.email_service import enviar_correo_con_callback
 from app.models.plantilla import Plantilla
 from app.utils.email_templates import get_default_template
@@ -45,6 +51,37 @@ async def _obtener_contexto_baja(
     if docente_data is None:
         docente_data = await alumnos_client.obtener_docente_async(data.docente_id)
     return alumno_data or {}, materia_data or {}, docente_data or {}
+
+
+def _email_real(data: dict | None) -> str:
+    if not data:
+        return ""
+    email = str(data.get("email") or data.get("correo") or "").strip()
+    if not email:
+        return ""
+    invalidos = {
+        "correo_por_defecto@ejemplo.com",
+        "error@ejemplo.com",
+    }
+    if email.lower() in invalidos:
+        return ""
+    return email
+
+
+def _mensaje_password_bienvenida(password_temporal: str) -> str:
+    if password_temporal:
+        return """
+        <div style="margin: 20px 0; padding: 20px; background-color: #f0f9ff; border-radius: 8px; border-left: 4px solid #0ea5e9;">
+            <p style="margin: 0; color: #0369a1; font-size: 15px;">Tu contraseÃ±a provisional de acceso estÃ¡ disponible en el portal.</p>
+            <p style="margin: 10px 0 0 0; color: #0284c7; font-size: 13px;">Te recomendamos cambiarla en cuanto inicies sesiÃ³n por primera vez.</p>
+        </div>
+        """
+
+    return """
+    <div style="margin: 20px 0; padding: 15px; background-color: #f0fdf4; border-radius: 8px; border-left: 4px solid #22c55e;">
+        <p style="margin: 0; color: #166534; font-size: 15px;"><strong>Â¡Aviso!</strong> Notamos que ya cuentas con una cuenta activa en la plataforma. Puedes seguir utilizando tu contraseÃ±a habitual.</p>
+    </div>
+    """
 
 
 def renderizar_plantilla(db: Session, slug: str, contexto: dict) -> tuple[str, str]:
@@ -96,7 +133,36 @@ def _callback_actualizar_estado(notificacion_id: int, exito: bool, log_success: 
 def procesar_bienvenida(db: Session, data: BienvenidaRequest):
     # 1 y 2: Llamar al cliente gRPC del MS-3 para obtener el email y nombre del alumno
     alumno_data = alumnos_client.obtener_alumno(data.alumno_id)
-    email_obtenido = alumno_data.get("email") or "correo_por_defecto@ejemplo.com"
+    email_obtenido = _email_real(alumno_data)
+    if not email_obtenido:
+        docente_data = alumnos_client.obtener_docente(data.alumno_id)
+        if _email_real(docente_data):
+            logging.info(
+                "SendBienvenida recibio un ID de docente; procesando bienvenida_docente. docente_id=%s",
+                data.alumno_id,
+            )
+            return procesar_bienvenida_docente(
+                db,
+                BienvenidaDocenteRequest(
+                    docente_id=data.alumno_id,
+                    password_temporal=data.password_temporal,
+                ),
+                docente_data=docente_data,
+            )
+
+        logging.error(
+            "No se pudo enviar bienvenida de alumno: alumno sin correo real. alumno_id=%s",
+            data.alumno_id,
+        )
+        return notificacion_repository.crear_notificacion(
+            db=db,
+            usuario_id=data.alumno_id,
+            email="",
+            tipo="bienvenida",
+            asunto="Bienvenido a AGM",
+            mensaje=f"No se pudo enviar bienvenida: alumno sin correo real. alumno_id={data.alumno_id}",
+            estado="fallida",
+        )
     nombre_obtenido = alumno_data.get("nombre") or "Estudiante"
 
     # 3. Preparar mensaje dinámico para la contraseña (no se loggea en claro)
@@ -137,6 +203,60 @@ def procesar_bienvenida(db: Session, data: BienvenidaRequest):
         asunto=asunto,
         mensaje_html=html,
         callback=lambda exito: _callback_actualizar_estado(notificacion_id, exito)
+    )
+
+    return notificacion
+
+
+def procesar_bienvenida_docente(
+    db: Session,
+    data: BienvenidaDocenteRequest,
+    docente_data: dict | None = None,
+):
+    docente_data = docente_data or alumnos_client.obtener_docente(data.docente_id)
+    email_docente = _email_real(docente_data)
+    nombre_docente = docente_data.get("nombre") or "Docente"
+
+    if not email_docente:
+        logging.error(
+            "No se pudo enviar bienvenida de docente: docente sin correo real. docente_id=%s",
+            data.docente_id,
+        )
+        return notificacion_repository.crear_notificacion(
+            db=db,
+            usuario_id=data.docente_id,
+            email="",
+            tipo="bienvenida_docente",
+            asunto="Bienvenido a AGM",
+            mensaje=f"No se pudo enviar bienvenida docente: docente sin correo real. docente_id={data.docente_id}",
+            estado="fallida",
+        )
+
+    asunto, html = renderizar_plantilla(db, "bienvenida_docente", {
+        "nombre_docente": nombre_docente,
+        "nombre_obtenido": nombre_docente,
+        "mensaje_password": _mensaje_password_bienvenida(data.password_temporal),
+    })
+
+    notificacion = notificacion_repository.crear_notificacion(
+        db=db,
+        usuario_id=data.docente_id,
+        email=email_docente,
+        tipo="bienvenida_docente",
+        asunto=asunto,
+        mensaje=f"Plantilla 'bienvenida_docente' procesada para {nombre_docente}."
+    )
+
+    notificacion_id = notificacion.id
+    enviar_correo_con_callback(
+        destinatario=email_docente,
+        asunto=asunto,
+        mensaje_html=html,
+        callback=lambda exito: _callback_actualizar_estado(
+            notificacion_id,
+            exito,
+            log_success=True,
+        )
     )
 
     return notificacion

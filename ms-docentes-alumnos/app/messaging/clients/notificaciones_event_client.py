@@ -3,6 +3,7 @@ import logging
 from shared.agm_messaging.contracts import (
     EVENT_NOTIFICACIONES_BAJA_ALUMNO,
     EVENT_NOTIFICACIONES_BIENVENIDA_ALUMNO,
+    EVENT_NOTIFICACIONES_BIENVENIDA_DOCENTE,
     SERVICE_DOCENTES_ALUMNOS,
 )
 from shared.agm_messaging.event_publisher import EventPublisher
@@ -29,6 +30,20 @@ class NotificacionesEventClient:
             },
         )
         logger.info("[NotificacionesEventClient] bienvenida_alumno event published")
+
+    async def publish_bienvenida_docente(
+        self,
+        docente_id: str,
+        password_temporal: str,
+    ) -> None:
+        await self._publisher.publish(
+            EVENT_NOTIFICACIONES_BIENVENIDA_DOCENTE,
+            {
+                "docente_id": str(docente_id),
+                "password_temporal": password_temporal,
+            },
+        )
+        logger.info("[NotificacionesEventClient] bienvenida_docente event published")
 
     async def publish_baja_alumno(
         self,

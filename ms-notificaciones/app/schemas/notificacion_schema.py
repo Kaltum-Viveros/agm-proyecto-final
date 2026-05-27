@@ -10,6 +10,11 @@ class BienvenidaRequest(BaseModel):
     materia_id: str = Field("", description="ID (UUID) de la materia")
     password_temporal: str = Field(..., description="Contraseña temporal generada")
 
+class BienvenidaDocenteRequest(BaseModel):
+    docente_id: str = Field(..., description="ID (UUID) del docente registrado")
+    password_temporal: str = Field(..., description="Contraseña temporal generada")
+
+
 class BajaMateriaRequest(BaseModel):
     alumno_id: str = Field(..., description="ID (UUID) del alumno que se da de baja")
     docente_id: str = Field(..., description="ID (UUID) del docente responsable")

@@ -1,5 +1,6 @@
 import grpc
 import logging
+import os
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
@@ -10,12 +11,37 @@ from app.repositories.docente_repository import docente_repository
 from app.db.session import get_db
 from app.api.deps import role_required, get_current_user
 from app.messaging.clients.auth_hybrid_client import auth_client
+from app.messaging.clients.notificaciones_event_client import notificaciones_event_client
 from app.grpc.clients.notif_client import NotifClient
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 notif_client = NotifClient()
+
+
+async def _enviar_bienvenida_docente(docente_id: str, password_temporal: str) -> None:
+    mode = os.getenv("COMMUNICATION_MODE", "hybrid").lower()
+
+    if mode == "grpc":
+        notif_client.enviar_bienvenida(docente_id, "", password_temporal)
+        return
+
+    try:
+        await notificaciones_event_client.publish_bienvenida_docente(
+            docente_id=docente_id,
+            password_temporal=password_temporal,
+        )
+        return
+    except Exception as exc:
+        logger.warning(
+            "[NotificacionesEventClient] RabbitMQ event publish failed, "
+            "falling back to gRPC: %s",
+            exc,
+        )
+
+    notif_client.enviar_bienvenida(docente_id, "", password_temporal)
+
 
 # 1. Crear un Docente
 @router.post("/", response_model=DocenteOut, status_code=status.HTTP_201_CREATED)
@@ -68,10 +94,9 @@ async def create_docente(
     # Enviar notificación de bienvenida (MS-6) si se dispone de contraseña temporal.
     if temp_pass:
         try:
-            notif_client.enviar_bienvenida(
-                alumno_id=nuevo_docente.docente_id,
-                materia_id="",
-                password=temp_pass
+            await _enviar_bienvenida_docente(
+                docente_id=str(nuevo_docente.docente_id),
+                password_temporal=temp_pass,
             )
         except Exception as notif_err:
             # La falla en notificación no revierte la creación del docente.
