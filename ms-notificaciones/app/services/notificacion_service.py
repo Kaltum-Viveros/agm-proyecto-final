@@ -64,7 +64,7 @@ def renderizar_plantilla(db: Session, slug: str, contexto: dict) -> tuple[str, s
     return asunto, html
 
 
-def _callback_actualizar_estado(notificacion_id: int, exito: bool):
+def _callback_actualizar_estado(notificacion_id: int, exito: bool, log_success: bool = False):
     """
     Callback invocado en el hilo de envío SMTP para actualizar el estado de la notificación.
     Abre su propia sesión de BD para no compartir la sesión original (ya cerrada).
@@ -80,6 +80,14 @@ def _callback_actualizar_estado(notificacion_id: int, exito: bool):
                 estado=estado,
                 fecha_envio=datetime.now(timezone.utc) if exito else None
             )
+            if exito and log_success:
+                mensaje_log = (
+                    f"Correo enviado exitosamente a {notif.email} | Asunto: {notif.asunto}"
+                )
+                logging.info(
+                    mensaje_log,
+                )
+                print(mensaje_log, flush=True)
         db.close()
     except Exception as ex:
         logging.error(f"[MS-6] Error actualizando estado de notificación {notificacion_id}: {ex}")
@@ -212,7 +220,11 @@ def procesar_baja(
         destinatario=email_alumno,
         asunto=asunto,
         mensaje_html=html,
-        callback=lambda exito: _callback_actualizar_estado(notificacion_id, exito)
+        callback=lambda exito: _callback_actualizar_estado(
+            notificacion_id,
+            exito,
+            log_success=True,
+        )
     )
 
     return notificacion
