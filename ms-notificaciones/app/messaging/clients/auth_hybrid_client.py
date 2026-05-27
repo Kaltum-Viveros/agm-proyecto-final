@@ -99,5 +99,29 @@ class AuthHybridClient:
             )
             return await asyncio.to_thread(self._grpc.get_user_by_id, user_id)
 
+    async def create_password_reset_token(self, email: str) -> Optional[Dict[str, Any]]:
+        if self._mode == "grpc":
+            logger.warning(
+                "[AuthHybridClient] create_password_reset_token no esta disponible por gRPC; "
+                "se enviara bienvenida sin token inicial"
+            )
+            return None
+
+        if self._mode == "rabbit":
+            logger.debug("[AuthHybridClient] create_password_reset_token via RabbitMQ")
+            return await self._rabbit.create_password_reset_token(email)
+
+        try:
+            result = await self._rabbit.create_password_reset_token(email)
+            logger.debug("[AuthHybridClient] create_password_reset_token via RabbitMQ OK")
+            return result
+        except _TRANSPORT_EXCEPTIONS as exc:
+            logger.warning(
+                "[AuthHybridClient] Auth RabbitMQ RPC failed while creating reset token; "
+                "welcome will be sent without initial token: %s",
+                exc,
+            )
+            return None
+
 
 auth_client = AuthHybridClient()

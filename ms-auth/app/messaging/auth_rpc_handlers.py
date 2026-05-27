@@ -158,3 +158,32 @@ async def create_or_get_user_identity_handler(payload: Dict[str, Any]) -> Dict[s
         }
     finally:
         db.close()
+
+async def create_password_reset_token_handler(payload: Dict[str, Any]) -> Dict[str, Any]:
+    email = payload.get("email", "")
+
+    db = SessionLocal()
+    try:
+        auth_service = AuthService(db=db)
+        result = auth_service.create_password_reset_token(email=email)
+        if result is None:
+            return {
+                "success": False,
+                "token": "",
+                "email": str(email or ""),
+                "expires_at": "",
+                "error_code": "AUTH_USER_NOT_FOUND_OR_INACTIVE",
+                "message": "Usuario no encontrado o inactivo"
+            }
+
+        return {
+            "success": True,
+            "user_id": result["user_id"],
+            "email": result["email"],
+            "token": result["reset_token"],
+            "expires_at": result["expires_at"],
+            "error_code": "",
+            "message": "Token de reset password creado"
+        }
+    finally:
+        db.close()

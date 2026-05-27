@@ -3,6 +3,7 @@ from typing import Any, Dict, Optional
 
 from shared.agm_messaging.contracts import (
     RPC_AUTH_CHECK_ROLE,
+    RPC_AUTH_CREATE_PASSWORD_RESET_TOKEN,
     RPC_AUTH_GET_USER_BY_ID,
     RPC_AUTH_VALIDATE_TOKEN,
 )
@@ -69,6 +70,28 @@ class AuthRabbitClient:
 
         logger.info(
             "[AuthRabbitClient] Auth business response get_user_by_id: %s",
+            data.get("error_code") or data.get("message"),
+        )
+        return None
+
+    async def create_password_reset_token(self, email: str) -> Optional[Dict[str, Any]]:
+        response = await self._client.call(
+            RPC_AUTH_CREATE_PASSWORD_RESET_TOKEN,
+            {"email": str(email)},
+        )
+        data = self._data_or_empty(response)
+
+        if data.get("success") and data.get("token"):
+            logger.info("[AuthRabbitClient] create_password_reset_token via RabbitMQ OK")
+            return {
+                "user_id": data.get("user_id"),
+                "email": data.get("email") or email,
+                "token": data.get("token"),
+                "expires_at": data.get("expires_at"),
+            }
+
+        logger.info(
+            "[AuthRabbitClient] Auth business response create_password_reset_token: %s",
             data.get("error_code") or data.get("message"),
         )
         return None

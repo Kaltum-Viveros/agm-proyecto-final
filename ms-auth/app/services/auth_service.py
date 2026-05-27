@@ -321,27 +321,47 @@ class AuthService:
         self,
         email: str,
     ) -> Dict[str, Any]:
+        reset_data = self.create_password_reset_token(email)
+
+        if reset_data is None:
+            return {
+                "reset_requested": True,
+                "reset_token": None,
+            }
+
+        # Disparamos el correo de recuperación vía gRPC
+        try:
+            notificaciones_client.enviar_reset_password(
+                usuario_id=reset_data["user_id"],
+                email=reset_data["email"],
+                reset_token=reset_data["reset_token"]
+            )
+        except Exception as e:
+            pass # No bloqueamos si falla la notificación
+
+        token_to_return = None
+
+        if settings.app_env.lower() == "development":
+            token_to_return = reset_data["reset_token"]
+
+        return {
+            "reset_requested": True,
+            "reset_token": token_to_return,
+        }
+
+    def create_password_reset_token(
+        self,
+        email: str,
+    ) -> Optional[Dict[str, str]]:
         normalized_email = self._normalize_email(email)
 
         if not normalized_email:
-            return {
-                "reset_requested": True,
-                "reset_token": None,
-            }
+            return None
 
         user = self.user_repository.get_by_email(normalized_email)
 
-        if user is None:
-            return {
-                "reset_requested": True,
-                "reset_token": None,
-            }
-
-        if not user.activo:
-            return {
-                "reset_requested": True,
-                "reset_token": None,
-            }
+        if user is None or not user.activo:
+            return None
 
         reset_token = self.token_service.generate_secure_token()
         reset_token_hash = self.token_service.hash_token(reset_token)
@@ -355,24 +375,11 @@ class AuthService:
             expiracion=reset_expires_at,
         )
 
-        # Disparamos el correo de recuperación vía gRPC
-        try:
-            notificaciones_client.enviar_reset_password(
-                usuario_id=str(user.user_id),
-                email=user.email,
-                reset_token=reset_token
-            )
-        except Exception as e:
-            pass # No bloqueamos si falla la notificación
-
-        token_to_return = None
-
-        if settings.app_env.lower() == "development":
-            token_to_return = reset_token
-
         return {
-            "reset_requested": True,
-            "reset_token": token_to_return,
+            "user_id": str(user.user_id),
+            "email": user.email,
+            "reset_token": reset_token,
+            "expires_at": reset_expires_at.isoformat(),
         }
 
     def reset_password(

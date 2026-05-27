@@ -33,6 +33,15 @@ def obtener_por_usuario(db: Session, usuario_id: int):
 def obtener_por_id(db: Session, notificacion_id: int):
     return db.query(Notificacion).filter(Notificacion.id == notificacion_id).first()
 
+def existe_enviada_por_email_y_tipo(db: Session, email: str, tipos: list[str]):
+    if not email:
+        return False
+    return db.query(Notificacion).filter(
+        Notificacion.email == email,
+        Notificacion.tipo.in_(tipos),
+        Notificacion.estado == "enviada",
+    ).first() is not None
+
 def actualizar_estado(db: Session, db_notificacion: Notificacion, estado: str, fecha_envio=None):
     db_notificacion.estado = estado
     if fecha_envio:

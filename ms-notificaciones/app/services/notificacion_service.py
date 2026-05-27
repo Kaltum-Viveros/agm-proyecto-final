@@ -17,6 +17,7 @@ from app.utils.email_templates import get_default_template
 from app.core.database import SessionLocal
 
 from app.messaging.clients.docentes_hybrid_client import alumnos_client
+from app.messaging.clients.auth_hybrid_client import auth_client
 from app.messaging.clients.periodos_hybrid_client import materias_client
 
 
@@ -68,7 +69,54 @@ def _email_real(data: dict | None) -> str:
     return email
 
 
-def _mensaje_password_bienvenida(password_temporal: str) -> str:
+def _obtener_token_reset_inicial(email: str, tipo: str) -> str:
+    try:
+        token_data = asyncio.run(auth_client.create_password_reset_token(email))
+    except Exception as exc:
+        logging.warning(
+            "No se pudo generar token inicial de bienvenida %s para %s: %s",
+            tipo,
+            email,
+            exc,
+        )
+        return ""
+
+    token = str((token_data or {}).get("token") or "").strip()
+    if token:
+        logging.info("Token inicial de bienvenida %s generado para %s", tipo, email)
+    return token
+
+
+def _obtener_token_si_primera_bienvenida(
+    db: Session,
+    email: str,
+    tipos: list[str],
+    tipo_log: str,
+) -> str:
+    ya_enviada = notificacion_repository.existe_enviada_por_email_y_tipo(
+        db=db,
+        email=email,
+        tipos=tipos,
+    )
+    if ya_enviada:
+        logging.info(
+            "Bienvenida previa encontrada para %s; no se generara token inicial",
+            email,
+        )
+        return ""
+    return _obtener_token_reset_inicial(email, tipo_log)
+
+
+def _mensaje_password_bienvenida(password_temporal: str, reset_token: str = "") -> str:
+    if reset_token:
+        return f"""
+        <div style="margin: 20px 0; padding: 20px; background-color: #f0f9ff; border-radius: 8px; border-left: 4px solid #0ea5e9;">
+            <p style="margin: 0; color: #0369a1; font-size: 15px;">Para configurar tu contraseÃƒÂ±a inicial, entra al login y usa el flujo de recuperaciÃƒÂ³n o restablecimiento de contraseÃƒÂ±a indicado por el sistema.</p>
+            <p style="margin: 10px 0 0 0; color: #0284c7; font-size: 14px;"><strong>Token de recuperaciÃƒÂ³n:</strong> {reset_token}</p>
+            <p style="margin: 10px 0 0 0; color: #0284c7; font-size: 13px;">Ingresa tu correo, este token y tu nueva contraseÃƒÂ±a. No compartas este token.</p>
+        </div>
+        """
+
     if password_temporal:
         return """
         <div style="margin: 20px 0; padding: 20px; background-color: #f0f9ff; border-radius: 8px; border-left: 4px solid #0ea5e9;">
@@ -164,6 +212,12 @@ def procesar_bienvenida(db: Session, data: BienvenidaRequest):
             estado="fallida",
         )
     nombre_obtenido = alumno_data.get("nombre") or "Estudiante"
+    reset_token = _obtener_token_si_primera_bienvenida(
+        db=db,
+        email=email_obtenido,
+        tipos=["bienvenida", "bienvenida_alumno"],
+        tipo_log="alumno",
+    )
 
     # 3. Preparar mensaje dinámico para la contraseña (no se loggea en claro)
     if data.password_temporal:
@@ -181,6 +235,11 @@ def procesar_bienvenida(db: Session, data: BienvenidaRequest):
         """
 
     # 4. Construir HTML dinámico
+    mensaje_password = _mensaje_password_bienvenida(
+        data.password_temporal,
+        reset_token=reset_token,
+    )
+
     asunto, html = renderizar_plantilla(db, "bienvenida", {
         "nombre_obtenido": nombre_obtenido,
         "mensaje_password": mensaje_password
@@ -193,7 +252,10 @@ def procesar_bienvenida(db: Session, data: BienvenidaRequest):
         email=email_obtenido,
         tipo="bienvenida",
         asunto=asunto,
-        mensaje=f"Plantilla 'bienvenida' procesada para {nombre_obtenido}."
+        mensaje=(
+            f"Plantilla 'bienvenida' procesada para {nombre_obtenido}."
+            + (f" Token de recuperacion inicial: {reset_token}" if reset_token else "")
+        )
     )
 
     # 6. Enviar correo en segundo plano, actualizando estado al terminar
@@ -202,7 +264,11 @@ def procesar_bienvenida(db: Session, data: BienvenidaRequest):
         destinatario=email_obtenido,
         asunto=asunto,
         mensaje_html=html,
-        callback=lambda exito: _callback_actualizar_estado(notificacion_id, exito)
+        callback=lambda exito: _callback_actualizar_estado(
+            notificacion_id,
+            exito,
+            log_success=True,
+        )
     )
 
     return notificacion
@@ -232,10 +298,20 @@ def procesar_bienvenida_docente(
             estado="fallida",
         )
 
+    reset_token = _obtener_token_si_primera_bienvenida(
+        db=db,
+        email=email_docente,
+        tipos=["bienvenida_docente"],
+        tipo_log="docente",
+    )
+
     asunto, html = renderizar_plantilla(db, "bienvenida_docente", {
         "nombre_docente": nombre_docente,
         "nombre_obtenido": nombre_docente,
-        "mensaje_password": _mensaje_password_bienvenida(data.password_temporal),
+        "mensaje_password": _mensaje_password_bienvenida(
+            data.password_temporal,
+            reset_token=reset_token,
+        ),
     })
 
     notificacion = notificacion_repository.crear_notificacion(
@@ -244,7 +320,10 @@ def procesar_bienvenida_docente(
         email=email_docente,
         tipo="bienvenida_docente",
         asunto=asunto,
-        mensaje=f"Plantilla 'bienvenida_docente' procesada para {nombre_docente}."
+        mensaje=(
+            f"Plantilla 'bienvenida_docente' procesada para {nombre_docente}."
+            + (f" Token de recuperacion inicial: {reset_token}" if reset_token else "")
+        )
     )
 
     notificacion_id = notificacion.id

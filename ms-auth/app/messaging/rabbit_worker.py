@@ -9,6 +9,7 @@ from shared.agm_messaging.contracts import (
     RPC_AUTH_GET_USER_BY_ID,
     RPC_AUTH_CHECK_ROLE,
     RPC_AUTH_CREATE_OR_GET_USER_IDENTITY,
+    RPC_AUTH_CREATE_PASSWORD_RESET_TOKEN,
     COMMUNICATION_MODE_GRPC
 )
 
@@ -16,7 +17,8 @@ from app.messaging.auth_rpc_handlers import (
     validate_token_handler,
     get_user_by_id_handler,
     check_role_handler,
-    create_or_get_user_identity_handler
+    create_or_get_user_identity_handler,
+    create_password_reset_token_handler
 )
 
 logger = logging.getLogger(__name__)
@@ -34,6 +36,7 @@ async def start_rabbit_worker():
     server.register_handler(RPC_AUTH_GET_USER_BY_ID, get_user_by_id_handler)
     server.register_handler(RPC_AUTH_CHECK_ROLE, check_role_handler)
     server.register_handler(RPC_AUTH_CREATE_OR_GET_USER_IDENTITY, create_or_get_user_identity_handler)
+    server.register_handler(RPC_AUTH_CREATE_PASSWORD_RESET_TOKEN, create_password_reset_token_handler)
 
     while True:
         try:

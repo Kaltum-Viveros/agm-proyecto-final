@@ -35,6 +35,7 @@ RPC_AUTH_VALIDATE_TOKEN = "rpc.auth.validate_token"
 RPC_AUTH_GET_USER_BY_ID = "rpc.auth.get_user_by_id"
 RPC_AUTH_CHECK_ROLE = "rpc.auth.check_role"
 RPC_AUTH_CREATE_OR_GET_USER_IDENTITY = "rpc.auth.create_or_get_user_identity"
+RPC_AUTH_CREATE_PASSWORD_RESET_TOKEN = "rpc.auth.create_password_reset_token"
 
 # G) Periodos/Materias RPC routing keys
 RPC_PERIODOS_GET_MATERIA_BY_ID = "rpc.periodos.get_materia_by_id"
@@ -107,6 +108,7 @@ RPC_ROUTING_KEYS_BY_TARGET = {
         RPC_AUTH_GET_USER_BY_ID,
         RPC_AUTH_CHECK_ROLE,
         RPC_AUTH_CREATE_OR_GET_USER_IDENTITY,
+        RPC_AUTH_CREATE_PASSWORD_RESET_TOKEN,
     ],
     SERVICE_PERIODOS_MATERIAS: [
         RPC_PERIODOS_GET_MATERIA_BY_ID,
