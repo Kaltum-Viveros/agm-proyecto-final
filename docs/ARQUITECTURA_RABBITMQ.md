@@ -1,32 +1,35 @@
 # Arquitectura RabbitMQ y fallback gRPC
 
-Este documento describe la arquitectura actual de comunicacion interna del
-proyecto AGM. AGM mantiene APIs REST hacia frontend/Postman y usa RabbitMQ como
-middleware principal entre microservicios, conservando gRPC como canal de
-fallback ante fallos de transporte.
+AGM es una plataforma de gestion escolar basada en microservicios. La
+comunicacion externa hacia frontend/Postman sigue siendo REST, mientras que la
+comunicacion interna entre microservicios usa RabbitMQ como canal principal y
+conserva gRPC como fallback ante fallos de transporte.
 
-## Arquitectura general
+El modo recomendado para el entorno actual es:
 
-- REST se mantiene igual para comunicacion externa con frontend/Postman.
-- RabbitMQ es el canal principal para comunicacion interna entre microservicios.
-- gRPC se mantiene como canal secundario/fallback.
-- Cada microservicio mantiene su propia base de datos.
+```bash
+COMMUNICATION_MODE=hybrid
+```
+
+## Resumen de arquitectura
+
+- RabbitMQ es el canal principal para comunicacion interna.
+- gRPC se conserva como canal secundario/fallback.
+- REST hacia frontend/Postman no cambio.
+- Cada microservicio conserva su propia base de datos.
 - Docker Compose levanta RabbitMQ, microservicios y bases de datos.
 
 Flujo principal:
 
 ```text
 Frontend/Postman
-   |
-   | REST
-   v
-Microservicio origen
-   |
-   | RabbitMQ RPC principal
-   v
+  | REST
+  v
+Microservicios
+  | RabbitMQ RPC principal
+  v
 RabbitMQ
-   |
-   v
+  v
 Microservicio destino
 ```
 
@@ -36,46 +39,26 @@ Fallback:
 Microservicio origen -> gRPC directo -> Microservicio destino
 ```
 
-## Modo hibrido
-
-La variable `COMMUNICATION_MODE` controla el canal interno usado por los
-clientes hibridos:
-
-| Valor | Comportamiento |
-| --- | --- |
-| `grpc` | Usa solo gRPC. |
-| `rabbit` | Usa solo RabbitMQ. |
-| `hybrid` | Usa RabbitMQ como canal principal y gRPC como fallback ante errores de transporte. |
-
-Modo recomendado:
-
-```bash
-COMMUNICATION_MODE=hybrid
-```
-
-El fallback aplica ante errores de transporte como timeout, conexion rechazada,
-broker detenido, canal cerrado o errores equivalentes de RabbitMQ. No debe
-usarse para ocultar errores de negocio validos como token invalido, materia no
-encontrada, alumno no inscrito o listas vacias.
-
-## Exchanges
+## Componentes RabbitMQ
 
 | Exchange | Tipo | Uso |
 | --- | --- | --- |
-| `agm.rpc` | `direct` | Llamadas request/response entre microservicios. |
-| `agm.events` | `topic` | Eventos asincronos para notificaciones. |
+| `agm.rpc` | `direct` | Llamadas RPC request/response entre microservicios. |
+| `agm.events` | `topic` | Eventos asincronos de notificaciones. |
+| `agm.events.dlx` | `direct` | Dead Letter Exchange para eventos fallidos. |
 
-## Servicios expuestos por RabbitMQ
+## Colas actuales
 
-| Servicio | Cola | Proposito | Estado |
-| --- | --- | --- | --- |
-| MS-1 Auth | `auth.rpc.q` | Validacion de token, roles y usuarios | Implementado |
-| MS-2 Periodos/Materias | `periodos_materias.rpc.q` | Consulta de materias, NRC, materias por docente y periodo activo | Implementado |
-| MS-3 Docentes-Alumnos | `docentes_alumnos.rpc.q` | Consulta de alumnos, docentes, inscripciones y materias por alumno | Implementado |
-| MS-4 Calificaciones | `calificaciones.rpc.q` | Concentrado, promedio de alumno y estadisticas de materia | Implementado |
-| MS-5 Asistencias | `asistencias.rpc.q` | Asistencia por alumno, asistencias por materia y estadisticas de asistencia | Implementado |
-| MS-6 Notificaciones | `notificaciones.events.q` | Procesamiento de correos mediante eventos RabbitMQ | Implementado como consumidor de eventos |
-| MS-7 Reportes | Sin cola propia todavia | Consume Auth, Periodos, Docentes, Calificaciones y Asistencias por RabbitMQ | Consumidor hibrido |
+| Servicio | Cola | Tipo | Proposito | Estado |
+| --- | --- | --- | --- | --- |
+| MS-1 Auth | `auth.rpc.q` | RPC | Validacion token, roles, usuarios, token reset interno | Implementado |
+| MS-2 Periodos/Materias | `periodos_materias.rpc.q` | RPC | Materias, NRC, periodo activo | Implementado |
+| MS-3 Docentes-Alumnos | `docentes_alumnos.rpc.q` | RPC | Alumnos, docentes, inscripcion, materias por alumno | Implementado |
+| MS-4 Calificaciones | `calificaciones.rpc.q` | RPC | Concentrado, promedio, estadisticas | Implementado |
+| MS-5 Asistencias | `asistencias.rpc.q` | RPC | Asistencias por alumno/materia, estadisticas | Implementado |
+| MS-6 Notificaciones | `notificaciones.events.q` | Eventos | Procesamiento asincrono de correos | Implementado |
+| MS-6 Notificaciones DLQ | `notificaciones.events.dlq` | DLQ | Eventos fallidos | Implementado |
+| MS-7 Reportes | Sin cola propia | Consumidor | Consume otros servicios por RabbitMQ con fallback gRPC | Implementado como consumidor |
 
 ## Routing keys RPC
 
@@ -85,6 +68,7 @@ encontrada, alumno no inscrito o listas vacias.
 - `rpc.auth.check_role`
 - `rpc.auth.get_user_by_id`
 - `rpc.auth.create_or_get_user_identity`
+- `rpc.auth.create_password_reset_token`
 
 ### Periodos/Materias
 
@@ -118,38 +102,63 @@ encontrada, alumno no inscrito o listas vacias.
 
 ## Eventos de notificaciones
 
-MS-6 Notificaciones consume eventos desde `agm.events` mediante la cola
-`notificaciones.events.q`.
+MS-1, MS-3 y MS-4 publican eventos en `agm.events`. MS-6 Notificaciones los
+consume desde `notificaciones.events.q`.
 
 - `event.notificaciones.bienvenida_alumno`
+- `event.notificaciones.bienvenida_docente`
 - `event.notificaciones.baja_alumno`
 - `event.notificaciones.cierre_materia`
 - `event.notificaciones.reset_password`
 
-Los productores reales de estos eventos todavia no fueron migrados. Los flujos
-existentes por gRPC/REST siguen activos.
+Los flujos REST/gRPC de notificaciones siguen disponibles para compatibilidad y
+fallback. Los eventos permiten desacoplar el envio de correos del flujo
+principal de los servicios productores.
+
+## Dead Letter Queue
+
+La cola normal de eventos es `notificaciones.events.q`. Si MS-6 recibe un
+evento invalido o el handler falla de forma definitiva, el consumer rechaza el
+mensaje con `requeue=False`. RabbitMQ entonces lo enruta al Dead Letter
+Exchange `agm.events.dlx`, que entrega el mensaje a `notificaciones.events.dlq`.
+
+La DLQ guarda mensajes fallidos para revision. No reintenta automaticamente y
+puede inspeccionarse o purgarse desde RabbitMQ UI.
+
+Conceptos visibles en RabbitMQ UI:
+
+- `D`: cola durable.
+- `DLX`: Dead Letter Exchange configurado.
+- `DLK`: Dead Letter Routing Key configurada.
+
+## COMMUNICATION_MODE
+
+| Valor | Comportamiento |
+| --- | --- |
+| `grpc` | Usa solo gRPC. |
+| `rabbit` | Usa solo RabbitMQ. |
+| `hybrid` | Usa RabbitMQ como principal y gRPC como fallback. |
+
+`hybrid` es el modo recomendado. El fallback se activa ante errores de
+transporte como timeout, broker detenido, conexion rechazada, canal cerrado o
+errores equivalentes de RabbitMQ. No se usa para ocultar respuestas de negocio
+validas como token invalido, materia no encontrada, alumno no inscrito, listas
+vacias o eventos con payload invalido.
 
 ## RabbitMQ UI
 
-RabbitMQ Management UI:
-
 - URL: `http://localhost:15673`
 - Credenciales: `agm / agm_password`
+- Puerto AMQP dentro de Docker: `5672`
+- Puerto AMQP expuesto en host: `5673`
 
-Dentro de Docker, el puerto AMQP sigue siendo `5672` y los servicios usan:
-
-```bash
-RABBITMQ_URL=amqp://agm:agm_password@rabbitmq:5672/
-```
-
-En host, el puerto AMQP puede publicarse como `5673` si existe conflicto local.
-Revisa el valor efectivo con:
+Verifica el estado efectivo con:
 
 ```bash
 docker compose ps rabbitmq
 ```
 
-## Comandos basicos
+## Comandos Docker
 
 Levantar RabbitMQ:
 
@@ -157,28 +166,25 @@ Levantar RabbitMQ:
 docker compose up -d rabbitmq
 ```
 
-Levantar todo:
+Levantar servicios principales:
 
 ```bash
-docker compose up -d
+docker compose up -d rabbitmq ms-auth ms-periodos-materias ms-docentes-alumnos ms-calificaciones ms-asistencias ms-notificaciones ms-reportes
 ```
 
 Ver logs:
 
 ```bash
-docker compose logs --tail=100 rabbitmq
-docker compose logs --tail=100 ms-auth
-docker compose logs --tail=100 ms-periodos-materias
-docker compose logs --tail=100 ms-docentes-alumnos
-docker compose logs --tail=100 ms-calificaciones
-docker compose logs --tail=100 ms-asistencias
 docker compose logs --tail=100 ms-notificaciones
 docker compose logs --tail=100 ms-reportes
+docker compose logs --tail=100 rabbitmq
 ```
 
-## Scripts de prueba
+## Pruebas de integracion
 
-Scripts RabbitMQ existentes:
+Los comandos detallados estan en [PRUEBAS_RABBITMQ.md](PRUEBAS_RABBITMQ.md).
+
+Scripts individuales:
 
 ```bash
 docker compose exec -T ms-auth python scripts/test_auth_rabbit_rpc.py
@@ -187,20 +193,32 @@ docker compose exec -T ms-docentes-alumnos python scripts/test_docentes_rabbit_r
 docker compose exec -T ms-calificaciones python scripts/test_calificaciones_rabbit_rpc.py
 docker compose exec -T ms-asistencias python scripts/test_asistencias_rabbit_rpc.py
 docker compose exec -T ms-notificaciones python scripts/test_notification_events.py
+docker compose exec -T ms-notificaciones python scripts/test_notification_dlq.py
 ```
 
-Tambien existen scripts puntuales de clientes hibridos en algunos servicios para
-validar integraciones especificas.
+Runner central:
 
-## Probar fallback gRPC
+```powershell
+py -3 tests/integration/run_rabbitmq_checks.py
+```
 
-1. Levantar servicios:
+Topologia:
+
+```powershell
+py -3 tests/integration/check_rabbitmq_topology.py
+```
+
+En sistemas con Python en `PATH`, se puede usar `python` en lugar de `py -3`.
+
+## Prueba de fallback gRPC
+
+1. Levantar servicios.
 
 ```bash
 docker compose up -d rabbitmq ms-auth ms-periodos-materias ms-docentes-alumnos ms-calificaciones ms-asistencias ms-notificaciones ms-reportes
 ```
 
-2. Probar un endpoint REST normal que dependa de comunicacion interna.
+2. Probar un flujo con RabbitMQ activo.
 
 3. Apagar RabbitMQ:
 
@@ -208,60 +226,79 @@ docker compose up -d rabbitmq ms-auth ms-periodos-materias ms-docentes-alumnos m
 docker compose stop rabbitmq
 ```
 
-4. Repetir el mismo endpoint.
+4. Repetir el flujo.
 
-5. Verificar logs. Debe aparecer un mensaje similar a:
+5. Verificar logs:
 
 ```text
 RabbitMQ RPC failed, falling back to gRPC
+RabbitMQ event publish failed, falling back to gRPC
 ```
 
-6. Volver a levantar RabbitMQ:
+6. Levantar RabbitMQ al final:
 
 ```bash
 docker compose up -d rabbitmq
 ```
 
-No dejar RabbitMQ detenido al terminar pruebas.
+Flujos recomendados para validar fallback:
 
-## Estado actual de implementacion
+- `forgot-password`
+- baja alumno
+- creacion docente
+- reportes/asistencias
+
+## Pruebas funcionales relevantes validadas
+
+- Auth RPC responde.
+- Periodos RPC responde.
+- Docentes-Alumnos RPC responde.
+- Calificaciones RPC responde.
+- Asistencias RPC responde.
+- Reportes consume Calificaciones y Asistencias por RabbitMQ.
+- Notificaciones procesa eventos.
+- Notificaciones manda correos reales.
+- Baja alumno usa correo real y materia real.
+- Bienvenida alumno/docente incluye token inicial de reset password.
+- DLQ recibe eventos invalidos.
+- gRPC funciona como fallback.
+
+## Estado final
 
 Implementado:
 
-- RabbitMQ en Docker Compose.
+- RabbitMQ en Docker.
 - Infraestructura compartida de mensajeria.
-- Contratos y routing keys.
-- Auth expuesto por RabbitMQ RPC.
-- Periodos/Materias expuesto por RabbitMQ RPC.
-- Docentes-Alumnos expuesto por RabbitMQ RPC.
-- Calificaciones expuesto por RabbitMQ RPC.
-- Asistencias expuesto por RabbitMQ RPC.
-- Reportes consume Auth, Periodos, Docentes, Calificaciones y Asistencias mediante RabbitMQ con fallback gRPC.
-- Notificaciones consume eventos RabbitMQ.
-- gRPC se mantiene como fallback.
-- REST hacia frontend no cambio.
+- RPC RabbitMQ para Auth, Periodos, Docentes, Calificaciones y Asistencias.
+- Clientes hibridos con fallback gRPC.
+- Eventos RabbitMQ para Notificaciones.
+- Productores reales de eventos.
+- DLQ para eventos fallidos.
+- Pruebas de integracion.
+- Documentacion.
 
-Pendiente:
+Pendiente o mejoras futuras:
 
-- Migrar productores reales de eventos de notificacion.
-- Corregir flujo de bienvenida docente si sigue pendiente.
-- Agregar pruebas de integracion automatizadas.
-- Agregar resiliencia avanzada como DLQ/retry si se requiere.
+- Automatizar mas pruebas end-to-end con datos controlados.
+- Agregar monitoreo/alertas para DLQ.
+- Reprocesamiento automatico/manual asistido de DLQ.
+- Healthchecks avanzados de RabbitMQ por servicio.
+- Optimizacion de conexiones si se requiere alto rendimiento.
 
 ## Decisiones tecnicas
 
-- Se mantuvo gRPC porque ya funcionaba y sirve como fallback mientras RabbitMQ
-  se adopta de forma gradual.
-- RabbitMQ reduce el acoplamiento directo entre servicios y centraliza la
-  comunicacion interna.
-- El modo hibrido permite migrar consumidores y proveedores por etapas sin
-  romper REST ni los flujos existentes.
-- Notificaciones por eventos desacopla el envio de correos del flujo principal
-  y permite procesamiento asincrono.
+- gRPC se mantuvo porque ya funcionaba y permite fallback ante fallos de
+  RabbitMQ.
+- RabbitMQ reduce acoplamiento directo entre servicios.
+- El modo hibrido permite migracion gradual sin romper REST ni flujos
+  existentes.
+- Notificaciones por eventos desacopla el envio de correos del flujo principal.
+- La DLQ evita reintentos infinitos y conserva eventos fallidos para analisis.
 
-## Restricciones vigentes
+## Resumen para exposicion
 
-- No eliminar gRPC mientras siga siendo fallback.
-- No cambiar endpoints REST por cambios de mensajeria interna.
-- No modificar archivos `.proto` para agregar routing keys RabbitMQ.
-- No usar fallback gRPC para errores de negocio validos.
+AGM paso de una comunicacion directa entre microservicios por gRPC a una
+arquitectura hibrida donde RabbitMQ funciona como middleware principal. Los
+servicios primero intentan comunicarse por RabbitMQ y, si el broker falla, usan
+gRPC como fallback. Ademas, Notificaciones procesa eventos asincronos y cuenta
+con DLQ para manejar eventos invalidos sin bloquear el sistema.

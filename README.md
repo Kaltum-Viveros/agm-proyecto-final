@@ -10,6 +10,7 @@ gRPC como fallback para mantener compatibilidad durante la migracion gradual.
 ## Documentacion
 
 - [Arquitectura RabbitMQ y fallback gRPC](docs/ARQUITECTURA_RABBITMQ.md)
+- [Pruebas RabbitMQ](docs/PRUEBAS_RABBITMQ.md)
 
 ## Ejecucion rapida
 
