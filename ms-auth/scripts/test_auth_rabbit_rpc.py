@@ -2,6 +2,12 @@ import asyncio
 import os
 import json
 import logging
+import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT_DIR))
+
 from shared.agm_messaging.rpc_client import RabbitRpcClient
 from shared.agm_messaging.contracts import RPC_AUTH_GET_USER_BY_ID
 
@@ -20,8 +26,7 @@ async def test_rpc():
     try:
         response = await client.call(RPC_AUTH_GET_USER_BY_ID, payload)
         print(f"Respuesta recibida: {json.dumps(response, indent=2)}")
-    except Exception as e:
-        print(f"Error llamando RPC: {e}")
+        print("OK: MS-1 Auth respondio por RabbitMQ RPC.")
     finally:
         await client.close()
 
