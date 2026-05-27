@@ -1,6 +1,7 @@
 # Lógica de negocio
 import asyncio
 import logging
+import time
 from datetime import datetime, timezone
 from sqlalchemy.orm import Session
 from app.repositories import notificacion_repository
@@ -11,7 +12,7 @@ from app.schemas.notificacion_schema import (
     CierreMateriaRequest,
     ResetPasswordRequest,
 )
-from app.services.email_service import enviar_correo_con_callback
+from app.services.email_service import enviar_correo_con_callback, enviar_correo_sincrono
 from app.models.plantilla import Plantilla
 from app.utils.email_templates import get_default_template
 from app.core.database import SessionLocal
@@ -438,41 +439,82 @@ def procesar_cierre_materia(
     materia_data: dict | None = None,
     alumnos: list | None = None,
 ):
-    # Llamada a MS-2
     materia_data = materia_data or materias_client.obtener_materia(data.materia_id)
     nombre_materia = _extraer_nombre_materia(materia_data) or "Materia no encontrada"
 
-    # Obtener la lista de correos de los alumnos (MS-3) inscritos en la materia (MS-2)
     alumnos = alumnos if alumnos is not None else alumnos_client.obtener_alumnos_por_materia(data.materia_id)
 
     asunto, html = renderizar_plantilla(db, "cierre_materia", {
         "nombre_materia": nombre_materia
     })
 
-    # Guardar registro de la notificación masiva (estado inicial: pendiente)
-    notificacion = notificacion_repository.crear_notificacion(
-        db=db,
-        usuario_id="00000000-0000-0000-0000-000000000000",  # id genérico para cierres masivos
-        email="multiple_alumnos",
-        tipo="cierre_materia",
-        asunto=asunto,
-        mensaje=f"Las notas de la materia {nombre_materia} ya están disponibles. Notificados {len(alumnos)} alumnos."
-    )
+    total = len(alumnos)
+    enviados = 0
+    fallidos = 0
+    primera_notificacion = None
 
-    # Enviar correo a cada alumno en segundo plano (sin callback individual por ser masivo)
-    for alumno in alumnos:
-        enviar_correo_con_callback(
-            destinatario=alumno["email"],
+    for indice, alumno in enumerate(alumnos):
+        email_alumno = _email_real(alumno)
+        nombre_alumno = alumno.get("nombre") or "Alumno"
+
+        notificacion = notificacion_repository.crear_notificacion(
+            db=db,
+            usuario_id="00000000-0000-0000-0000-000000000000",
+            email=email_alumno,
+            tipo="cierre_materia",
             asunto=asunto,
-            mensaje_html=html,
-            callback=None
+            mensaje=(
+                f"Las notas de la materia {nombre_materia} ya están disponibles "
+                f"para {nombre_alumno}."
+            ),
+        )
+        primera_notificacion = primera_notificacion or notificacion
+
+        if not email_alumno:
+            fallidos += 1
+            logging.error(
+                "No se pudo enviar cierre_materia: alumno sin correo real. materia_id=%s",
+                data.materia_id,
+            )
+            _callback_actualizar_estado(notificacion.id, False)
+        else:
+            exito = enviar_correo_sincrono(
+                destinatario=email_alumno,
+                asunto=asunto,
+                mensaje_html=html,
+            )
+            _callback_actualizar_estado(
+                notificacion.id,
+                exito,
+                log_success=exito,
+            )
+            if exito:
+                enviados += 1
+            else:
+                fallidos += 1
+
+        if indice < total - 1:
+            time.sleep(0.75)
+
+    if primera_notificacion is None:
+        primera_notificacion = notificacion_repository.crear_notificacion(
+            db=db,
+            usuario_id="00000000-0000-0000-0000-000000000000",
+            email="multiple_alumnos",
+            tipo="cierre_materia",
+            asunto=asunto,
+            mensaje=f"No se encontraron alumnos para notificar en {nombre_materia}.",
+            estado="enviada",
         )
 
-    # Marcar como enviada después de disparar todos los hilos
-    notificacion_id = notificacion.id
-    _callback_actualizar_estado(notificacion_id, True)
+    resumen = (
+        f"Resumen cierre_materia total={total} enviados={enviados} fallidos={fallidos} "
+        f"materia_id={data.materia_id}"
+    )
+    logging.info(resumen)
+    print(resumen, flush=True)
 
-    return notificacion
+    return primera_notificacion
 
 
 async def procesar_cierre_materia_async(db: Session, data: CierreMateriaRequest):
