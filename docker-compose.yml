@@ -141,6 +141,7 @@ services:
     environment:
       - DATABASE_URL=postgresql://agm_docentes_user:agm_docentes_password@db-docentes:5432/agm_docentes_alumnos_db
       - REST_PORT=8003
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:8000,http://localhost:4200
       - MS1_HOST=ms-auth
       - MS1_PORT=50051
       - MS2_HOST=ms-periodos-materias

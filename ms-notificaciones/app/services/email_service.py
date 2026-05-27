@@ -3,6 +3,7 @@ import threading
 import logging
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.header import Header
 from typing import Callable, Optional
 from app.core.config import settings
 
@@ -19,14 +20,14 @@ def enviar_correo_sincrono(destinatario: str, asunto: str, mensaje_html: str) ->
         return True
 
     try:
-        # Configurar el mensaje
-        msg = MIMEMultipart("alternative")
-        msg["Subject"] = asunto
+        # Configurar el mensaje con soporte UTF-8 explícito
+        msg = MIMEMultipart("alternative", _charset="utf-8")
+        msg["Subject"] = Header(asunto, "utf-8")
         msg["From"] = settings.SMTP_USER
         msg["To"] = destinatario
 
-        # Adjuntar la plantilla HTML
-        parte_html = MIMEText(mensaje_html, "html")
+        # Adjuntar la plantilla HTML con soporte UTF-8 explícito
+        parte_html = MIMEText(mensaje_html, "html", "utf-8")
         msg.attach(parte_html)
 
         # Conectar al servidor SMTP y enviar

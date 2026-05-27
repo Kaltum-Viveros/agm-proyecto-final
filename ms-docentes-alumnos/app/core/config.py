@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
@@ -14,6 +15,11 @@ class Settings(BaseSettings):
     grpc_host: str = "0.0.0.0"
     grpc_port: int = 50053 # Puerto gRPC sugerido para este MS
 
+    cors_allowed_origins: str = Field(
+        default="http://localhost:3000,http://localhost:5173,http://localhost:8000,http://localhost:4200",
+        alias="CORS_ALLOWED_ORIGINS",
+    )
+
     # Base de Datos
     # Esta es la variable que busca session.py
     # El valor por defecto es para tu entorno local de desarrollo
@@ -26,6 +32,14 @@ class Settings(BaseSettings):
         case_sensitive=False,
         extra="ignore",
     )
+
+    @property
+    def cors_origins(self) -> list[str]:
+        return [
+            origin.strip()
+            for origin in self.cors_allowed_origins.split(",")
+            if origin.strip()
+        ]
 
 @lru_cache
 def get_settings() -> Settings:

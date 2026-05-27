@@ -111,23 +111,18 @@ def _mensaje_password_bienvenida(password_temporal: str, reset_token: str = "") 
     if reset_token:
         return f"""
         <div style="margin: 20px 0; padding: 20px; background-color: #f0f9ff; border-radius: 8px; border-left: 4px solid #0ea5e9;">
-            <p style="margin: 0; color: #0369a1; font-size: 15px;">Para configurar tu contraseÃƒÂ±a inicial, entra al login y usa el flujo de recuperaciÃƒÂ³n o restablecimiento de contraseÃƒÂ±a indicado por el sistema.</p>
-            <p style="margin: 10px 0 0 0; color: #0284c7; font-size: 14px;"><strong>Token de recuperaciÃƒÂ³n:</strong> {reset_token}</p>
-            <p style="margin: 10px 0 0 0; color: #0284c7; font-size: 13px;">Ingresa tu correo, este token y tu nueva contraseÃƒÂ±a. No compartas este token.</p>
+            <p style="margin: 0; color: #0369a1; font-size: 15px;">Para configurar tu contraseña inicial, entra al login y usa el flujo de recuperación o restablecimiento de contraseña indicado por el sistema.</p>
+            <p style="margin: 10px 0 0 0; color: #0284c7; font-size: 14px;"><strong>Token de recuperación:</strong> {reset_token}</p>
+            <p style="margin: 10px 0 0 0; color: #0284c7; font-size: 13px;">Ingresa este token y tu nueva contraseña. No compartas este token.</p>
         </div>
         """
 
     if password_temporal:
-        return """
-        <div style="margin: 20px 0; padding: 20px; background-color: #f0f9ff; border-radius: 8px; border-left: 4px solid #0ea5e9;">
-            <p style="margin: 0; color: #0369a1; font-size: 15px;">Tu contraseÃ±a provisional de acceso estÃ¡ disponible en el portal.</p>
-            <p style="margin: 10px 0 0 0; color: #0284c7; font-size: 13px;">Te recomendamos cambiarla en cuanto inicies sesiÃ³n por primera vez.</p>
-        </div>
-        """
+        return ""
 
     return """
     <div style="margin: 20px 0; padding: 15px; background-color: #f0fdf4; border-radius: 8px; border-left: 4px solid #22c55e;">
-        <p style="margin: 0; color: #166534; font-size: 15px;"><strong>Â¡Aviso!</strong> Notamos que ya cuentas con una cuenta activa en la plataforma. Puedes seguir utilizando tu contraseÃ±a habitual.</p>
+        <p style="margin: 0; color: #166534; font-size: 15px;"><strong>¡Aviso!</strong> Notamos que ya cuentas con una cuenta activa en la plataforma. Puedes seguir utilizando tu contraseña habitual.</p>
     </div>
     """
 
@@ -221,12 +216,7 @@ def procesar_bienvenida(db: Session, data: BienvenidaRequest):
 
     # 3. Preparar mensaje dinámico para la contraseña (no se loggea en claro)
     if data.password_temporal:
-        mensaje_password = """
-        <div style="margin: 20px 0; padding: 20px; background-color: #f0f9ff; border-radius: 8px; border-left: 4px solid #0ea5e9;">
-            <p style="margin: 0; color: #0369a1; font-size: 15px;">Tu contraseña provisional de acceso está disponible en el portal.</p>
-            <p style="margin: 10px 0 0 0; color: #0284c7; font-size: 13px;">Te recomendamos cambiarla en cuanto inicies sesión por primera vez.</p>
-        </div>
-        """
+        mensaje_password = ""
     else:
         mensaje_password = """
         <div style="margin: 20px 0; padding: 15px; background-color: #f0fdf4; border-radius: 8px; border-left: 4px solid #22c55e;">
