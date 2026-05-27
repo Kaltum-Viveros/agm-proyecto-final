@@ -43,7 +43,7 @@ class PeriodosHybridClient:
             return await self._rabbit.obtener_materia(materia_id)
         except _TRANSPORT_EXCEPTIONS as exc:
             logger.warning(
-                "[PeriodosHybridClient] RabbitMQ RPC failed, falling back to gRPC: %s",
+                "[PeriodosHybridClient] Periodos RabbitMQ RPC failed, falling back to gRPC: %s",
                 exc,
             )
             return await asyncio.to_thread(self._grpc.obtener_materia, materia_id)
