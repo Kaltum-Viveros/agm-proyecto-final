@@ -15,6 +15,7 @@ COMMUNICATION_MODE_HYBRID = "hybrid"
 # C) Exchanges
 EXCHANGE_RPC = "agm.rpc"
 EXCHANGE_EVENTS = "agm.events"
+EXCHANGE_EVENTS_DLX = "agm.events.dlx"
 EXCHANGE_DLX = "agm.dlx"
 
 # D) RPC queues
@@ -27,6 +28,7 @@ QUEUE_REPORTES_RPC = "reportes.rpc.q"
 
 # E) Event queues
 QUEUE_NOTIFICACIONES_EVENTS = "notificaciones.events.q"
+QUEUE_NOTIFICACIONES_EVENTS_DLQ = "notificaciones.events.dlq"
 
 # F) Auth RPC routing keys
 RPC_AUTH_VALIDATE_TOKEN = "rpc.auth.validate_token"
@@ -68,6 +70,7 @@ EVENT_NOTIFICACIONES_BAJA = "event.notificaciones.baja"
 EVENT_NOTIFICACIONES_BAJA_ALUMNO = "event.notificaciones.baja_alumno"
 EVENT_NOTIFICACIONES_CIERRE_MATERIA = "event.notificaciones.cierre_materia"
 EVENT_NOTIFICACIONES_RESET_PASSWORD = "event.notificaciones.reset_password"
+EVENT_NOTIFICACIONES_DLQ = "event.notificaciones.dlq"
 
 EVENT_ROUTING_KEYS_BY_TARGET = {
     SERVICE_NOTIFICACIONES: [

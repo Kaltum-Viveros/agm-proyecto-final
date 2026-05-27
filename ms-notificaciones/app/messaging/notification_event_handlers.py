@@ -32,13 +32,20 @@ def db_session():
         db.close()
 
 
+def _required(payload: dict[str, Any], field: str) -> str:
+    value = str(payload.get(field) or "").strip()
+    if not value:
+        raise ValueError(f"Payload invalido: {field} es requerido")
+    return value
+
+
 async def handle_bienvenida_alumno(payload: dict[str, Any]) -> None:
     logger.info("Evento recibido %s", EVENT_NOTIFICACIONES_BIENVENIDA_ALUMNO)
     print(f"Evento recibido {EVENT_NOTIFICACIONES_BIENVENIDA_ALUMNO}", flush=True)
     data = BienvenidaRequest(
-        alumno_id=str(payload.get("alumno_id") or ""),
+        alumno_id=_required(payload, "alumno_id"),
         materia_id=str(payload.get("materia_id") or ""),
-        password_temporal=str(payload.get("password_temporal") or ""),
+        password_temporal=_required(payload, "password_temporal"),
     )
     with db_session() as db:
         await asyncio.to_thread(notificacion_service.procesar_bienvenida, db, data)
@@ -49,8 +56,8 @@ async def handle_bienvenida_docente(payload: dict[str, Any]) -> None:
     logger.info("Evento recibido %s", EVENT_NOTIFICACIONES_BIENVENIDA_DOCENTE)
     print(f"Evento recibido {EVENT_NOTIFICACIONES_BIENVENIDA_DOCENTE}", flush=True)
     data = BienvenidaDocenteRequest(
-        docente_id=str(payload.get("docente_id") or ""),
-        password_temporal=str(payload.get("password_temporal") or ""),
+        docente_id=_required(payload, "docente_id"),
+        password_temporal=_required(payload, "password_temporal"),
     )
     with db_session() as db:
         await asyncio.to_thread(notificacion_service.procesar_bienvenida_docente, db, data)
@@ -61,9 +68,9 @@ async def handle_baja_alumno(payload: dict[str, Any]) -> None:
     logger.info("Evento recibido %s", EVENT_NOTIFICACIONES_BAJA_ALUMNO)
     print(f"Evento recibido {EVENT_NOTIFICACIONES_BAJA_ALUMNO}", flush=True)
     data = BajaMateriaRequest(
-        alumno_id=str(payload.get("alumno_id") or ""),
-        docente_id=str(payload.get("docente_id") or ""),
-        materia_id=str(payload.get("materia_id") or ""),
+        alumno_id=_required(payload, "alumno_id"),
+        docente_id=_required(payload, "docente_id"),
+        materia_id=_required(payload, "materia_id"),
     )
     with db_session() as db:
         await notificacion_service.procesar_baja_async(db, data)
@@ -73,7 +80,7 @@ async def handle_baja_alumno(payload: dict[str, Any]) -> None:
 async def handle_cierre_materia(payload: dict[str, Any]) -> None:
     logger.info("Evento recibido %s", EVENT_NOTIFICACIONES_CIERRE_MATERIA)
     print(f"Evento recibido {EVENT_NOTIFICACIONES_CIERRE_MATERIA}", flush=True)
-    data = CierreMateriaRequest(materia_id=str(payload.get("materia_id") or ""))
+    data = CierreMateriaRequest(materia_id=_required(payload, "materia_id"))
     with db_session() as db:
         await notificacion_service.procesar_cierre_materia_async(db, data)
     print(f"Evento procesado {EVENT_NOTIFICACIONES_CIERRE_MATERIA}", flush=True)
@@ -83,9 +90,9 @@ async def handle_reset_password(payload: dict[str, Any]) -> None:
     logger.info("Evento recibido %s", EVENT_NOTIFICACIONES_RESET_PASSWORD)
     print(f"Evento recibido {EVENT_NOTIFICACIONES_RESET_PASSWORD}", flush=True)
     data = ResetPasswordRequest(
-        usuario_id=str(payload.get("usuario_id") or ""),
-        email=str(payload.get("email") or ""),
-        reset_token=str(payload.get("reset_token") or ""),
+        usuario_id=_required(payload, "usuario_id"),
+        email=_required(payload, "email"),
+        reset_token=_required(payload, "reset_token"),
     )
     with db_session() as db:
         await asyncio.to_thread(notificacion_service.procesar_reset_password, db, data)

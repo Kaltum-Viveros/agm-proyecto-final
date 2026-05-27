@@ -30,6 +30,7 @@ class RabbitRpcServer:
         """Inicia el consumo de la cola asignada."""
         connection = await RabbitMQConnection.get_connection()
         self.channel = await connection.channel()
+        await self.channel.set_qos(prefetch_count=10)
         
         # Declarar exchange
         exchange = await self.channel.declare_exchange(
@@ -61,19 +62,26 @@ class RabbitRpcServer:
 
     async def _process_message(self, message: aio_pika.abc.AbstractIncomingMessage, exchange: aio_pika.abc.AbstractExchange):
         async with message.process(requeue=False):
+            operation_type = message.type or message.routing_key
+            correlation_id = message.correlation_id
             try:
                 # Decodificar body
                 envelope = MessageEnvelope.deserialize(message.body)
                 
                 # Obtener el operation type (del message type o envelope type o routing_key)
                 operation_type = envelope.type or message.type or message.routing_key
+                correlation_id = envelope.correlation_id or message.correlation_id
                 
                 if not operation_type or operation_type not in self.handlers:
                     error_msg = f"No handler registered for type {operation_type}"
-                    logger.warning(error_msg)
+                    logger.warning(
+                        "[RabbitRpcServer] no handler routing_key=%s correlation_id=%s",
+                        operation_type,
+                        correlation_id,
+                    )
                     response_payload = self._build_error_response(
-                        message.correlation_id, 
-                        "UNKNOWN_OPERATION", 
+                        correlation_id,
+                        "UNKNOWN_OPERATION",
                         error_msg
                     )
                 else:
@@ -85,23 +93,33 @@ class RabbitRpcServer:
                         else:
                             # Run sync in threadpool
                             result = await asyncio.to_thread(handler, envelope.data)
-                        
-                        response_payload = self._build_success_response(message.correlation_id, result)
+
+                        response_payload = self._build_success_response(correlation_id, result)
                     except Exception as e:
-                        logger.error(f"Error executing handler for {operation_type}: {e}")
+                        logger.error(
+                            "[RabbitRpcServer] handler error routing_key=%s correlation_id=%s error=%s",
+                            operation_type,
+                            correlation_id,
+                            e,
+                        )
                         traceback.print_exc()
                         response_payload = self._build_error_response(
-                            message.correlation_id, 
-                            "AUTH_RPC_HANDLER_ERROR", 
+                            correlation_id,
+                            "AUTH_RPC_HANDLER_ERROR",
                             str(e)
                         )
 
             except Exception as e:
-                logger.error(f"Critical error processing message: {e}")
+                logger.error(
+                    "[RabbitRpcServer] critical error routing_key=%s correlation_id=%s error=%s",
+                    operation_type,
+                    correlation_id,
+                    e,
+                )
                 traceback.print_exc()
                 response_payload = self._build_error_response(
-                    message.correlation_id, 
-                    "RPC_INTERNAL_ERROR", 
+                    correlation_id,
+                    "RPC_INTERNAL_ERROR",
                     "Error decodificando o procesando mensaje"
                 )
 
@@ -111,7 +129,10 @@ class RabbitRpcServer:
                 await self.channel.default_exchange.publish(
                     aio_pika.Message(
                         body=response_envelope.serialize(),
-                        correlation_id=message.correlation_id
+                        correlation_id=message.correlation_id,
+                        message_id=response_envelope.message_id,
+                        type=operation_type,
+                        delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
                     ),
                     routing_key=message.reply_to
                 )

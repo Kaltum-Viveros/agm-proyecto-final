@@ -23,7 +23,10 @@ class RabbitRpcClient(BaseRPCClient if 'BaseRPCClient' in globals() else object)
         self.callback_queue: aio_pika.Queue = None
 
     async def connect(self):
-        self.connection = await aio_pika.connect_robust(config.URL)
+        self.connection = await asyncio.wait_for(
+            aio_pika.connect_robust(config.URL),
+            timeout=config.RPC_TIMEOUT,
+        )
         self.channel = await self.connection.channel()
         
         # Cola callback exclusiva para este cliente
@@ -41,40 +44,60 @@ class RabbitRpcClient(BaseRPCClient if 'BaseRPCClient' in globals() else object)
 
         try:
             envelope = MessageEnvelope.deserialize(message.body)
-            future.set_result(envelope.data)
+            if not future.done():
+                future.set_result(envelope.data)
         except Exception as e:
-            future.set_exception(RPCException(f"Error parseando respuesta: {e}"))
+            if not future.done():
+                future.set_exception(RPCException(f"Error parseando respuesta: {e}"))
 
     async def call(self, routing_key: str, data: Any, timeout: int = config.RPC_TIMEOUT) -> Dict[str, Any]:
-        await self.connect()
-
         correlation_id = str(uuid.uuid4())
         loop = asyncio.get_running_loop()
         future = loop.create_future()
         self.futures[correlation_id] = future
 
-        envelope = MessageEnvelope(data=data, correlation_id=correlation_id, type=routing_key)
-        
-        exchange = await self.channel.declare_exchange(
-            self.exchange_name, 
-            aio_pika.ExchangeType.DIRECT, 
-            durable=True
-        )
-
-        message = aio_pika.Message(
-            body=envelope.serialize(),
-            correlation_id=correlation_id,
-            reply_to=self.callback_queue.name,
-            type=routing_key
-        )
-
-        await exchange.publish(message, routing_key=routing_key)
-
         try:
+            await self.connect()
+
+            envelope = MessageEnvelope(data=data, correlation_id=correlation_id, type=routing_key)
+
+            exchange = await self.channel.declare_exchange(
+                self.exchange_name,
+                aio_pika.ExchangeType.DIRECT,
+                durable=True
+            )
+
+            message = aio_pika.Message(
+                body=envelope.serialize(),
+                correlation_id=correlation_id,
+                message_id=envelope.message_id,
+                reply_to=self.callback_queue.name,
+                type=routing_key,
+                delivery_mode=aio_pika.DeliveryMode.PERSISTENT,
+            )
+
+            await exchange.publish(message, routing_key=routing_key)
+
             return await asyncio.wait_for(future, timeout=timeout)
         except asyncio.TimeoutError:
+            logger.warning(
+                "[RabbitRpcClient] timeout routing_key=%s correlation_id=%s timeout=%ss",
+                routing_key,
+                correlation_id,
+                timeout,
+            )
             raise RPCTimeoutException(f"Timeout RPC tras {timeout}s esperando {routing_key}")
+        except Exception as exc:
+            logger.warning(
+                "[RabbitRpcClient] call failed routing_key=%s correlation_id=%s error=%s",
+                routing_key,
+                correlation_id,
+                exc,
+            )
+            raise
         finally:
+            if not future.done():
+                future.cancel()
             self.futures.pop(correlation_id, None)
             await self.close()
 
