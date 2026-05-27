@@ -1,5 +1,6 @@
 import grpc
 import logging
+import os
 import unicodedata
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -14,6 +15,7 @@ from app.models.docente import Docente
 # Clientes gRPC y Seguridad
 from app.messaging.clients.periodos_hybrid_client import periodos_client
 from app.messaging.clients.auth_hybrid_client import auth_client
+from app.messaging.clients.notificaciones_event_client import notificaciones_event_client
 from app.grpc.clients.notif_client import NotifClient
 from app.api.deps import role_required
 
@@ -21,6 +23,35 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 notif_client = NotifClient()
+
+
+async def _enviar_bienvenida_alumno(
+    alumno_id: str,
+    materia_id: str,
+    password_temporal: str,
+) -> None:
+    mode = os.getenv("COMMUNICATION_MODE", "hybrid").lower()
+
+    if mode == "grpc":
+        notif_client.enviar_bienvenida(alumno_id, materia_id, password_temporal)
+        return
+
+    try:
+        await notificaciones_event_client.publish_bienvenida_alumno(
+            alumno_id=alumno_id,
+            materia_id=materia_id,
+            password_temporal=password_temporal,
+        )
+        return
+    except Exception as exc:
+        logger.warning(
+            "[NotificacionesEventClient] RabbitMQ event publish failed, "
+            "falling back to gRPC: %s",
+            exc,
+        )
+
+    if mode != "rabbit":
+        notif_client.enviar_bienvenida(alumno_id, materia_id, password_temporal)
 
 def normalizar_texto(t):
     if not t: return ""
@@ -115,10 +146,10 @@ async def importar_alumnos_pdf(
                 #    Solo si MS-1 devolvió contraseña temporal; no inventamos una.
                 if temp_pass:
                     try:
-                        notif_client.enviar_bienvenida(
-                            alumno_id=nuevo_alumno.alumno_id,
-                            materia_id=m_id,
-                            password=temp_pass
+                        await _enviar_bienvenida_alumno(
+                            alumno_id=str(nuevo_alumno.alumno_id),
+                            materia_id=str(m_id),
+                            password_temporal=temp_pass,
                         )
                     except Exception as notif_err:
                         logger.warning(

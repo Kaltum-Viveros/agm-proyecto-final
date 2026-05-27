@@ -1,5 +1,7 @@
 import grpc
 import logging
+import asyncio
+import os
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
@@ -10,12 +12,73 @@ from app.repositories.alumno_repository import alumno_repository
 from app.db.session import get_db
 from app.api.deps import role_required, get_current_user
 from app.messaging.clients.auth_hybrid_client import auth_client
+from app.messaging.clients.notificaciones_event_client import notificaciones_event_client
 from app.grpc.clients.notif_client import NotifClient
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
 notif_client = NotifClient()
+
+
+async def _enviar_bienvenida_alumno(
+    alumno_id: str,
+    materia_id: str,
+    password_temporal: str,
+) -> None:
+    mode = os.getenv("COMMUNICATION_MODE", "hybrid").lower()
+
+    if mode == "grpc":
+        notif_client.enviar_bienvenida(alumno_id, materia_id, password_temporal)
+        return
+
+    try:
+        await notificaciones_event_client.publish_bienvenida_alumno(
+            alumno_id=alumno_id,
+            materia_id=materia_id,
+            password_temporal=password_temporal,
+        )
+        return
+    except Exception as exc:
+        logger.warning(
+            "[NotificacionesEventClient] RabbitMQ event publish failed, "
+            "falling back to gRPC: %s",
+            exc,
+        )
+
+    if mode != "rabbit":
+        notif_client.enviar_bienvenida(alumno_id, materia_id, password_temporal)
+
+
+def _enviar_baja_alumno(
+    alumno_id: str,
+    docente_id: str,
+    materia_id: str,
+) -> None:
+    mode = os.getenv("COMMUNICATION_MODE", "hybrid").lower()
+
+    if mode == "grpc":
+        notif_client.enviar_baja(alumno_id, docente_id, materia_id)
+        return
+
+    try:
+        asyncio.run(
+            notificaciones_event_client.publish_baja_alumno(
+                alumno_id=alumno_id,
+                docente_id=docente_id,
+                materia_id=materia_id,
+            )
+        )
+        return
+    except Exception as exc:
+        logger.warning(
+            "[NotificacionesEventClient] RabbitMQ event publish failed, "
+            "falling back to gRPC: %s",
+            exc,
+        )
+
+    if mode != "rabbit":
+        notif_client.enviar_baja(alumno_id, docente_id, materia_id)
 
 @router.post("/", response_model=AlumnoOut, status_code=status.HTTP_201_CREATED)
 async def create_alumno(
@@ -63,10 +126,10 @@ async def create_alumno(
     #    Solo si MS-1 devolvió contraseña temporal; no inventamos una local.
     if temp_pass:
         try:
-            notif_client.enviar_bienvenida(
-                alumno_id=nuevo_alumno.alumno_id,
+            await _enviar_bienvenida_alumno(
+                alumno_id=str(nuevo_alumno.alumno_id),
                 materia_id="",
-                password=temp_pass
+                password_temporal=temp_pass,
             )
         except Exception as notif_err:
             logger.warning(
@@ -147,7 +210,7 @@ def baja_alumno(
 
     # Notificar al docente vía MS-6
     try:
-        notif_client.enviar_baja(
+        _enviar_baja_alumno(
             alumno_id=str(alumno_id),
             docente_id=str(inscripcion.docente_id),
             materia_id=str(materia_id)

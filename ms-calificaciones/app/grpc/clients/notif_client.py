@@ -1,7 +1,10 @@
+import asyncio
+import os
 import grpc
 import logging
 from app.grpc.generated import notificaciones_pb2, notificaciones_pb2_grpc
 from app.core.config import settings
+from app.messaging.clients.notificaciones_event_client import notificaciones_event_client
 
 class NotifClient:
     def __init__(self):
@@ -18,6 +21,25 @@ class NotifClient:
         """
         Llama al MS-6 para enviar correos de cierre de actas a todos los alumnos de la materia.
         """
+        mode = os.getenv("COMMUNICATION_MODE", "hybrid").lower()
+
+        if mode != "grpc":
+            try:
+                asyncio.run(
+                    notificaciones_event_client.publish_cierre_materia(
+                        materia_id=str(materia_id),
+                    )
+                )
+                return True
+            except Exception as e:
+                logging.warning(
+                    "[NotificacionesEventClient] RabbitMQ event publish failed, "
+                    "falling back to gRPC: %s",
+                    e,
+                )
+                if mode == "rabbit":
+                    return False
+
         stub = self._get_stub()
         if not stub:
             return False
