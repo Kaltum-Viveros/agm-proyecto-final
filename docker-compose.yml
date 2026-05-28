@@ -394,6 +394,24 @@ services:
       - reportes_db
       - rabbitmq
 
+  api-gateway:
+    image: nginx:alpine
+    container_name: api-gateway
+    restart: always
+    ports:
+      - "80:80"
+    volumes:
+      - ./infra/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - ms-auth
+      - ms-periodos-materias
+      - ms-docentes-alumnos
+      - ms-calificaciones
+      - ms-asistencias
+      - ms-notificaciones
+      - ms-reportes
+
+
 volumes:
   auth_db_data:
   periodos_db_data:

@@ -72,3 +72,8 @@ app.include_router(notificaciones.router, prefix="/api/v1")
 @app.get("/")
 def root():
     return {"message": "Microservicio de Notificaciones funcionando"}
+
+@app.get("/health", tags=["Health"])
+def health_check():
+    return {"status": "ok", "service": settings.APP_NAME}
+
