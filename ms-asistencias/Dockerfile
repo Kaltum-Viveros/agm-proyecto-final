@@ -36,4 +36,4 @@ COPY ms-asistencias/tests ./tests
 EXPOSE 8005 50055
 
 # Comando por defecto para iniciar la API REST usando Gunicorn con workers de Uvicorn
-CMD ["gunicorn", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8005", "app.main:app"]
+CMD ["sh", "-c", "alembic upgrade head && python -m app.grpc_server.asistencias_server & gunicorn -w 4 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:8005 app.main:app"]

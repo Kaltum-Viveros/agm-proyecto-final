@@ -24,4 +24,4 @@ COPY ms-reportes/alembic.ini .
 # 50057 -> gRPC
 EXPOSE 8007 50057
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8007"]
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8007"]

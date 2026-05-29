@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     grpc_port: int = Field(default=50052, alias="GRPC_PORT")
 
     cors_allowed_origins: str = Field(
-        default="http://localhost:3000,http://localhost:5173,http://localhost:8000,http://localhost:4200",
+        default="http://localhost:3000,http://localhost:5173,http://localhost:8000,http://localhost:4200,https://agm-frontend-cdcd.onrender.com",
         alias="CORS_ALLOWED_ORIGINS",
     )
 

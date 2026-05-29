@@ -2,5 +2,4 @@
 __pycache__/
 .env
 .pytest_cache/
-alembic.ini
 *.pyc

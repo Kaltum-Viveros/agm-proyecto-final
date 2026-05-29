@@ -83,7 +83,7 @@ services:
       - GRPC_HOST=0.0.0.0
       - GRPC_PORT=50052
       - DATABASE_URL=postgresql+asyncpg://postgres:${PERIODOS_DB_PASSWORD}@periodos_db:5432/agm_periodos_db
-      - CORS_ALLOWED_ORIGINS=https://app.agm.com,https://api.agm.com
+      - CORS_ALLOWED_ORIGINS=https://agm-frontend-cdcd.onrender.com,https://api-gateway-production-0647.up.railway.app,https://app.agm.com,https://api.agm.com
       - MS_AUTH_GRPC_HOST=ms-auth
       - MS_AUTH_GRPC_PORT=50051
       - MS_DOCENTES_ALUMNOS_GRPC_HOST=ms-docentes-alumnos

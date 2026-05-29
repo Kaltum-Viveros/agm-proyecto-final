@@ -325,8 +325,8 @@ services:
       - DATABASE_URL=postgresql+psycopg://postgres:1234@notificaciones_db:5432/agm_notificaciones_db
       - SMTP_HOST=smtp.gmail.com
       - SMTP_PORT=587
-      - SMTP_USER=agm.notificaciones.pnzns@gmail.com
-      - SMTP_PASSWORD=qmpotoybedzoqlls
+      - SMTP_USER=${SMTP_USER:-tu_correo@gmail.com}
+      - SMTP_PASSWORD=${SMTP_PASSWORD:-tu_app_password}
       - RABBITMQ_URL=amqp://agm:agm_password@rabbitmq:5672/
       - RABBITMQ_EXCHANGE_RPC=agm.rpc
       - RABBITMQ_EXCHANGE_EVENTS=agm.events
