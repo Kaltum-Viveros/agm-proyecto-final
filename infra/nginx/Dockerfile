@@ -1,4 +1,10 @@
 FROM nginx:alpine
-COPY nginx.conf /etc/nginx/nginx.conf
+
+COPY infra/nginx/nginx.prod.conf /etc/nginx/nginx.conf
+COPY infra/nginx/entrypoint.sh /entrypoint.sh
+
+RUN chmod +x /entrypoint.sh
+
 EXPOSE 80
-CMD ["nginx", "-g", "daemon off;"]
+
+ENTRYPOINT ["/entrypoint.sh"]

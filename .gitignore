@@ -71,3 +71,8 @@ test.db
 dist/
 build/
 *.egg-info/
+
+# =========================
+# BACKUPS Y PRIVADOS
+# =========================
+railway-backup-private/
