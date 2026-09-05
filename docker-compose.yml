@@ -98,7 +98,7 @@ services:
       - GRPC_HOST=0.0.0.0
       - GRPC_PORT=50052
       - DATABASE_URL=postgresql+asyncpg://postgres:postgres@periodos_db:5432/agm_periodos_db
-      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:8000
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:5173,http://localhost:8000,http://localhost:4200
       - MS_AUTH_GRPC_HOST=ms-auth
       - MS_AUTH_GRPC_PORT=50051
       - MS_DOCENTES_ALUMNOS_GRPC_HOST=ms-docentes-alumnos
@@ -323,16 +323,14 @@ services:
       - GRPC_HOST=0.0.0.0
       - GRPC_PORT=50056
       - DATABASE_URL=postgresql+psycopg://postgres:1234@notificaciones_db:5432/agm_notificaciones_db
-      - SMTP_HOST=smtp.gmail.com
-      - SMTP_PORT=587
-      - SMTP_USER=${SMTP_USER:-tu_correo@gmail.com}
-      - SMTP_PASSWORD=${SMTP_PASSWORD:-tu_app_password}
       - RABBITMQ_URL=amqp://agm:agm_password@rabbitmq:5672/
       - RABBITMQ_EXCHANGE_RPC=agm.rpc
       - RABBITMQ_EXCHANGE_EVENTS=agm.events
       - RABBITMQ_EXCHANGE_DLX=agm.dlx
       - RABBITMQ_RPC_TIMEOUT_SECONDS=5
       - COMMUNICATION_MODE=hybrid
+    env_file:
+      - ms-notificaciones/.env
     depends_on:
       - notificaciones_db
       - rabbitmq
